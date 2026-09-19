@@ -1,0 +1,14 @@
+---
+description: API security, time, and persistence rules
+globs: apps/api/**/*.ts
+alwaysApply: false
+---
+
+# API
+
+- Validate auth and role on the server for every protected route.
+- Daily-work window and lock use server time + company timezone, never `Date` from the client.
+- After `submitted_at` is set, reject content updates at the service/model layer.
+- Persist chat messages in Supabase Postgres before emitting Socket.IO events. Do not persist typing indicators.
+- Avatars go through Supabase Storage via the API service role. Never ship `SUPABASE_SERVICE_ROLE_KEY` to the web app.
+- Return `{ error: { code, message } }` via `AppError`. Do not leak stack traces.

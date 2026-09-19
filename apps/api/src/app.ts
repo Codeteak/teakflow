@@ -1,0 +1,35 @@
+import cors from 'cors';
+import express from 'express';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import { env } from './config/env';
+import { errorHandler } from './middlewares/errorHandler/index';
+import { apiRateLimit } from './middlewares/rateLimit/index';
+import { apiPrefix, router } from './routes/index';
+
+export const app = express();
+
+app.set('trust proxy', 1);
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        'img-src': ["'self'", 'data:', 'blob:', 'https:'],
+        'media-src': ["'self'", 'https:'],
+        'frame-src': ["'self'", 'https://res.cloudinary.com'],
+      },
+    },
+  }),
+);
+app.use(
+  cors({
+    origin: env.CLIENT_ORIGIN,
+    credentials: true,
+  }),
+);
+app.use(express.json({ limit: '256kb' }));
+app.use(cookieParser());
+app.use(apiPrefix, apiRateLimit, router);
+app.use(errorHandler);

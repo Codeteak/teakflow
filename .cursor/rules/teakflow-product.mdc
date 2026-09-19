@@ -1,0 +1,15 @@
+---
+description: Teakflow product philosophy and monorepo conventions
+alwaysApply: true
+---
+
+# Teakflow
+
+Internal daily-work + chat + Google Meet app. Docs: `docs/`.
+
+- Read `docs/` first. Spec: `docs/spec.md`. Tasks: `docs/TASKS.md`. UI: `docs/THEME.md`.
+- Stay on the next unchecked task in `docs/TASKS.md`. Do not invent project-management or surveillance features.
+- Daily work: one entry per user per date, server-time submission window, own notebook editable same work date after submit, no copy-from-yesterday.
+- Shared types and enums live in `packages/shared`. API is `/api/v1`.
+- Use pnpm and Turborepo. Web in `apps/web`, API in `apps/api`.
+- Storage is Supabase Postgres + Storage. Redis is local and optional.

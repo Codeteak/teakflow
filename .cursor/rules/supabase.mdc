@@ -1,0 +1,14 @@
+---
+description: Supabase is the only data and file store
+globs: "{apps,packages}/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Supabase
+
+Postgres and file storage are Supabase. Do not add another database or S3-compatible store.
+
+- Sequelize uses `DATABASE_URL` with SSL. Session pooler (5432) or direct connection only.
+- Storage uploads use `supabaseAdmin` on the API. Web may use the anon client for public URLs.
+- Daily work reports stay in Postgres text columns, never in Storage.
+- Never commit or expose `SUPABASE_SERVICE_ROLE_KEY` to `apps/web`.

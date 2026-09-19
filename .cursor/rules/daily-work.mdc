@@ -1,0 +1,14 @@
+---
+description: Daily work immutability and editor constraints
+globs: "**/*{dailyWork,daily-work,DailyWork}*"
+alwaysApply: false
+---
+
+# Daily work
+
+Employee flow: locked → open window → type → submit → editable until window ends → locked.
+
+- After submit, the notebook stays editable for that work date (company timezone) until the next day.
+- Past days are read-only. `PATCH /daily-work/today` only for your own today entry.
+- Editor: no paste, cut, drop, templates, or previous-report import.
+- Statuses: PENDING, SUBMITTED, LATE, MISSED. Revalidate the window on submit and update.

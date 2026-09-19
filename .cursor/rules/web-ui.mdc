@@ -1,0 +1,21 @@
+---
+description: Quiet Desk UI rules for the web app
+globs: apps/web/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# Web UI
+
+Follow `docs/THEME.md`. Paper background, cream surfaces, ink text, primary accent `#FC4903` only.
+
+```tsx
+// ❌ BAD
+<div className="bg-gradient-to-r from-violet-500 to-indigo-500 shadow-2xl animate-bounce">
+
+// ✅ GOOD
+<section className="rounded-lg border border-line bg-surface p-5">
+```
+
+- Transitions 160ms. No page-load animations.
+- `components/ui` primitives only. Do not add another component library.
+- Daily work is a writing surface. Chat is a conversation surface. Home is not a dashboard.

@@ -1,0 +1,30 @@
+{
+  "name": "teakflow",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "redis:up": "docker compose up -d redis meilisearch",
+    "redis:down": "docker compose down",
+    "meili:up": "docker compose up -d meilisearch",
+    "seed": "pnpm --filter @teakflow/api seed",
+    "kill:ports": "bash scripts/kill-dev-ports.sh",
+    "kill:web": "bash scripts/kill-dev-ports.sh 5173",
+    "kill:api": "bash scripts/kill-dev-ports.sh 3005"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,13 @@
+---
+description: Keep shared contracts as the single source of truth
+globs: packages/shared/**/*.ts
+alwaysApply: false
+---
+
+# Shared package
+
+`@teakflow/shared` owns enums, DTO types, and Zod schemas for both apps.
+
+- If web and api need the same union or payload, add it here first.
+- Do not weaken daily-work min/max or role unions to make a UI shortcut easier.
+- Export from `src/index.ts` only after the type or schema is used by a real feature.

@@ -1,0 +1,16 @@
+---
+description: Read all docs before writing any code
+alwaysApply: true
+---
+
+# Read docs first
+
+Before answering or editing Teakflow code, read every file in `docs/` in this order:
+
+1. `docs/README.md`
+2. `docs/AGENTS.md`
+3. `docs/spec.md`
+4. `docs/THEME.md`
+5. `docs/TASKS.md`
+
+Do not invent features missing from `docs/spec.md`. Implement the next unchecked item in `docs/TASKS.md`. Put new documentation in `docs/`, not the repo root.

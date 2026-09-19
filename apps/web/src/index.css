@@ -1,0 +1,739 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --color-paper: #f4f1eb;
+  --color-surface: #fcfaf6;
+  --color-ink: #1b1a17;
+  --color-muted: #6f6b64;
+  --color-line: #e6e1d8;
+  --color-sage: #fc4903;
+  --color-sage-hover: #e04103;
+  --color-sage-soft: #ffe6dc;
+  --color-amber: #9a6b2f;
+  --color-amber-soft: #f4ead8;
+  --color-rose: #a24b3d;
+  --color-rose-soft: #f4e3df;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+--mobile-nav-offset: calc(4.75rem + env(safe-area-inset-bottom));
+
+@media (min-width: 768px) {
+  :root {
+    --mobile-nav-offset: 0px;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+}
+
+html,
+body,
+#root {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  transition:
+    background-color 160ms var(--ease-out-soft),
+    color 160ms var(--ease-out-soft),
+    border-color 160ms var(--ease-out-soft),
+    opacity 160ms var(--ease-out-soft),
+    transform 160ms var(--ease-out-soft);
+}
+
+button,
+a,
+label[for],
+summary,
+select,
+[role='button'],
+[role='tab'],
+[role='menuitem'],
+[role='option'],
+[role='link'],
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
+input[type='checkbox'],
+input[type='radio'],
+input[type='file'],
+input[type='image'] {
+  cursor: pointer;
+}
+
+button:disabled,
+a[aria-disabled='true'],
+select:disabled,
+input:disabled,
+[aria-disabled='true'] {
+  cursor: default;
+}
+
+::selection {
+  background: var(--color-sage-soft);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+}
+
+.chat-pill-input:focus,
+.chat-pill-input:focus-visible,
+.global-search-input:focus,
+.global-search-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+@keyframes toast-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.toast-progress-bar {
+  animation: toast-progress 1.1s linear infinite;
+}
+
+@keyframes skeleton-fade {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes loading-ui-typing {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+}
+
+.skeleton {
+  animation: skeleton-fade 1.2s var(--ease-out-soft) infinite;
+}
+
+.notebook-page {
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--color-line) 31px,
+    var(--color-line) 32px
+  );
+  background-attachment: local;
+}
+
+/* The leaves are absolutely positioned so they can stack while a page turns,
+   so the stage keeps a floor height instead of being sized by its content. */
+.notebook-page-stage {
+  perspective: 2200px;
+  perspective-origin: left center;
+  min-height: 20rem;
+}
+
+.notebook-page-stack {
+  pointer-events: none;
+  position: absolute;
+  inset: 12px 10px 8px 14px;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--color-line) 31px,
+    var(--color-line) 32px
+  );
+}
+
+.notebook-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.notebook-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--color-line) 31px,
+    var(--color-line) 32px
+  );
+}
+
+.notebook-face-front {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.notebook-face::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2.75rem;
+  width: 1px;
+  background: var(--color-sage);
+  opacity: 0.35;
+}
+
+.notebook-face-back {
+  transform: rotateY(180deg);
+}
+
+.notebook-face-back::before {
+  left: auto;
+  right: 2.75rem;
+}
+
+.notebook-face-back::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to left, rgb(27 26 23 / 0.14), rgb(27 26 23 / 0) 45%);
+}
+
+/* Turning back, the sheet coming down is the live editable page, which must not
+   remount. A CSS animation applies its start frame the moment the class lands,
+   so the sheet is already standing at the spine on the first painted frame. */
+.notebook-leaf-fall {
+  animation: notebook-page-fall var(--notebook-flip) cubic-bezier(0.42, 0.02, 0.3, 1) both;
+}
+
+.notebook-leaf-fall .notebook-leaf-shade {
+  animation: notebook-page-unshade var(--notebook-flip) linear both;
+}
+
+@keyframes notebook-page-fall {
+  from {
+    transform: rotateY(-180deg);
+  }
+  to {
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes notebook-page-unshade {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.notebook-leaf-shade {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(
+    to right,
+    rgb(27 26 23 / 0.32),
+    rgb(27 26 23 / 0.08) 26%,
+    rgb(27 26 23 / 0) 55%
+  );
+}
+
+.notebook-cast-shadow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  opacity: 0;
+  transform-origin: left center;
+  background: linear-gradient(to right, rgb(27 26 23 / 0.34), rgb(27 26 23 / 0) 72%);
+}
+
+.notebook-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.notebook-write {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  resize: none;
+  border: 0;
+  background: transparent;
+  padding: 0 1.25rem 1.5rem 3.5rem;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 32px;
+  outline: none;
+  user-select: text;
+}
+
+.notebook-write-rich {
+  position: relative;
+  white-space: pre-wrap;
+  word-break: break-word;
+  counter-reset: note-n;
+}
+
+.notebook-write-rich > div {
+  margin: 0;
+  min-height: 32px;
+  line-height: 32px;
+}
+
+/* Overlay the first ruled line — do not put ::before in document flow or the
+   real caret sits on a second visual line under the placeholder. */
+.notebook-write-rich[data-empty='true']:before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 0;
+  right: 1.25rem;
+  left: 3.5rem;
+  color: var(--color-muted);
+  pointer-events: none;
+  white-space: pre-wrap;
+  line-height: 32px;
+}
+
+.notebook-write-rich:focus {
+  outline: none;
+}
+
+.notebook-edit-bullet,
+.notebook-edit-number {
+  position: relative;
+  padding-left: 1.1rem;
+}
+
+.notebook-edit-bullet::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-sage);
+}
+
+.notebook-edit-number::before {
+  content: counter(note-n) '.';
+  position: absolute;
+  left: 0;
+  color: var(--color-sage);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.notebook-edit-number {
+  counter-increment: note-n;
+}
+
+.notebook-color-sage {
+  color: var(--color-sage);
+}
+
+.notebook-color-amber {
+  color: var(--color-amber);
+}
+
+.notebook-color-rose {
+  color: var(--color-rose);
+}
+
+.notebook-color-muted {
+  color: var(--color-muted);
+}
+
+.notebook-read {
+  margin: 0;
+  padding: 0 1.25rem 1.5rem 3.5rem;
+  font-size: 1rem;
+  line-height: 32px;
+  white-space: pre-wrap;
+}
+
+.notebook-read-wrap {
+  padding: 0 1.25rem 1.5rem 3.5rem;
+}
+
+.notebook-read-line {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 32px;
+}
+
+.notebook-rule {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 32px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgb(27 26 23 / 0.32);
+}
+
+.notebook-rule hr {
+  display: none;
+}
+
+.notebook-heading {
+  margin: 0;
+  padding: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+}
+
+.notebook-subheading {
+  margin: 0;
+  padding: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.notebook-description {
+  margin: 0;
+  padding: 0;
+  color: var(--color-muted);
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 32px;
+}
+
+.notebook-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notebook-list li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: 1rem;
+  line-height: 32px;
+}
+
+.notebook-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--color-sage);
+}
+
+.notebook-list-numbered {
+  counter-reset: note;
+}
+
+.notebook-list-numbered li::before {
+  counter-increment: note;
+  content: counter(note) '.';
+  color: var(--color-sage);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* Quiet Desk syntax highlighting (highlight.js tokens) */
+.chat-code-hl {
+  color: var(--color-ink);
+}
+
+.chat-code-hl .hljs-comment,
+.chat-code-hl .hljs-quote {
+  color: #8a857c;
+  font-style: italic;
+}
+
+.chat-code-hl .hljs-keyword,
+.chat-code-hl .hljs-selector-tag,
+.chat-code-hl .hljs-literal,
+.chat-code-hl .hljs-section,
+.chat-code-hl .hljs-link {
+  color: #c2410c;
+}
+
+.chat-code-hl .hljs-built_in,
+.chat-code-hl .hljs-type,
+.chat-code-hl .hljs-class .hljs-title,
+.chat-code-hl .hljs-title.class_ {
+  color: #9a6b2f;
+}
+
+.chat-code-hl .hljs-string,
+.chat-code-hl .hljs-doctag,
+.chat-code-hl .hljs-template-tag,
+.chat-code-hl .hljs-template-variable,
+.chat-code-hl .hljs-addition {
+  color: #2f7d57;
+}
+
+.chat-code-hl .hljs-number,
+.chat-code-hl .hljs-bullet,
+.chat-code-hl .hljs-symbol,
+.chat-code-hl .hljs-meta,
+.chat-code-hl .hljs-meta .hljs-string {
+  color: #a24b3d;
+}
+
+.chat-code-hl .hljs-attr,
+.chat-code-hl .hljs-attribute,
+.chat-code-hl .hljs-variable,
+.chat-code-hl .hljs-params,
+.chat-code-hl .hljs-regexp {
+  color: #3b6ea5;
+}
+
+.chat-code-hl .hljs-title,
+.chat-code-hl .hljs-title.function_,
+.chat-code-hl .hljs-name {
+  color: #1d4f91;
+}
+
+.chat-code-hl .hljs-tag,
+.chat-code-hl .hljs-punctuation,
+.chat-code-hl .hljs-subst {
+  color: #4a4640;
+}
+
+.chat-code-hl .hljs-deletion {
+  color: #a24b3d;
+  background: #f4e3df;
+}
+
+.chat-code-hl-dark {
+  color: #f4f1eb;
+}
+
+.chat-code-hl-dark .hljs-comment,
+.chat-code-hl-dark .hljs-quote {
+  color: #8a857c;
+  font-style: italic;
+}
+
+.chat-code-hl-dark .hljs-keyword,
+.chat-code-hl-dark .hljs-selector-tag,
+.chat-code-hl-dark .hljs-literal,
+.chat-code-hl-dark .hljs-section,
+.chat-code-hl-dark .hljs-link {
+  color: #ff8a5c;
+}
+
+.chat-code-hl-dark .hljs-built_in,
+.chat-code-hl-dark .hljs-type,
+.chat-code-hl-dark .hljs-class .hljs-title,
+.chat-code-hl-dark .hljs-title.class_ {
+  color: #e0b56a;
+}
+
+.chat-code-hl-dark .hljs-string,
+.chat-code-hl-dark .hljs-doctag,
+.chat-code-hl-dark .hljs-template-tag,
+.chat-code-hl-dark .hljs-template-variable,
+.chat-code-hl-dark .hljs-addition {
+  color: #7dcea0;
+}
+
+.chat-code-hl-dark .hljs-number,
+.chat-code-hl-dark .hljs-bullet,
+.chat-code-hl-dark .hljs-symbol,
+.chat-code-hl-dark .hljs-meta,
+.chat-code-hl-dark .hljs-meta .hljs-string {
+  color: #e8a090;
+}
+
+.chat-code-hl-dark .hljs-attr,
+.chat-code-hl-dark .hljs-attribute,
+.chat-code-hl-dark .hljs-variable,
+.chat-code-hl-dark .hljs-params,
+.chat-code-hl-dark .hljs-regexp {
+  color: #7eb6e8;
+}
+
+.chat-code-hl-dark .hljs-title,
+.chat-code-hl-dark .hljs-title.function_,
+.chat-code-hl-dark .hljs-name {
+  color: #9ec5ff;
+}
+
+.chat-code-hl-dark .hljs-tag,
+.chat-code-hl-dark .hljs-punctuation,
+.chat-code-hl-dark .hljs-subst {
+  color: #c9c4bb;
+}
+
+.chat-md-preview h1,
+.chat-md-preview h2,
+.chat-md-preview h3,
+.chat-md-preview h4 {
+  margin: 0.85em 0 0.4em;
+  font-weight: 650;
+  line-height: 1.25;
+  color: inherit;
+}
+
+.chat-md-preview h1 {
+  font-size: 1.35em;
+}
+
+.chat-md-preview h2 {
+  font-size: 1.2em;
+}
+
+.chat-md-preview h3 {
+  font-size: 1.08em;
+}
+
+.chat-md-preview p {
+  margin: 0.55em 0;
+}
+
+.chat-md-preview ul,
+.chat-md-preview ol {
+  margin: 0.55em 0;
+  padding-left: 1.35em;
+}
+
+.chat-md-preview li + li {
+  margin-top: 0.2em;
+}
+
+.chat-md-preview blockquote {
+  margin: 0.7em 0;
+  border-left: 3px solid color-mix(in srgb, var(--color-sage, #6b7f6a) 55%, transparent);
+  padding-left: 0.85em;
+  color: color-mix(in srgb, currentColor 72%, transparent);
+}
+
+.chat-md-preview a {
+  color: var(--color-sage, #6b7f6a);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chat-md-preview code {
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  padding: 0.1em 0.35em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.chat-md-preview pre {
+  margin: 0.75em 0;
+  overflow-x: auto;
+  border-radius: 0.4rem;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+  padding: 0.75em 0.9em;
+}
+
+.chat-md-preview pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.82em;
+}
+
+.chat-md-preview table {
+  width: 100%;
+  margin: 0.75em 0;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.chat-md-preview th,
+.chat-md-preview td {
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  padding: 0.4em 0.55em;
+  text-align: left;
+}
+
+.chat-md-preview th {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  font-weight: 600;
+}
+
+.chat-md-preview hr {
+  margin: 1em 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.chat-md-preview img {
+  max-width: 100%;
+  border-radius: 0.35rem;
+}
+
+.chat-md-preview-dark a {
+  color: #9fba9a;
+}
+
+.chat-md-preview-dark code,
+.chat-md-preview-dark pre,
+.chat-md-preview-dark th {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chat-md-preview-dark th,
+.chat-md-preview-dark td,
+.chat-md-preview-dark pre,
+.chat-md-preview-dark hr {
+  border-color: rgba(255, 255, 255, 0.12);
+}

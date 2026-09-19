@@ -1,0 +1,75 @@
+import { useEffect, useState } from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { meRequest } from '@/features/auth/api';
+import { consumeLoggedOutFlag, useAuthStore } from '@/store/auth';
+
+const ACCESS_REFRESH_MS = 2.5 * 60 * 60 * 1000;
+
+export function RequireAuth() {
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const [ready, setReady] = useState(Boolean(user));
+
+  useEffect(() => {
+    if (user) {
+      setReady(true);
+      return;
+    }
+
+    if (consumeLoggedOutFlag()) {
+      setReady(true);
+      return;
+    }
+
+    let cancelled = false;
+
+    meRequest()
+      .then((session) => {
+        if (!cancelled) {
+          setUser(session);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setUser(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setReady(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setUser, user]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    const keepAlive = () => {
+      void meRequest().catch(() => undefined);
+      void fetch('/api/v1/auth/refresh', { method: 'POST', credentials: 'include' });
+    };
+    const timer = window.setInterval(keepAlive, ACCESS_REFRESH_MS);
+    const accessCheck = window.setInterval(() => {
+      void meRequest().catch(() => undefined);
+    }, 15_000);
+    return () => {
+      window.clearInterval(timer);
+      window.clearInterval(accessCheck);
+    };
+  }, [user]);
+
+  if (!ready) {
+    return <div className="min-h-dvh bg-paper" />;
+  }
+
+  if (!useAuthStore.getState().user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+}
