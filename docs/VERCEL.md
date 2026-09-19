@@ -28,11 +28,13 @@ GOOGLE_REDIRECT_URI=https://YOUR-RAILWAY-DOMAIN.up.railway.app/api/v1/auth/googl
 2. Prefer **Root Directory = repository root** (leave blank). Use the root `vercel.json` (`outputDirectory`: `apps/web/dist`).
 3. Or set **Root Directory = `apps/web`** and use `apps/web/vercel.json` (`outputDirectory`: `dist`).
 4. In **Project Settings → General → Build & Output Settings**:
+   - Framework Preset: **Vite** (not “Other” — “Other” can ignore SPA rewrites)
    - Clear any Output Directory override of `public`
    - Output Directory must be `apps/web/dist` (repo root) or `dist` (if root is `apps/web`)
-   - Framework Preset: **Other** (not Create React App)
 
 Build already emits Vite’s `dist/` folder — not `public/`.
+
+Do not set `"framework": null` in `vercel.json`; that maps to “Other” and can break `/login` rewrites.
 
 ## 4. Vercel environment variables
 
@@ -56,6 +58,8 @@ Both are required. If `VITE_API_URL` is missing, the browser posts to
 Click **Deploy**. Open the Vercel URL, sign in, confirm chat sockets connect (browser Network → WS to Railway).
 
 `vercel.json` must rewrite all routes to `index.html` (`"source": "/(.*)"`). Without that, hard refresh on `/login` (or any path) shows Vercel’s **404 NOT_FOUND** page. Existing files under `/assets/` are still served as static files.
+
+In the Vercel dashboard, set **Framework Preset = Vite**. “Other” / `"framework": null` can ignore SPA rewrites ([Vercel 404 guide](https://vercel.com/kb/guide/vercel-404-error)).
 
 ## 6. Sync origins
 

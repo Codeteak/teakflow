@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { meRequest } from '@/features/auth/api';
+import { LoginPage } from '@/pages/Login';
 import { apiUrl } from '@/services/api/baseUrl';
 import { consumeLoggedOutFlag, useAuthStore } from '@/store/auth';
 
@@ -69,7 +70,9 @@ export function RequireAuth() {
   }
 
   if (!useAuthStore.getState().user) {
-    return <Navigate to="/login" replace />;
+    // Stay on `/` (or the deep link) so Vercel hard-refresh does not hit `/login`
+    // before SPA rewrites are applied. `/login` remains available as an alias.
+    return <LoginPage />;
   }
 
   return <Outlet />;

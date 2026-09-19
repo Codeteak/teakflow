@@ -65,7 +65,7 @@ export function SettingsPage() {
       // Still clear the local session even if the network call fails.
     }
     clearSession();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   }
 
   async function onAvatar(files: FileList | null) {
