@@ -17,6 +17,6 @@ export const baseConfig = tseslint.config(
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', '.turbo/**'],
+    ignores: ['dist/**', 'dev-dist/**', 'node_modules/**', '.turbo/**', 'coverage/**'],
   },
 );

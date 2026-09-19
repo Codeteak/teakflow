@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { AppError, errorHandler } from './index';
 import type { Request, Response } from 'express';
-import { ZodError, z } from 'zod';
+import { z, type ZodError } from 'zod';
 
 function mockRes() {
   const res = {

@@ -25,6 +25,7 @@ coverage/
 .vite/
 apps/*/.vite/
 apps/*/dist/
+apps/*/dev-dist/
 packages/*/dist/
 
 # Logs & debug

@@ -1,4 +1,4 @@
-import { AUDIT_ACTION } from '@teakflow/shared';
+import type { AUDIT_ACTION } from '@teakflow/shared';
 import { AuditLog } from '../../models/auditLog';
 import { User } from '../../models/user';
 

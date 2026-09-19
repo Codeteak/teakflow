@@ -1,13 +1,12 @@
-import { createServer } from 'node:http';
+import type { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { SOCKET_EVENTS } from '@teakflow/shared';
+import { SOCKET_EVENTS, PRESENCE_STATUS, type PresenceStatus } from '@teakflow/shared';
 import { env } from '../config/env';
 import { ConversationMember } from '../models/conversationMember';
 import { ACCESS_COOKIE, getSessionUser, readSession } from '../services/auth/index';
 import type { LinkPreview, StoredFile } from '@teakflow/shared';
 import { createMessage } from '../services/chat/index';
 import { AppError } from '../middlewares/errorHandler/index';
-import { PRESENCE_STATUS, type PresenceStatus } from '@teakflow/shared';
 import { markUserOffline, markUserOnline, setIo, setUserPresence } from './bus';
 
 function cookieValue(header: string | undefined, name: string) {

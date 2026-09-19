@@ -1,4 +1,4 @@
-import { STORAGE_BUCKETS, fileKindFrom } from '@teakflow/shared';
+import { fileKindFrom, type STORAGE_BUCKETS } from '@teakflow/shared';
 import type { StoredFile } from '@teakflow/shared';
 import type { UploadApiResponse } from 'cloudinary';
 import { cloudinary } from '../config/cloudinary';

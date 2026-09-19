@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, extend, useFrame, type ThreeEvent } from '@react-three/fiber';
 import { Environment, Lightformer, useGLTF, useTexture } from '@react-three/drei';

@@ -63,7 +63,7 @@ function extractMultilineEnvValue(filePath: string, key: string) {
   if (start < 0) {
     return '';
   }
-  let rest = text.slice(start + token.length);
+  const rest = text.slice(start + token.length);
   if (rest.startsWith('{')) {
     const end = rest.indexOf('\nGOOGLE_');
     const block = (end >= 0 ? rest.slice(0, end) : rest).trim();

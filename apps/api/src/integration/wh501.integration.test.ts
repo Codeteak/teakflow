@@ -18,6 +18,8 @@ vi.mock('../config/redis', () => ({
 }));
 
 vi.mock('../services/auth/index', async (importOriginal) => {
+  // Vitest importOriginal typing requires inline `typeof import(...)`.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- module shape for mock
   const actual = await importOriginal<typeof import('../services/auth/index')>();
   return {
     ...actual,
