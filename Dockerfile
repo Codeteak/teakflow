@@ -1,7 +1,7 @@
 # Teakflow API — production image
 # Postgres stays on Supabase. Redis/Meilisearch are optional sidecars (`pnpm redis:up`).
 
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@11.22.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -16,7 +16,7 @@ COPY apps/api apps/api
 COPY packages packages
 RUN pnpm --filter @teakflow/api build
 
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN corepack enable && corepack prepare pnpm@11.22.0 --activate \
