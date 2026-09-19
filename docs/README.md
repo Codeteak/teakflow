@@ -16,3 +16,4 @@ Do not skip files. Do not invent features that are not in `spec.md`. Work the ne
 
 - `docs/SALES_DRIVE.md` — yearly payment workbook in Drive (accounts/audit)
 - `docs/sales-shops-example.csv` — shop directory bulk upsert example (`ID,SHOP NAME,PLACE`)
+- `docs/VERCEL.md` — host the web app on Vercel (API on Railway)

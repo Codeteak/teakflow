@@ -1,4 +1,5 @@
 import { collectionPeriod } from '@teakflow/shared';
+import { apiUrl } from '@/services/api/baseUrl';
 import { apiRequest } from '@/services/api/client';
 import type {
   SalesDashboard,
@@ -109,7 +110,7 @@ export function deleteShopRequest(shopId: string) {
 }
 
 export async function fetchShopTemplateCsv() {
-  const response = await fetch('/api/v1/sales/shops/template.csv', {
+  const response = await fetch(apiUrl('/sales/shops/template.csv'), {
     credentials: 'include',
   });
   if (!response.ok) {
@@ -128,7 +129,7 @@ export async function fetchSalesCsv(
   if (filters?.salesmanId) q.set('salesmanId', filters.salesmanId);
   const path = kind === 'export' ? '/sales/export.csv' : '/sales/summary.csv';
   const qs = q.toString();
-  const response = await fetch(`/api/v1${path}${qs ? `?${qs}` : ''}`, {
+  const response = await fetch(`${apiUrl(path)}${qs ? `?${qs}` : ''}`, {
     credentials: 'include',
   });
   if (!response.ok) {

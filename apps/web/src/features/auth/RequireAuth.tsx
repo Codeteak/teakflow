@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { meRequest } from '@/features/auth/api';
+import { apiUrl } from '@/services/api/baseUrl';
 import { consumeLoggedOutFlag, useAuthStore } from '@/store/auth';
 
 const ACCESS_REFRESH_MS = 2.5 * 60 * 60 * 1000;
@@ -51,7 +52,7 @@ export function RequireAuth() {
     }
     const keepAlive = () => {
       void meRequest().catch(() => undefined);
-      void fetch('/api/v1/auth/refresh', { method: 'POST', credentials: 'include' });
+      void fetch(apiUrl('/auth/refresh'), { method: 'POST', credentials: 'include' });
     };
     const timer = window.setInterval(keepAlive, ACCESS_REFRESH_MS);
     const accessCheck = window.setInterval(() => {

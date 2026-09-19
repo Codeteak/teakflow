@@ -17,10 +17,15 @@ export const SESSION_COOKIE = ACCESS_COOKIE;
 export const ACCESS_MAX_AGE_MS = 3 * 60 * 60 * 1000;
 export const REFRESH_MAX_AGE_MS = 31 * 24 * 60 * 60 * 1000;
 
+const crossSiteFrontend =
+  env.NODE_ENV === 'production' &&
+  !/localhost|127\.0\.0\.1/i.test(env.CLIENT_ORIGIN);
+
 const baseCookie: CookieOptions = {
   httpOnly: true,
-  sameSite: 'lax',
-  secure: env.NODE_ENV === 'production',
+  // Vercel (frontend) + Railway (API) need cross-site cookies.
+  sameSite: crossSiteFrontend ? 'none' : 'lax',
+  secure: crossSiteFrontend || env.NODE_ENV === 'production',
   path: '/',
 };
 
@@ -150,8 +155,8 @@ export async function revokeRefreshToken(refreshToken: string | undefined) {
 export function clearAuthCookies(res: Response) {
   const clearOptions: CookieOptions = {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: env.NODE_ENV === 'production',
+    sameSite: crossSiteFrontend ? 'none' : 'lax',
+    secure: crossSiteFrontend || env.NODE_ENV === 'production',
     path: '/',
   };
   res.clearCookie(ACCESS_COOKIE, clearOptions);

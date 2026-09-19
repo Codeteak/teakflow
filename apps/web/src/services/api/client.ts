@@ -1,5 +1,6 @@
 import { isBrowserOnline, readOfflineCache, writeOfflineCache } from '@/lib/offlineCache';
 import { markRestricted, useAuthStore } from '@/store/auth';
+import { apiUrl } from '@/services/api/baseUrl';
 
 type ApiErrorBody = {
   error?: {
@@ -36,7 +37,7 @@ export class ApiError extends Error {
 
 async function refreshSession() {
   if (!refreshInFlight) {
-    refreshInFlight = fetch('/api/v1/auth/refresh', {
+    refreshInFlight = fetch(apiUrl('/auth/refresh'), {
       method: 'POST',
       credentials: 'include',
     })
@@ -68,7 +69,7 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
   }
 
   const send = () =>
-    fetch(`/api/v1${path}`, {
+    fetch(apiUrl(path), {
       credentials: 'include',
       ...init,
       headers,
