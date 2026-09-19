@@ -69,3 +69,11 @@ VITE_SOCKET_URL=http://localhost:3005
 ```
 
 Vite’s `/api` proxy is unchanged for `pnpm dev`.
+
+## Troubleshoot “Request failed” on Vercel
+
+1. Open `https://YOUR-RAILWAY-DOMAIN.up.railway.app/api/v1/health`.
+2. You need `"database": true`. If `"database": false`, login and all API writes fail with 500.
+3. On Railway, set `DATABASE_URL` to the **Session pooler** string from Supabase (host like `….pooler.supabase.com`, port **5432**). Do not use the transaction pooler (6543). Direct `db.…supabase.co` often fails from Railway.
+4. Confirm `CLIENT_ORIGIN=https://YOUR-VERCEL-DOMAIN.vercel.app` (no trailing slash).
+5. Redeploy the API after env changes.

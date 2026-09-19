@@ -13,6 +13,9 @@ app.set('trust proxy', 1);
 
 app.use(
   helmet({
+    // Vercel frontend → Railway API is cross-origin; default same-origin CORP
+    // makes browsers report "Failed to fetch" even when CORS allows the origin.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
