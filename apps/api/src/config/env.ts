@@ -4,9 +4,11 @@ import { fileURLToPath } from 'node:url';
 import { config as loadEnv } from 'dotenv';
 import { z } from 'zod';
 
-const configDir = path.dirname(fileURLToPath(import.meta.url));
-const apiRoot = path.resolve(configDir, '../..');
-const workspaceRoot = path.resolve(configDir, '../../..');
+const here = path.dirname(fileURLToPath(import.meta.url));
+// tsc emit lives in dist/config; esbuild bundle is dist/index.js
+const bundled = path.basename(here) === 'dist';
+const apiRoot = bundled ? path.resolve(here, '..') : path.resolve(here, '../..');
+const workspaceRoot = bundled ? path.resolve(here, '../..') : path.resolve(here, '../../..');
 
 const envFiles = [
   path.join(apiRoot, '.env'),
@@ -17,10 +19,13 @@ const envFiles = [
 
 for (const file of envFiles) {
   if (existsSync(file)) {
-    loadEnv({ path: file, override: true });
-    const json = extractMultilineEnvValue(file, 'GOOGLE_SALES_SA_JSON');
-    if (json) {
-      process.env.GOOGLE_SALES_SA_JSON = json;
+    // Do not override existing process env (Railway/Docker inject PORT, secrets, etc.).
+    loadEnv({ path: file, override: false });
+    if (!process.env.GOOGLE_SALES_SA_JSON) {
+      const json = extractMultilineEnvValue(file, 'GOOGLE_SALES_SA_JSON');
+      if (json) {
+        process.env.GOOGLE_SALES_SA_JSON = json;
+      }
     }
   }
 }
