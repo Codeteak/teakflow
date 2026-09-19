@@ -4,6 +4,14 @@ export function apiBaseUrl() {
   if (configured) {
     return configured.replace(/\/$/, '');
   }
+
+  // If only VITE_SOCKET_URL was set on Vercel, derive the API base from it
+  // so login does not POST to teakflow.vercel.app/api/v1 (404).
+  const socket = import.meta.env.VITE_SOCKET_URL?.trim();
+  if (socket) {
+    return `${socket.replace(/\/$/, '')}/api/v1`;
+  }
+
   return '/api/v1';
 }
 

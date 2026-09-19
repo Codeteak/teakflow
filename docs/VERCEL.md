@@ -47,9 +47,15 @@ Project → **Settings → Environment Variables** (Production + Preview):
 
 `VITE_*` are baked in at **build** time — change them → **Redeploy**.
 
+Both are required. If `VITE_API_URL` is missing, the browser posts to
+`https://teakflow.vercel.app/api/v1/...` and Vercel returns **404**.
+`VITE_SOCKET_URL` alone is not enough for login.
+
 ## 5. Deploy
 
 Click **Deploy**. Open the Vercel URL, sign in, confirm chat sockets connect (browser Network → WS to Railway).
+
+`vercel.json` must rewrite all routes to `index.html` (`"source": "/(.*)"`). Without that, hard refresh on `/login` (or any path) shows Vercel’s **404 NOT_FOUND** page. Existing files under `/assets/` are still served as static files.
 
 ## 6. Sync origins
 
