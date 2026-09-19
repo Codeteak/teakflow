@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { ROLES, type DailyWorkToday, type Meeting } from '@teakflow/shared';
-import { HomeIdCard } from '@/components/home/HomeIdCard';
 import { HomeScheduleCalendar } from '@/components/home/HomeScheduleCalendar';
 import { Badge } from '@/components/ui/badge';
 import { buttonClassName } from '@/components/ui/button';
@@ -13,6 +12,10 @@ import { listUnreadTotalRequest } from '@/features/chat/api';
 import { listMeetingsRequest } from '@/features/meetings/api';
 import { formatClockLabel } from '@/lib/formatClock';
 import { useAuthStore } from '@/store/auth';
+
+const HomeIdCard = lazy(() =>
+  import('@/components/home/HomeIdCard').then((module) => ({ default: module.HomeIdCard })),
+);
 
 function greeting() {
   const hour = new Date().getHours();
@@ -80,7 +83,9 @@ export function HomePage() {
     <div className="relative min-h-[calc(100dvh-3rem)] w-full">
       {showIdCard && user ? (
         <div className="pointer-events-none absolute inset-0 z-10 hidden lg:block">
-          <HomeIdCard user={user} placement="overlay" />
+          <Suspense fallback={null}>
+            <HomeIdCard user={user} placement="overlay" />
+          </Suspense>
         </div>
       ) : null}
 
@@ -147,7 +152,9 @@ export function HomePage() {
             {showIdCard && user ? (
               <section className="space-y-2 lg:hidden" aria-label="Company ID tag">
                 <p className="text-xs font-medium tracking-wide text-muted uppercase">Company tag</p>
-                <HomeIdCard user={user} placement="section" />
+                <Suspense fallback={null}>
+                  <HomeIdCard user={user} placement="section" />
+                </Suspense>
               </section>
             ) : null}
           </div>

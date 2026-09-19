@@ -25,7 +25,9 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
---mobile-nav-offset: calc(4.75rem + env(safe-area-inset-bottom));
+:root {
+  --mobile-nav-offset: calc(4.75rem + env(safe-area-inset-bottom));
+}
 
 @media (min-width: 768px) {
   :root {

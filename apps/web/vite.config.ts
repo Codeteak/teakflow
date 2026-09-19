@@ -61,10 +61,23 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Keep shell assets under the default 2 MiB when possible; allow room for
+        // vendor chunks (three.js) without failing the production build.
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // Lanyard/three.js is lazy-loaded on Home only — do not force it into SW install.
+        globIgnores: ['**/*.glb', '**/card-*.glb', '**/three-*.js'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/socket\.io/],
         runtimeCaching: [
+          {
+            urlPattern: /\/assets\/three-.*\.js$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'teakflow-three',
+              expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -103,6 +116,31 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return;
+          }
+          if (
+            id.includes('/three/') ||
+            id.includes('\\three\\') ||
+            id.includes('@react-three') ||
+            id.includes('@dimforge') ||
+            id.includes('meshline') ||
+            id.includes('maath')
+          ) {
+            return 'three';
+          }
+          if (id.includes('socket.io') || id.includes('zustand') || id.includes('@tanstack')) {
+            return 'realtime';
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1200,
   },
   optimizeDeps: {
     include: ['workbox-window'],
