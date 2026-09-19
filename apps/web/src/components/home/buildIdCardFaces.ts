@@ -242,7 +242,9 @@ async function paintBack(user: SessionUser): Promise<string> {
   ctx.fillText(user.companyId ? `ID ${user.companyId}` : 'Company badge', 120, 122);
 
   const rows: Array<[string, string]> = [
-    ...(user.companyId ? ([['Company ID', user.companyId]] as Array<[string, string]>) : []),
+    ...(user.companyId
+      ? ([['Company ID', user.companyId]] as Array<[string, string]>)
+      : []),
     ['Name', user.name],
     ['Email', user.email],
     ['Role', roleLabel(user.role)],

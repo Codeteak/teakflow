@@ -8,7 +8,10 @@ export function conversationTitle(conversation: Conversation, viewerId: string) 
   if (conversation.type === CONVERSATION_TYPE.GROUP) {
     return conversation.name ?? 'Group';
   }
-  return conversation.members.find((member) => member.userId !== viewerId)?.user.name ?? 'Direct message';
+  return (
+    conversation.members.find((member) => member.userId !== viewerId)?.user.name ??
+    'Direct message'
+  );
 }
 
 export function conversationPreview(conversation: Conversation) {

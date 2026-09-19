@@ -1,21 +1,51 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type MutableRefObject, type RefObject } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type MutableRefObject,
+  type RefObject,
+} from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { DailyWorkEntry, DailyWorkToday } from '@teakflow/shared';
 import { mergeNotebook } from '@teakflow/shared';
-import { NotebookEditor, type NotebookEditorApi, type NotebookPagesHandle } from '@/components/daily-work/NotebookEditor';
+import {
+  NotebookEditor,
+  type NotebookEditorApi,
+  type NotebookPagesHandle,
+} from '@/components/daily-work/NotebookEditor';
 import { NotebookNote } from '@/components/daily-work/NotebookNote';
 import { NotebookToolbar } from '@/components/daily-work/NotebookToolbar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { NotebookModal } from '@/components/ui/notebook-modal';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getHistoryRequest, getTodayRequest, submitTodayRequest, updateTodayRequest } from '@/features/dailyWork/api';
-import { clearDraft, listPlanDates, readDraft, readPlan, writeDraft, writePlan } from '@/features/dailyWork/draft';
+import {
+  getHistoryRequest,
+  getTodayRequest,
+  submitTodayRequest,
+  updateTodayRequest,
+} from '@/features/dailyWork/api';
+import {
+  clearDraft,
+  listPlanDates,
+  readDraft,
+  readPlan,
+  writeDraft,
+  writePlan,
+} from '@/features/dailyWork/draft';
 import { cn } from '@/lib/cn';
 import { formatClockLabel } from '@/lib/formatClock';
 import { noteCharacterCount } from '@/lib/notebookFormat';
-import { addMonths, monthGrid, monthLabel, splitWorkDate, WEEKDAYS } from '@/lib/workCalendar';
+import {
+  addMonths,
+  monthGrid,
+  monthLabel,
+  splitWorkDate,
+  WEEKDAYS,
+} from '@/lib/workCalendar';
 
 function formatDay(value: string) {
   return new Intl.DateTimeFormat('en-IN', {
@@ -122,13 +152,19 @@ export function DailyWorkPage() {
   }, [today]);
 
   async function load() {
-    const [nextToday, nextHistory] = await Promise.all([getTodayRequest(), getHistoryRequest()]);
+    const [nextToday, nextHistory] = await Promise.all([
+      getTodayRequest(),
+      getHistoryRequest(),
+    ]);
     setToday(nextToday);
     setHistory(nextHistory);
     setPlanDates(listPlanDates());
     setMonth((current) => current ?? splitWorkDate(nextToday.workDate));
     if (nextToday.state === 'OPEN' || nextToday.state === 'LATE_AVAILABLE') {
-      const next = mergeNotebook(readDraft(nextToday.workDate), nextToday.salesNotebook ?? '');
+      const next = mergeNotebook(
+        readDraft(nextToday.workDate),
+        nextToday.salesNotebook ?? '',
+      );
       setContent(next);
       writeDraft(nextToday.workDate, next);
       draftAtOpen.current = next;
@@ -192,8 +228,10 @@ export function DailyWorkPage() {
   const isSelectedToday = Boolean(today && selectedDate === today.workDate);
   const canWrite = Boolean(
     isSelectedToday &&
-      today &&
-      (today.state === 'OPEN' || today.state === 'LATE_AVAILABLE' || today.state === 'SUBMITTED_EDITABLE'),
+    today &&
+    (today.state === 'OPEN' ||
+      today.state === 'LATE_AVAILABLE' ||
+      today.state === 'SUBMITTED_EDITABLE'),
   );
   const canWritePlan = Boolean(today && selectedDate && selectedDate >= today.workDate);
   const startLabel = today ? formatClockLabel(today.settings.startTime) : '';
@@ -233,13 +271,17 @@ export function DailyWorkPage() {
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <header className="flex shrink-0 items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-xs tracking-wide text-muted uppercase">Daily work</p>
+          <p className="font-mono text-xs tracking-wide text-muted uppercase">
+            Daily work
+          </p>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
             {month ? monthLabel(month.year, month.month) : 'Calendar'}
           </h1>
           {today ? (
             <p className="mt-1 text-sm text-muted">
-              {isPlan ? 'Plan the day. This is not your submitted work.' : `Window ${startLabel} – ${endLabel}`}
+              {isPlan
+                ? 'Plan the day. This is not your submitted work.'
+                : `Window ${startLabel} – ${endLabel}`}
             </p>
           ) : null}
         </div>
@@ -269,7 +311,11 @@ export function DailyWorkPage() {
         <CalendarSkeleton />
       ) : (
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-line bg-surface">
-          <div className="flex shrink-0 items-center gap-1 border-b border-line px-2" role="tablist" aria-label="Daily work pages">
+          <div
+            className="flex shrink-0 items-center gap-1 border-b border-line px-2"
+            role="tablist"
+            aria-label="Daily work pages"
+          >
             <WorkPlanTab to="/daily-work" active={!isPlan}>
               Work
             </WorkPlanTab>
@@ -279,7 +325,10 @@ export function DailyWorkPage() {
           </div>
           <div className="grid shrink-0 grid-cols-7 border-b border-line">
             {WEEKDAYS.map((day) => (
-              <p key={day} className="px-2 py-2.5 text-center font-mono text-[11px] text-muted">
+              <p
+                key={day}
+                className="px-2 py-2.5 text-center font-mono text-[11px] text-muted"
+              >
                 {day}
               </p>
             ))}
@@ -290,7 +339,12 @@ export function DailyWorkPage() {
           >
             {cells.map((cell, index) => {
               if (!cell.date || !cell.day) {
-                return <div key={`empty-${index}`} className="border-t border-line bg-paper/50" />;
+                return (
+                  <div
+                    key={`empty-${index}`}
+                    className="border-t border-line bg-paper/50"
+                  />
+                );
               }
               const date = cell.date;
               const entry = byDate.get(date);
@@ -363,8 +417,20 @@ export function DailyWorkPage() {
                             : 'Done'}
                       </Badge>
                     ) : isToday ? (
-                      <Badge tone={today.state === 'LOCKED' ? 'amber' : today.state === 'MISSED' ? 'rose' : 'neutral'}>
-                        {today.state === 'LOCKED' ? 'Soon' : today.state === 'OPEN' || today.state === 'LATE_AVAILABLE' ? 'Write' : 'Missed'}
+                      <Badge
+                        tone={
+                          today.state === 'LOCKED'
+                            ? 'amber'
+                            : today.state === 'MISSED'
+                              ? 'rose'
+                              : 'neutral'
+                        }
+                      >
+                        {today.state === 'LOCKED'
+                          ? 'Soon'
+                          : today.state === 'OPEN' || today.state === 'LATE_AVAILABLE'
+                            ? 'Write'
+                            : 'Missed'}
                       </Badge>
                     ) : isFuture ? (
                       <span className="text-[11px] text-muted"> </span>
@@ -417,7 +483,11 @@ export function DailyWorkPage() {
           isPlan && selectedDate && today && canWritePlan ? (
             <p className="font-mono text-xs text-muted">
               {noteCharacterCount(planContent)} characters
-              {saveStatus === 'saving' ? ' · Saving…' : saveStatus === 'saved' ? ' · Saved' : ''}
+              {saveStatus === 'saving'
+                ? ' · Saving…'
+                : saveStatus === 'saved'
+                  ? ' · Saved'
+                  : ''}
             </p>
           ) : isPlan && selectedDate ? (
             <p className="font-mono text-xs text-muted">Past plans are locked.</p>
@@ -428,7 +498,11 @@ export function DailyWorkPage() {
                 {noteCharacterCount(content) < today.settings.minCharacters
                   ? ` · ${today.settings.minCharacters} minimum`
                   : ''}
-                {saveStatus === 'saving' ? ' · Saving…' : saveStatus === 'saved' ? ' · Saved' : ''}
+                {saveStatus === 'saving'
+                  ? ' · Saving…'
+                  : saveStatus === 'saved'
+                    ? ' · Saved'
+                    : ''}
               </p>
               <Button type="submit" form="daily-work-notebook" disabled={pending}>
                 {pending
@@ -444,7 +518,11 @@ export function DailyWorkPage() {
             </div>
           ) : selectedEntry ? (
             <p className="font-mono text-xs text-muted">
-              Submitted at {formatSubmittedAt(selectedEntry.submittedAt, today?.timezone ?? 'Asia/Kolkata')}
+              Submitted at{' '}
+              {formatSubmittedAt(
+                selectedEntry.submittedAt,
+                today?.timezone ?? 'Asia/Kolkata',
+              )}
               {selectedEntry.isLate ? ' · Late' : ''}
               {today?.state === 'SUBMITTED_EDITABLE' && isSelectedToday
                 ? ' · Editable today'
@@ -484,7 +562,15 @@ export function DailyWorkPage() {
   );
 }
 
-function WorkPlanTab({ to, active, children }: { to: string; active: boolean; children: string }) {
+function WorkPlanTab({
+  to,
+  active,
+  children,
+}: {
+  to: string;
+  active: boolean;
+  children: string;
+}) {
   return (
     <Link
       to={to}
@@ -496,7 +582,9 @@ function WorkPlanTab({ to, active, children }: { to: string; active: boolean; ch
       )}
     >
       {children}
-      {active ? <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-sage" /> : null}
+      {active ? (
+        <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-sage" />
+      ) : null}
     </Link>
   );
 }
@@ -513,7 +601,10 @@ function CalendarSkeleton() {
           <Skeleton key={day} className="mx-auto h-3 w-8" />
         ))}
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-7" style={{ gridTemplateRows: 'repeat(5, minmax(0, 1fr))' }}>
+      <div
+        className="grid min-h-0 flex-1 grid-cols-7"
+        style={{ gridTemplateRows: 'repeat(5, minmax(0, 1fr))' }}
+      >
         {Array.from({ length: 35 }, (_, index) => (
           <div key={index} className="border-t border-line p-2 sm:p-3">
             <Skeleton className="h-7 w-7 rounded-full" />

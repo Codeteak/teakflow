@@ -44,7 +44,11 @@ export function prefixForKind(kind: BlockKind, number = 1) {
   return '';
 }
 
-export function kindFromPrefix(line: string): { kind: BlockKind; inner: string; number?: number } {
+export function kindFromPrefix(line: string): {
+  kind: BlockKind;
+  inner: string;
+  number?: number;
+} {
   if (line.trim() === '---') {
     return { kind: 'hr', inner: '' };
   }
@@ -200,7 +204,11 @@ function inlineHtmlToMd(el: Element) {
     if (tag === 'SPAN' || tag === 'FONT') {
       const named =
         (element.getAttribute('data-color') as NoteColor | null) ??
-        hexToNoteColor(element.getAttribute('color') || rgbToHex(element.style.color) || element.style.color);
+        hexToNoteColor(
+          element.getAttribute('color') ||
+            rgbToHex(element.style.color) ||
+            element.style.color,
+        );
       if (named && named !== 'ink') {
         out += colorOpen(named);
         Array.from(element.childNodes).forEach(walk);
@@ -269,7 +277,12 @@ export function normalizeEditor(root: HTMLElement) {
       }
       continue;
     }
-    if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4') {
+    if (
+      el.tagName === 'H1' ||
+      el.tagName === 'H2' ||
+      el.tagName === 'H3' ||
+      el.tagName === 'H4'
+    ) {
       setBlockKind(el, el.tagName === 'H1' || el.tagName === 'H2' ? 'h' : 'h2');
       continue;
     }
@@ -284,7 +297,9 @@ export function normalizeEditor(root: HTMLElement) {
   // blank page as a single first line so typing stays on the placeholder row.
   const blocks = Array.from(root.children) as HTMLElement[];
   if (blocks.length > 1) {
-    const allBlank = blocks.every((block) => !(block.textContent ?? '').replace(/\u00a0/g, ' ').trim());
+    const allBlank = blocks.every(
+      (block) => !(block.textContent ?? '').replace(/\u00a0/g, ' ').trim(),
+    );
     if (allBlank) {
       for (let index = 1; index < blocks.length; index += 1) {
         blocks[index]?.remove();
@@ -336,7 +351,8 @@ export function currentBlock(root: HTMLElement): HTMLElement | null {
   if (!node || !root.contains(node)) {
     return (root.lastElementChild as HTMLElement | null) ?? null;
   }
-  const element = node.nodeType === Node.ELEMENT_NODE ? (node as HTMLElement) : node.parentElement;
+  const element =
+    node.nodeType === Node.ELEMENT_NODE ? (node as HTMLElement) : node.parentElement;
   return element?.closest('[data-kind]') as HTMLElement | null;
 }
 
@@ -487,8 +503,12 @@ export function mdRangeInPage(root: HTMLElement): { start: number; end: number }
     return { start: caret, end: caret };
   }
 
-  const a = meta.prefix.length + mdOffsetInBlock(block, selection.anchorNode, selection.anchorOffset);
-  const b = meta.prefix.length + mdOffsetInBlock(block, selection.focusNode, selection.focusOffset);
+  const a =
+    meta.prefix.length +
+    mdOffsetInBlock(block, selection.anchorNode, selection.anchorOffset);
+  const b =
+    meta.prefix.length +
+    mdOffsetInBlock(block, selection.focusNode, selection.focusOffset);
   const start = meta.offset + Math.min(a, b);
   const end = meta.offset + Math.max(a, b);
   return { start, end };
@@ -631,7 +651,10 @@ export function splitBlockAtCaret(root: HTMLElement): boolean {
 
   const kind = (block.getAttribute('data-kind') as BlockKind | null) ?? 'p';
 
-  if (isVisuallyEmpty(block) && (kind === 'li' || kind === 'n' || kind === 'h' || kind === 'h2' || kind === 'd')) {
+  if (
+    isVisuallyEmpty(block) &&
+    (kind === 'li' || kind === 'n' || kind === 'h' || kind === 'h2' || kind === 'd')
+  ) {
     setBlockKind(block, 'p');
     block.innerHTML = '<br>';
     placeCaretAtMdOffset(block, 0);
@@ -639,7 +662,10 @@ export function splitBlockAtCaret(root: HTMLElement): boolean {
   }
 
   const range = selection.getRangeAt(0);
-  if (!block.contains(range.commonAncestorContainer) && range.commonAncestorContainer !== block) {
+  if (
+    !block.contains(range.commonAncestorContainer) &&
+    range.commonAncestorContainer !== block
+  ) {
     return false;
   }
 
@@ -656,7 +682,10 @@ export function splitBlockAtCaret(root: HTMLElement): boolean {
   const nextKind: BlockKind = kind === 'li' || kind === 'n' ? kind : 'p';
   setBlockKind(next, nextKind);
 
-  if (after.childNodes.length === 0 || ((after.textContent ?? '').length === 0 && !after.querySelector('br'))) {
+  if (
+    after.childNodes.length === 0 ||
+    ((after.textContent ?? '').length === 0 && !after.querySelector('br'))
+  ) {
     next.innerHTML = '<br>';
   } else {
     next.appendChild(after);

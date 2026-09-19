@@ -103,7 +103,10 @@ export function CsvSheetPreview({ source, onClose }: Props) {
               <thead className="bg-paper">
                 <tr>
                   {header.map((cell, index) => (
-                    <th key={`${cell}-${index}`} className="whitespace-nowrap border-b border-line px-2 py-2 font-medium">
+                    <th
+                      key={`${cell}-${index}`}
+                      className="whitespace-nowrap border-b border-line px-2 py-2 font-medium"
+                    >
                       {cell || '—'}
                     </th>
                   ))}
@@ -113,7 +116,10 @@ export function CsvSheetPreview({ source, onClose }: Props) {
                 {body.map((row, rowIndex) => (
                   <tr key={rowIndex} className="border-b border-line last:border-0">
                     {header.map((_, colIndex) => (
-                      <td key={colIndex} className="whitespace-nowrap px-2 py-1.5 align-top">
+                      <td
+                        key={colIndex}
+                        className="whitespace-nowrap px-2 py-1.5 align-top"
+                      >
                         {row[colIndex] || '—'}
                       </td>
                     ))}
@@ -122,10 +128,17 @@ export function CsvSheetPreview({ source, onClose }: Props) {
               </tbody>
             </table>
           </div>
-          {extra > 0 ? <p className="text-xs text-muted">Showing the first {PREVIEW_ROWS} data rows. Download includes the full sheet.</p> : null}
+          {extra > 0 ? (
+            <p className="text-xs text-muted">
+              Showing the first {PREVIEW_ROWS} data rows. Download includes the full
+              sheet.
+            </p>
+          ) : null}
         </div>
       ) : null}
-      {!loading && !error && !rows.length ? <p className="text-sm text-muted">This sheet is empty.</p> : null}
+      {!loading && !error && !rows.length ? (
+        <p className="text-sm text-muted">This sheet is empty.</p>
+      ) : null}
     </FormModal>
   );
 }

@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { isTeamSupervisorRole, reportingTreeIds, ROLES, USER_STATUS, type CreateMeetingInput, type PublicUser } from '@teakflow/shared';
+import {
+  isTeamSupervisorRole,
+  reportingTreeIds,
+  ROLES,
+  USER_STATUS,
+  type CreateMeetingInput,
+  type PublicUser,
+} from '@teakflow/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { listUsersRequest } from '@/features/employees/api';
@@ -16,13 +23,21 @@ function toLocalInput(value: Date) {
 }
 
 function atDay(base: Date, daysAhead: number, hours: number, minutes: number) {
-  const value = new Date(base.getFullYear(), base.getMonth(), base.getDate() + daysAhead, hours, minutes, 0, 0);
+  const value = new Date(
+    base.getFullYear(),
+    base.getMonth(),
+    base.getDate() + daysAhead,
+    hours,
+    minutes,
+    0,
+    0,
+  );
   return value;
 }
 
 function nextMonday(from: Date) {
   const day = from.getDay();
-  const add = ((8 - day) % 7) || 7;
+  const add = (8 - day) % 7 || 7;
   return atDay(from, add, 10, 0);
 }
 
@@ -67,13 +82,23 @@ type Props = {
   onCreated: () => void;
 };
 
-export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated }: Props) {
+export function CreateMeetingForm({
+  conversationId,
+  preselectedUserId,
+  onCreated,
+}: Props) {
   const session = useAuthStore((state) => state.user);
   const [people, setPeople] = useState<PublicUser[]>([]);
   const [title, setTitle] = useState('');
-  const [startLocal, setStartLocal] = useState(() => toLocalInput(new Date(Date.now() + 60 * 60 * 1000)));
-  const [endLocal, setEndLocal] = useState(() => toLocalInput(new Date(Date.now() + 2 * 60 * 60 * 1000)));
-  const [selected, setSelected] = useState<string[]>(preselectedUserId ? [preselectedUserId] : []);
+  const [startLocal, setStartLocal] = useState(() =>
+    toLocalInput(new Date(Date.now() + 60 * 60 * 1000)),
+  );
+  const [endLocal, setEndLocal] = useState(() =>
+    toLocalInput(new Date(Date.now() + 2 * 60 * 60 * 1000)),
+  );
+  const [selected, setSelected] = useState<string[]>(
+    preselectedUserId ? [preselectedUserId] : [],
+  );
   const [activeWhen, setActiveWhen] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
@@ -85,7 +110,9 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
   }, []);
 
   const others = useMemo(() => {
-    const active = people.filter((person) => person.status === USER_STATUS.ACTIVE && person.id !== session?.id);
+    const active = people.filter(
+      (person) => person.status === USER_STATUS.ACTIVE && person.id !== session?.id,
+    );
     if (session && isTeamSupervisorRole(session.role) && session.role !== ROLES.ADMIN) {
       const tree = reportingTreeIds(people, session.id);
       return active.filter((person) => tree.has(person.id));
@@ -94,7 +121,9 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
   }, [people, session]);
 
   useEffect(() => {
-    setSelected((current) => current.filter((id) => others.some((person) => person.id === id)));
+    setSelected((current) =>
+      current.filter((id) => others.some((person) => person.id === id)),
+    );
   }, [others]);
 
   useEffect(() => {
@@ -104,7 +133,9 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
     if (!others.some((person) => person.id === preselectedUserId)) {
       return;
     }
-    setSelected((current) => (current.includes(preselectedUserId) ? current : [...current, preselectedUserId]));
+    setSelected((current) =>
+      current.includes(preselectedUserId) ? current : [...current, preselectedUserId],
+    );
   }, [preselectedUserId, others]);
 
   function applyTemplate(id: string, start: Date) {
@@ -115,7 +146,9 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
   }
 
   function togglePerson(id: string) {
-    setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+    setSelected((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -143,7 +176,13 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
     <form className="flex flex-col gap-3" onSubmit={(event) => void onSubmit(event)}>
       <label className="space-y-1.5">
         <span className="text-xs font-medium text-muted">Title</span>
-        <Input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Frontend Discussion" required minLength={3} />
+        <Input
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="Frontend Discussion"
+          required
+          minLength={3}
+        />
       </label>
 
       <div className="space-y-1.5">
@@ -219,7 +258,9 @@ export function CreateMeetingForm({ conversationId, preselectedUserId, onCreated
                   />
                   <span className="min-w-0">
                     <span className="block truncate font-medium">{person.name}</span>
-                    <span className="block truncate text-xs text-muted">{person.designation ?? 'Employee'}</span>
+                    <span className="block truncate text-xs text-muted">
+                      {person.designation ?? 'Employee'}
+                    </span>
                   </span>
                 </label>
               );

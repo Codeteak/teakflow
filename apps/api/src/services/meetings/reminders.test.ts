@@ -33,7 +33,10 @@ describe('runMeetingReminders', () => {
       save: vi.fn(),
     };
     vi.mocked(Meeting.findAll).mockResolvedValue([meeting] as never);
-    vi.mocked(MeetingParticipant.findAll).mockResolvedValue([{ userId: 'user-1' }, { userId: 'user-2' }] as never);
+    vi.mocked(MeetingParticipant.findAll).mockResolvedValue([
+      { userId: 'user-1' },
+      { userId: 'user-2' },
+    ] as never);
     await runMeetingReminders(now);
     expect(createNotification).toHaveBeenCalledTimes(2);
     expect(createNotification).toHaveBeenCalledWith(

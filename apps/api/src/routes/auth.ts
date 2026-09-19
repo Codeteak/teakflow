@@ -21,4 +21,9 @@ authRouter.post('/refresh', authRateLimit, refresh);
 authRouter.get('/me', requireAuth, me);
 authRouter.get('/google', requireAuth, requireRole(ROLES.ADMIN), startGoogle);
 authRouter.get('/google/callback', googleCallback);
-authRouter.delete('/google', requireAuth, requireRole(ROLES.ADMIN), disconnectGoogleAccount);
+authRouter.delete(
+  '/google',
+  requireAuth,
+  requireRole(ROLES.ADMIN),
+  disconnectGoogleAccount,
+);

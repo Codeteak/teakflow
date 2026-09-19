@@ -1,4 +1,11 @@
-import type { Department, Designation, PublicUser, Role, SessionUser, UserStatus } from '@teakflow/shared';
+import type {
+  Department,
+  Designation,
+  PublicUser,
+  Role,
+  SessionUser,
+  UserStatus,
+} from '@teakflow/shared';
 import { ROLES, USER_STATUS } from '@teakflow/shared';
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/database';

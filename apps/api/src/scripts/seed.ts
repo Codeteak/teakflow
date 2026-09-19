@@ -87,7 +87,8 @@ async function seed() {
       dailyWorkEndTime: DEFAULT_COMPANY_SETTINGS.dailyWork.endTime,
       dailyWorkMinCharacters: DEFAULT_COMPANY_SETTINGS.dailyWork.minCharacters,
       dailyWorkMaxCharacters: DEFAULT_COMPANY_SETTINGS.dailyWork.maxCharacters,
-      dailyWorkAllowLateSubmission: DEFAULT_COMPANY_SETTINGS.dailyWork.allowLateSubmission,
+      dailyWorkAllowLateSubmission:
+        DEFAULT_COMPANY_SETTINGS.dailyWork.allowLateSubmission,
       dailyWorkReminderEnabled: DEFAULT_COMPANY_SETTINGS.dailyWork.reminderEnabled,
       dailyWorkReminderTime: DEFAULT_COMPANY_SETTINGS.dailyWork.reminderTime,
     },

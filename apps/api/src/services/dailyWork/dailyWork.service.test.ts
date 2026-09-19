@@ -5,7 +5,15 @@ import { DailyWorkEntry } from '../../models/dailyWorkEntry';
 import { SalesDayReport } from '../../models/salesDayReport';
 import { User } from '../../models/user';
 import { getCompanySettings } from '../settings/index';
-import { getEntry, getToday, getUserEntry, getAdminView, listHistoryForUser, submitToday, updateToday } from './index';
+import {
+  getEntry,
+  getToday,
+  getUserEntry,
+  getAdminView,
+  listHistoryForUser,
+  submitToday,
+  updateToday,
+} from './index';
 
 vi.mock('../../models/dailyWorkEntry', () => ({
   DailyWorkEntry: {
@@ -86,7 +94,8 @@ beforeEach(() => {
           content: values.content,
           status: values.status,
           isLate: values.isLate,
-          submittedAt: values.submittedAt instanceof Date ? values.submittedAt.toISOString() : null,
+          submittedAt:
+            values.submittedAt instanceof Date ? values.submittedAt.toISOString() : null,
           workDate: values.workDate,
         }),
     } as never;
@@ -132,7 +141,9 @@ describe('getToday', () => {
 
 describe('submitToday', () => {
   it('rejects 17:59:59', async () => {
-    await expect(submitToday(userId, { content: longEnough }, at('2026-09-11T12:29:59.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: longEnough }, at('2026-09-11T12:29:59.000Z')),
+    ).rejects.toMatchObject({
       statusCode: 403,
       code: 'WINDOW_CLOSED',
     });
@@ -155,16 +166,20 @@ describe('submitToday', () => {
   });
 
   it('ignores a later browser clock by using only the server now argument', async () => {
-    await expect(submitToday(userId, { content: longEnough }, at('2026-09-11T12:29:59.000Z'))).rejects.toBeInstanceOf(
-      AppError,
-    );
+    await expect(
+      submitToday(userId, { content: longEnough }, at('2026-09-11T12:29:59.000Z')),
+    ).rejects.toBeInstanceOf(AppError);
   });
 
   it('revalidates when the form was opened before the window and submitted after it opens', async () => {
     const whileWaiting = await getToday(userId, at('2026-09-11T12:29:59.000Z'));
     expect(whileWaiting.state).toBe('LOCKED');
 
-    const entry = await submitToday(userId, { content: longEnough }, at('2026-09-11T12:30:00.000Z'));
+    const entry = await submitToday(
+      userId,
+      { content: longEnough },
+      at('2026-09-11T12:30:00.000Z'),
+    );
     expect(entry.status).toBe('SUBMITTED');
   });
 
@@ -174,7 +189,9 @@ describe('submitToday', () => {
       toPublic: () => publicEntry(),
     } as never);
 
-    await expect(submitToday(userId, { content: longEnough }, at('2026-09-11T12:32:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: longEnough }, at('2026-09-11T12:32:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'ALREADY_SUBMITTED',
       statusCode: 409,
     });
@@ -182,35 +199,54 @@ describe('submitToday', () => {
 
   it('maps a unique constraint to already submitted', async () => {
     vi.mocked(DailyWorkEntry.create).mockRejectedValue(new UniqueConstraintError({}));
-    await expect(submitToday(userId, { content: longEnough }, at('2026-09-11T12:30:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: longEnough }, at('2026-09-11T12:30:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'ALREADY_SUBMITTED',
     });
   });
 
   it('rejects whitespace-only content', async () => {
-    await expect(submitToday(userId, { content: '   \n  ' }, at('2026-09-11T12:30:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: '   \n  ' }, at('2026-09-11T12:30:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'VALIDATION_ERROR',
     });
   });
 
   it('rejects content below the configured minimum', async () => {
-    await expect(submitToday(userId, { content: 'too short' }, at('2026-09-11T12:30:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: 'too short' }, at('2026-09-11T12:30:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'VALIDATION_ERROR',
     });
   });
 
   it('allows content above the old 1000-character cap', async () => {
     await expect(
-      submitToday(userId, { content: `${longEnough} ${'x'.repeat(200)}` }, at('2026-09-11T12:30:00.000Z')),
+      submitToday(
+        userId,
+        { content: `${longEnough} ${'x'.repeat(200)}` },
+        at('2026-09-11T12:30:00.000Z'),
+      ),
     ).resolves.toMatchObject({ status: 'SUBMITTED' });
   });
 
   it('marks LATE when submitting after the window if late is allowed', async () => {
     vi.mocked(getCompanySettings).mockResolvedValue({
       ...settings,
-      dailyWork: { ...settings.dailyWork, startTime: '18:00', endTime: '21:00', allowLateSubmission: true },
+      dailyWork: {
+        ...settings.dailyWork,
+        startTime: '18:00',
+        endTime: '21:00',
+        allowLateSubmission: true,
+      },
     });
-    const entry = await submitToday(userId, { content: longEnough }, at('2026-09-11T16:00:00.000Z'));
+    const entry = await submitToday(
+      userId,
+      { content: longEnough },
+      at('2026-09-11T16:00:00.000Z'),
+    );
     expect(entry.status).toBe('LATE');
     expect(entry.isLate).toBe(true);
   });
@@ -218,9 +254,16 @@ describe('submitToday', () => {
   it('rejects after the window when late is disabled', async () => {
     vi.mocked(getCompanySettings).mockResolvedValue({
       ...settings,
-      dailyWork: { ...settings.dailyWork, startTime: '18:00', endTime: '21:00', allowLateSubmission: false },
+      dailyWork: {
+        ...settings.dailyWork,
+        startTime: '18:00',
+        endTime: '21:00',
+        allowLateSubmission: false,
+      },
     });
-    await expect(submitToday(userId, { content: longEnough }, at('2026-09-11T16:00:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      submitToday(userId, { content: longEnough }, at('2026-09-11T16:00:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'WINDOW_CLOSED',
     });
   });
@@ -262,7 +305,11 @@ describe('updateToday', () => {
     vi.mocked(DailyWorkEntry.findOne).mockResolvedValue(null);
 
     await expect(
-      updateToday(userId, { content: `${longEnough} too early` }, at('2026-09-11T12:45:00.000Z')),
+      updateToday(
+        userId,
+        { content: `${longEnough} too early` },
+        at('2026-09-11T12:45:00.000Z'),
+      ),
     ).rejects.toMatchObject({
       code: 'ENTRY_LOCKED',
       statusCode: 403,
@@ -326,7 +373,10 @@ describe('history access', () => {
   });
 
   it('lets a manager list previous daily work for someone in their tree', async () => {
-    vi.mocked(User.findByPk).mockResolvedValue({ id: otherId, managerId: userId } as never);
+    vi.mocked(User.findByPk).mockResolvedValue({
+      id: otherId,
+      managerId: userId,
+    } as never);
     vi.mocked(User.findAll).mockResolvedValue([
       { id: userId, managerId: null },
       { id: otherId, managerId: userId },
@@ -398,7 +448,9 @@ describe('getAdminView scope', () => {
     vi.mocked(User.findAll).mockResolvedValue(company as never);
     vi.mocked(DailyWorkEntry.findAll).mockResolvedValue([]);
     const view = await getAdminView(userId, 'MANAGER', at('2026-09-18T06:30:00.000Z'));
-    expect(view.rows.map((row) => row.userId).sort()).toEqual([leadId, otherId, userId].sort());
+    expect(view.rows.map((row) => row.userId).sort()).toEqual(
+      [leadId, otherId, userId].sort(),
+    );
   });
 
   it('shows a lead only themselves and people who report through them', async () => {
@@ -409,7 +461,9 @@ describe('getAdminView scope', () => {
   });
 
   it('forbids employees from the team view', async () => {
-    await expect(getAdminView(otherId, 'EMPLOYEE', at('2026-09-18T06:30:00.000Z'))).rejects.toMatchObject({
+    await expect(
+      getAdminView(otherId, 'EMPLOYEE', at('2026-09-18T06:30:00.000Z')),
+    ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });

@@ -18,7 +18,11 @@ export function AnimatedEmoji({
 
   if (!codepoint || failed) {
     return (
-      <span className={cn('inline-flex leading-none', className)} style={{ fontSize: size }} title={title}>
+      <span
+        className={cn('inline-flex leading-none', className)}
+        style={{ fontSize: size }}
+        title={title}
+      >
         {emoji}
       </span>
     );

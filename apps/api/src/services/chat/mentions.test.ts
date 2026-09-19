@@ -42,6 +42,9 @@ describe('mentionedUserIds', () => {
   });
 
   it('can mention more than one person', () => {
-    expect(mentionedUserIds('@Alfayad and @Rahul please look', members)).toEqual(['1', '2']);
+    expect(mentionedUserIds('@Alfayad and @Rahul please look', members)).toEqual([
+      '1',
+      '2',
+    ]);
   });
 });

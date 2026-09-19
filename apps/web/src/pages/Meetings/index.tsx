@@ -24,7 +24,9 @@ export function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [panelOpen, setPanelOpen] = useState(Boolean(params.get('with') || params.get('conversationId')));
+  const [panelOpen, setPanelOpen] = useState(
+    Boolean(params.get('with') || params.get('conversationId')),
+  );
 
   const conversationId = params.get('conversationId');
   const withUser = params.get('with');
@@ -54,10 +56,16 @@ export function MeetingsPage() {
 
   const upcoming = useMemo(() => {
     const now = Date.now();
-    return [...meetings].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime() || a.title.localeCompare(b.title)).map((meeting) => ({
-      meeting,
-      past: new Date(meeting.endTime).getTime() < now,
-    }));
+    return [...meetings]
+      .sort(
+        (a, b) =>
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime() ||
+          a.title.localeCompare(b.title),
+      )
+      .map((meeting) => ({
+        meeting,
+        past: new Date(meeting.endTime).getTime() < now,
+      }));
   }, [meetings]);
 
   async function join(id: string) {
@@ -74,7 +82,9 @@ export function MeetingsPage() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Meetings</h1>
-          <p className="mt-1 text-sm text-muted">Google Meet only. No custom video stack.</p>
+          <p className="mt-1 text-sm text-muted">
+            Google Meet only. No custom video stack.
+          </p>
         </div>
         <Button type="button" onClick={() => setPanelOpen(true)}>
           Create meeting
@@ -97,10 +107,13 @@ export function MeetingsPage() {
             <div className="flex items-start gap-3">
               <GoogleMeetIcon size={22} className="mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="font-mono text-xs text-muted">{formatWhen(meeting.startTime)}</p>
+                <p className="font-mono text-xs text-muted">
+                  {formatWhen(meeting.startTime)}
+                </p>
                 <h2 className="mt-1 text-lg font-semibold">{meeting.title}</h2>
                 <p className="mt-2 text-sm text-muted">
-                  {meeting.participants.length} participant{meeting.participants.length === 1 ? '' : 's'}
+                  {meeting.participants.length} participant
+                  {meeting.participants.length === 1 ? '' : 's'}
                   {meeting.createdByName ? ` · ${meeting.createdByName}` : ''}
                 </p>
                 {meeting.googleMeetUrl ? (
@@ -116,7 +129,12 @@ export function MeetingsPage() {
                 ) : null}
               </div>
             </div>
-            <Button variant="outline" className="mt-5 w-full sm:w-auto" type="button" onClick={() => void join(meeting.id)}>
+            <Button
+              variant="outline"
+              className="mt-5 w-full sm:w-auto"
+              type="button"
+              onClick={() => void join(meeting.id)}
+            >
               <GoogleMeetIcon size={16} />
               Join Google Meet
             </Button>
@@ -124,7 +142,11 @@ export function MeetingsPage() {
         ))}
       </div>
 
-      <RightPanel open={panelOpen} title="Create meeting" onClose={() => setPanelOpen(false)}>
+      <RightPanel
+        open={panelOpen}
+        title="Create meeting"
+        onClose={() => setPanelOpen(false)}
+      >
         <CreateMeetingForm
           conversationId={conversationId}
           preselectedUserId={withUser}

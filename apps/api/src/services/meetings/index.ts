@@ -40,7 +40,11 @@ function toParticipant(row: MeetingParticipant, user?: User): MeetingParticipant
   };
 }
 
-function toMeeting(row: Meeting, participants: MeetingParticipantDto[], creatorName: string): MeetingDto {
+function toMeeting(
+  row: Meeting,
+  participants: MeetingParticipantDto[],
+  creatorName: string,
+): MeetingDto {
   return {
     id: row.id,
     title: row.title,
@@ -66,7 +70,9 @@ async function hydrate(row: Meeting): Promise<MeetingDto> {
   const creator = await User.findByPk(row.createdBy, { attributes: ['name'] });
   return toMeeting(
     row,
-    participantRows.map((item) => toParticipant(item, item.get('user') as User | undefined)),
+    participantRows.map((item) =>
+      toParticipant(item, item.get('user') as User | undefined),
+    ),
     creator?.name ?? 'Employee',
   );
 }
@@ -105,7 +111,13 @@ export async function getMeeting(user: SessionUser, id: string) {
     throw new AppError(404, 'MEETING_NOT_FOUND', 'Meeting not found.');
   }
   const participants = await MeetingParticipant.findAll({ where: { meetingId: id } });
-  if (!canView(user, row, participants.map((item) => item.userId))) {
+  if (
+    !canView(
+      user,
+      row,
+      participants.map((item) => item.userId),
+    )
+  ) {
     throw new AppError(403, 'FORBIDDEN', 'You do not have permission to do that.');
   }
   return hydrate(row);
@@ -115,7 +127,11 @@ export async function createMeeting(user: SessionUser, input: unknown) {
   requireDb();
   const parsed = createMeetingSchema.safeParse(input);
   if (!parsed.success) {
-    throw new AppError(400, 'VALIDATION_ERROR', parsed.error.issues[0]?.message ?? 'Invalid meeting.');
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      parsed.error.issues[0]?.message ?? 'Invalid meeting.',
+    );
   }
   const data: CreateMeetingInput = parsed.data;
   const participantIds = [...new Set([user.id, ...data.participantUserIds])];
@@ -133,11 +149,19 @@ export async function createMeeting(user: SessionUser, input: unknown) {
     where: { id: { [Op.in]: participantIds } },
   });
   if (people.length !== participantIds.length) {
-    throw new AppError(400, 'PARTICIPANT_NOT_FOUND', 'One or more participants were not found.');
+    throw new AppError(
+      400,
+      'PARTICIPANT_NOT_FOUND',
+      'One or more participants were not found.',
+    );
   }
   const inactive = people.find((person) => person.status !== USER_STATUS.ACTIVE);
   if (inactive) {
-    throw new AppError(400, 'PARTICIPANT_INACTIVE', 'Inactive employees cannot be invited.');
+    throw new AppError(
+      400,
+      'PARTICIPANT_INACTIVE',
+      'Inactive employees cannot be invited.',
+    );
   }
 
   await assertCanInviteToMeeting(user.id, user.role, participantIds);
@@ -193,16 +217,22 @@ export async function createMeeting(user: SessionUser, input: unknown) {
   );
 
   if (data.conversationId && google.meetUrl) {
-    await createMessage(user.id, data.conversationId, `${user.name} created a meeting`, null, {
-      meeting: {
-        kind: 'meeting',
-        meetingId: meeting.id,
-        title: data.title,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        googleMeetUrl: google.meetUrl,
+    await createMessage(
+      user.id,
+      data.conversationId,
+      `${user.name} created a meeting`,
+      null,
+      {
+        meeting: {
+          kind: 'meeting',
+          meetingId: meeting.id,
+          title: data.title,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          googleMeetUrl: google.meetUrl,
+        },
       },
-    });
+    );
   }
 
   return hydrate(meeting);
@@ -214,12 +244,18 @@ export async function joinMeeting(user: SessionUser, id: string) {
   if (!meeting) {
     throw new AppError(404, 'MEETING_NOT_FOUND', 'Meeting not found.');
   }
-  const participant = await MeetingParticipant.findOne({ where: { meetingId: id, userId: user.id } });
+  const participant = await MeetingParticipant.findOne({
+    where: { meetingId: id, userId: user.id },
+  });
   if (!participant && user.role !== ROLES.ADMIN && meeting.createdBy !== user.id) {
     throw new AppError(403, 'FORBIDDEN', 'You were not invited to this meeting.');
   }
   if (!meeting.googleMeetUrl) {
-    throw new AppError(503, 'MEET_URL_MISSING', 'This meeting does not have a Google Meet link.');
+    throw new AppError(
+      503,
+      'MEET_URL_MISSING',
+      'This meeting does not have a Google Meet link.',
+    );
   }
   if (participant) {
     participant.status = MEETING_PARTICIPANT_STATUS.ACCEPTED;

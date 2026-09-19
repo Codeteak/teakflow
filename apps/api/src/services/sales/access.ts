@@ -1,9 +1,16 @@
-import { isTeamSupervisorRole, ROLES, type Role, type SessionUser } from '@teakflow/shared';
+import {
+  isTeamSupervisorRole,
+  ROLES,
+  type Role,
+  type SessionUser,
+} from '@teakflow/shared';
 import { AppError } from '../../middlewares/errorHandler/index';
 import { User } from '../../models/user';
 import { listTeamDailyWorkUsers, teamScopeUserIds } from '../users/scope';
 
-export function canOpenSales(user: Pick<SessionUser, 'role' | 'department' | 'headedDepartments'>) {
+export function canOpenSales(
+  user: Pick<SessionUser, 'role' | 'department' | 'headedDepartments'>,
+) {
   if (user.role === ROLES.ADMIN || isTeamSupervisorRole(user.role)) {
     return true;
   }
@@ -13,14 +20,20 @@ export function canOpenSales(user: Pick<SessionUser, 'role' | 'department' | 'he
   return (user.headedDepartments ?? []).includes('Sales');
 }
 
-export function canManageShops(user: Pick<SessionUser, 'role' | 'department' | 'headedDepartments'>) {
+export function canManageShops(
+  user: Pick<SessionUser, 'role' | 'department' | 'headedDepartments'>,
+) {
   return canOpenSales(user) && isTeamSupervisorRole(user.role);
 }
 
 export function assertCanManageShops(user: SessionUser) {
   assertCanOpenSales(user);
   if (!canManageShops(user)) {
-    throw new AppError(403, 'FORBIDDEN', 'Only admin, manager, or lead can change the shop directory.');
+    throw new AppError(
+      403,
+      'FORBIDDEN',
+      'Only admin, manager, or lead can change the shop directory.',
+    );
   }
 }
 
@@ -30,7 +43,10 @@ export function assertCanOpenSales(user: SessionUser) {
   }
 }
 
-export async function salesScopeUserIds(actorId: string, actorRole: Role): Promise<string[] | null> {
+export async function salesScopeUserIds(
+  actorId: string,
+  actorRole: Role,
+): Promise<string[] | null> {
   if (actorRole === ROLES.ADMIN) {
     return null;
   }

@@ -46,7 +46,9 @@ export function formatCompanyId(sequence: number) {
   return `${COMPANY_ID_PREFIX}${String(sequence).padStart(3, '0')}`;
 }
 
-export function parseCompanyIdSequence(companyId: string | null | undefined): number | null {
+export function parseCompanyIdSequence(
+  companyId: string | null | undefined,
+): number | null {
   if (!companyId) return null;
   const match = /^CDTK(\d+)$/i.exec(companyId.trim());
   if (!match?.[1]) return null;

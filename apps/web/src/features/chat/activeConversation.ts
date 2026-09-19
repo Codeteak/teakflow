@@ -1,4 +1,8 @@
-import { NOTIFICATION_TYPE, type AppNotification, type NotificationType } from '@teakflow/shared';
+import {
+  NOTIFICATION_TYPE,
+  type AppNotification,
+  type NotificationType,
+} from '@teakflow/shared';
 import { useChatUnreadStore } from '@/store/chatUnread';
 
 const CHAT_ALERT_TYPES = new Set<NotificationType>([

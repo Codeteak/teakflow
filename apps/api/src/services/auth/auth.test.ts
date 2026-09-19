@@ -41,7 +41,9 @@ beforeEach(() => {
 
 describe('loginWithPassword', () => {
   it('rejects a short password before hitting the database', async () => {
-    await expect(loginWithPassword({ email: 'ada@codeteak.com', password: 'short' })).rejects.toMatchObject({
+    await expect(
+      loginWithPassword({ email: 'ada@codeteak.com', password: 'short' }),
+    ).rejects.toMatchObject({
       code: 'INVALID_CREDENTIALS',
     });
     expect(User.findOne).not.toHaveBeenCalled();
@@ -49,21 +51,31 @@ describe('loginWithPassword', () => {
 
   it('rejects an unknown email', async () => {
     vi.mocked(User.findOne).mockResolvedValue(null);
-    await expect(loginWithPassword({ email: 'missing@codeteak.com', password })).rejects.toMatchObject({
+    await expect(
+      loginWithPassword({ email: 'missing@codeteak.com', password }),
+    ).rejects.toMatchObject({
       code: 'INVALID_CREDENTIALS',
     });
   });
 
   it('rejects a wrong password', async () => {
-    vi.mocked(User.findOne).mockResolvedValue((await fakeUser(USER_STATUS.ACTIVE)) as never);
-    await expect(loginWithPassword({ email: 'ada@codeteak.com', password: 'wrong-password' })).rejects.toMatchObject({
+    vi.mocked(User.findOne).mockResolvedValue(
+      (await fakeUser(USER_STATUS.ACTIVE)) as never,
+    );
+    await expect(
+      loginWithPassword({ email: 'ada@codeteak.com', password: 'wrong-password' }),
+    ).rejects.toMatchObject({
       code: 'INVALID_CREDENTIALS',
     });
   });
 
   it('blocks a disabled employee', async () => {
-    vi.mocked(User.findOne).mockResolvedValue((await fakeUser(USER_STATUS.INACTIVE)) as never);
-    await expect(loginWithPassword({ email: 'ada@codeteak.com', password })).rejects.toMatchObject({
+    vi.mocked(User.findOne).mockResolvedValue(
+      (await fakeUser(USER_STATUS.INACTIVE)) as never,
+    );
+    await expect(
+      loginWithPassword({ email: 'ada@codeteak.com', password }),
+    ).rejects.toMatchObject({
       code: 'ACCOUNT_RESTRICTED',
       statusCode: 403,
       message: ACCOUNT_RESTRICTED_MESSAGE,

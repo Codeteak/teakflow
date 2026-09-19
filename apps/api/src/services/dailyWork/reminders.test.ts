@@ -54,7 +54,10 @@ const settings = {
 
 beforeEach(() => {
   vi.mocked(getCompanySettings).mockResolvedValue(settings);
-  vi.mocked(User.findAll).mockResolvedValue([{ id: 'user-1' }, { id: 'user-2' }] as never);
+  vi.mocked(User.findAll).mockResolvedValue([
+    { id: 'user-1' },
+    { id: 'user-2' },
+  ] as never);
   vi.mocked(DailyWorkEntry.findAll).mockResolvedValue([] as never);
   vi.mocked(Notification.bulkCreate).mockClear();
   vi.mocked(Notification.bulkCreate).mockResolvedValue([] as never);
@@ -62,7 +65,11 @@ beforeEach(() => {
 
 describe('runDailyWorkReminders', () => {
   it('does nothing before the window', async () => {
-    const row = { dailyWorkOpenNotifiedOn: null, dailyWorkReminderNotifiedOn: null, save: vi.fn() };
+    const row = {
+      dailyWorkOpenNotifiedOn: null,
+      dailyWorkReminderNotifiedOn: null,
+      save: vi.fn(),
+    };
     vi.mocked(CompanySettings.findByPk).mockResolvedValue(row as never);
     await runDailyWorkReminders(new Date('2026-09-11T12:29:59.000Z'));
     expect(Notification.bulkCreate).not.toHaveBeenCalled();

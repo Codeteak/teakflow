@@ -45,7 +45,10 @@ function detectDelimiter(header: string) {
 }
 
 export function parseShopCsv(raw: string) {
-  const text = raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').trim();
+  const text = raw
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .trim();
   if (!text) {
     throw new AppError(400, 'VALIDATION_ERROR', 'The sheet is empty.');
   }
@@ -73,7 +76,11 @@ export function parseShopCsv(raw: string) {
     if (!shopId && !shopName) {
       continue;
     }
-    const parsed = salesShopSchema.safeParse({ shopId, name: shopName, place: shopPlace });
+    const parsed = salesShopSchema.safeParse({
+      shopId,
+      name: shopName,
+      place: shopPlace,
+    });
     if (!parsed.success) {
       errors.push(`Row ${row + 1}: need ID and SHOP NAME.`);
       continue;
@@ -91,7 +98,9 @@ export function parseShopCsv(raw: string) {
 export function shopTemplateCsv() {
   const header = SALES_SHOP_CSV_HEADERS.join(',');
   const rows = DIRECTORY_SHOPS.map((shop) =>
-    [shop.shopId, shop.name, shop.place].map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','),
+    [shop.shopId, shop.name, shop.place]
+      .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+      .join(','),
   );
   return [header, ...rows].join('\n');
 }
@@ -120,7 +129,11 @@ export async function previewShopCsv(user: SessionUser, csv: string) {
   assertCanManageShops(user);
   const parsed = parseShopCsv(csv);
   if (parsed.shops.length === 0) {
-    throw new AppError(400, 'VALIDATION_ERROR', parsed.errors[0] ?? 'No shop rows found.');
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      parsed.errors[0] ?? 'No shop rows found.',
+    );
   }
   const diff = await previewDiff(parsed.shops);
   return { ...diff, shops: parsed.shops, errors: parsed.errors, confirm: false };
@@ -163,10 +176,18 @@ export async function upsertShops(user: SessionUser, input: unknown) {
   return { created, updated, shops: await listDirectory(), confirm: true };
 }
 
-export async function upsertShopsFromCsv(user: SessionUser, csv: string, confirm: boolean) {
+export async function upsertShopsFromCsv(
+  user: SessionUser,
+  csv: string,
+  confirm: boolean,
+) {
   const parsed = parseShopCsv(csv);
   if (parsed.shops.length === 0) {
-    throw new AppError(400, 'VALIDATION_ERROR', parsed.errors[0] ?? 'No shop rows found.');
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      parsed.errors[0] ?? 'No shop rows found.',
+    );
   }
   if (!confirm) {
     const diff = await previewDiff(parsed.shops);

@@ -54,7 +54,12 @@ export type NotebookEditorApi = {
   applyWrap: (before: string, after: string) => void;
   applyList: (kind: 'bullet' | 'number') => void;
   applyColor: (color: NoteColor | 'ink') => void;
-  getActiveMarks: () => { bold: boolean; italic: boolean; underline: boolean; color: NoteColor | 'ink' };
+  getActiveMarks: () => {
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    color: NoteColor | 'ink';
+  };
 };
 
 type Props = {
@@ -263,7 +268,9 @@ export function NotebookEditor({
           const selection = window.getSelection();
           const node = selection?.anchorNode;
           const el =
-            node?.nodeType === Node.ELEMENT_NODE ? (node as HTMLElement) : node?.parentElement ?? null;
+            node?.nodeType === Node.ELEMENT_NODE
+              ? (node as HTMLElement)
+              : (node?.parentElement ?? null);
           const colored = el?.closest('[data-color]') as HTMLElement | null;
           const named = colored?.getAttribute('data-color') as NoteColor | null;
           if (named) {
@@ -310,7 +317,11 @@ export function NotebookEditor({
   }, [safeIndex]);
 
   return (
-    <form id="daily-work-notebook" className="flex h-full min-h-0 flex-col" onSubmit={onSubmit}>
+    <form
+      id="daily-work-notebook"
+      className="flex h-full min-h-0 flex-col"
+      onSubmit={onSubmit}
+    >
       <div className="min-h-0 flex-1">
         <NotebookPageChrome
           pageIndex={safeIndex}

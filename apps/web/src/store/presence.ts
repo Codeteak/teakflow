@@ -15,7 +15,11 @@ const SELF_KEY = 'teakflow.presence.self';
 function readStoredSelf(): PresenceStatus {
   try {
     const raw = localStorage.getItem(SELF_KEY);
-    if (raw === PRESENCE_STATUS.AWAY || raw === PRESENCE_STATUS.DND || raw === PRESENCE_STATUS.ONLINE) {
+    if (
+      raw === PRESENCE_STATUS.AWAY ||
+      raw === PRESENCE_STATUS.DND ||
+      raw === PRESENCE_STATUS.ONLINE
+    ) {
       return raw;
     }
   } catch {
@@ -77,7 +81,9 @@ export function presenceLabel(status: PresenceStatus | undefined) {
   }
 }
 
-export function avatarStatusFromPresence(status: PresenceStatus | undefined): 'online' | 'away' | 'dnd' | 'offline' {
+export function avatarStatusFromPresence(
+  status: PresenceStatus | undefined,
+): 'online' | 'away' | 'dnd' | 'offline' {
   switch (status) {
     case PRESENCE_STATUS.ONLINE:
       return 'online';

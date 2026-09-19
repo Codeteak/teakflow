@@ -23,7 +23,8 @@ export function AuditLogsPage() {
         if (!cancelled) setRows(data);
       })
       .catch((cause) => {
-        if (!cancelled) setError(cause instanceof Error ? cause.message : 'Unable to load audit logs.');
+        if (!cancelled)
+          setError(cause instanceof Error ? cause.message : 'Unable to load audit logs.');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -37,7 +38,9 @@ export function AuditLogsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Audit logs</h1>
-        <p className="mt-1 text-sm text-muted">Company actions that matter for accountability.</p>
+        <p className="mt-1 text-sm text-muted">
+          Company actions that matter for accountability.
+        </p>
       </header>
 
       {loading ? <PageLoading rows={4} /> : null}
@@ -45,7 +48,10 @@ export function AuditLogsPage() {
 
       <Card className="overflow-hidden p-0">
         {rows.length === 0 && !loading ? (
-          <EmptyState title="No audit events yet" description="Important company actions will appear here." />
+          <EmptyState
+            title="No audit events yet"
+            description="Important company actions will appear here."
+          />
         ) : (
           <div className="divide-y divide-line">
             {rows.map((row) => (

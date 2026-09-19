@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ROLES, SALES_MONTH_TABS, SALES_VISIT_KIND, collectionPeriod, type SalesDashboard, type SalesPaymentsView, type SalesShop } from '@teakflow/shared';
+import {
+  ROLES,
+  SALES_MONTH_TABS,
+  SALES_VISIT_KIND,
+  collectionPeriod,
+  type SalesDashboard,
+  type SalesPaymentsView,
+  type SalesShop,
+} from '@teakflow/shared';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { FormModal } from '@/components/ui/form-modal';
@@ -59,7 +67,9 @@ export function SalesPage() {
   const isExec = user?.role === ROLES.EMPLOYEE;
   const manageShops = canManageShops(user);
   const fullCollection = canSeeFullCollection(user);
-  const [tab, setTab] = useState<'day' | 'team' | 'pay' | 'shops'>(isExec ? 'day' : 'team');
+  const [tab, setTab] = useState<'day' | 'team' | 'pay' | 'shops'>(
+    isExec ? 'day' : 'team',
+  );
   const [shops, setShops] = useState<SalesShop[]>([]);
   const [savedVisits, setSavedVisits] = useState<VisitRow[]>([]);
   const [visit, setVisit] = useState<VisitRow>(blankVisit());
@@ -74,13 +84,21 @@ export function SalesPage() {
   const [payError, setPayError] = useState('');
   const [payLoading, setPayLoading] = useState(false);
   const [payQuery, setPayQuery] = useState('');
-  const [selectedPay, setSelectedPay] = useState<SalesPaymentsView['rows'][number] | null>(null);
+  const [selectedPay, setSelectedPay] = useState<
+    SalesPaymentsView['rows'][number] | null
+  >(null);
   const [shopId, setShopId] = useState('');
   const [shopName, setShopName] = useState('');
   const [shopPlace, setShopPlace] = useState('');
   const [shopCsv, setShopCsv] = useState('');
   const [shopMsg, setShopMsg] = useState('');
-  const [pendingBulk, setPendingBulk] = useState<{ csv: string; created: number; updated: number; count: number; errors: string[] } | null>(null);
+  const [pendingBulk, setPendingBulk] = useState<{
+    csv: string;
+    created: number;
+    updated: number;
+    count: number;
+    errors: string[];
+  } | null>(null);
   const [csvSheet, setCsvSheet] = useState<CsvSheetSource | null>(null);
   const [editingShopId, setEditingShopId] = useState('');
   const [form, setForm] = useState<SalesForm>(null);
@@ -93,7 +111,9 @@ export function SalesPage() {
     setDayReady(false);
     void getSalesDayRequest()
       .then((data) => applyDay(data))
-      .catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load sales.'))
+      .catch((cause) =>
+        setError(cause instanceof Error ? cause.message : 'Unable to load sales.'),
+      )
       .finally(() => setDayReady(true));
     if (!isExec) {
       setTeamReady(false);
@@ -113,10 +133,18 @@ export function SalesPage() {
           if (!current) {
             return null;
           }
-          return data.rows.find((row) => row.shopId === current.shopId || row.shopName === current.shopName) ?? current;
+          return (
+            data.rows.find(
+              (row) => row.shopId === current.shopId || row.shopName === current.shopName,
+            ) ?? current
+          );
         });
       })
-      .catch((cause) => setPayError(cause instanceof Error ? cause.message : 'Unable to load collection shops.'))
+      .catch((cause) =>
+        setPayError(
+          cause instanceof Error ? cause.message : 'Unable to load collection shops.',
+        ),
+      )
       .finally(() => setPayLoading(false));
   }, [isExec]);
 
@@ -138,15 +166,21 @@ export function SalesPage() {
         setPay(data);
         setSelectedPay((current) =>
           current
-            ? data.rows.find((row) => row.shopId === current.shopId || row.shopName === current.shopName) ?? null
+            ? (data.rows.find(
+                (row) =>
+                  row.shopId === current.shopId || row.shopName === current.shopName,
+              ) ?? null)
             : null,
         );
       })
       .catch(() => undefined);
-  }, [salesPayVersion]);
+  }, [salesPayVersion, pay?.month, pay?.year]);
 
   const period = useMemo(() => collectionPeriod(new Date(), 'Asia/Kolkata'), []);
-  const receivedTotal = savedReceived.reduce((sum, row) => sum + (Number(row.amount) || 0), 0);
+  const receivedTotal = savedReceived.reduce(
+    (sum, row) => sum + (Number(row.amount) || 0),
+    0,
+  );
 
   function applyDay(data: Awaited<ReturnType<typeof getSalesDayRequest>>) {
     setShops(data.shops);
@@ -251,7 +285,12 @@ export function SalesPage() {
       .then(() => {
         toast.bumpSalesDay();
         toast.bumpSalesPay();
-        toast.resolve(toastId, 'success', 'Payment saved', 'Today’s report and the month sheet were updated.');
+        toast.resolve(
+          toastId,
+          'success',
+          'Payment saved',
+          'Today’s report and the month sheet were updated.',
+        );
       })
       .catch((cause) => {
         toast.resolve(
@@ -281,7 +320,12 @@ export function SalesPage() {
     void saveSalesDayRequest({ section: 'fuel', fuel: amount })
       .then(() => {
         toast.bumpSalesDay();
-        toast.resolve(toastId, 'success', 'Fuel saved', 'Today’s fuel is locked. One entry per work date.');
+        toast.resolve(
+          toastId,
+          'success',
+          'Fuel saved',
+          'Today’s fuel is locked. One entry per work date.',
+        );
       })
       .catch((cause) => {
         toast.resolve(
@@ -293,7 +337,13 @@ export function SalesPage() {
       });
   }
 
-  function savePay(row: SalesPaymentsView['rows'][number], status: string, paymentMode: string, reference: string, date: string) {
+  function savePay(
+    row: SalesPaymentsView['rows'][number],
+    status: string,
+    paymentMode: string,
+    reference: string,
+    date: string,
+  ) {
     setPayError('');
     const toast = useToastStore.getState();
     const toastId = toast.showProgress('Updating sheet…', row.shopName || row.shopId);
@@ -310,7 +360,12 @@ export function SalesPage() {
     })
       .then(() => {
         toast.bumpSalesPay();
-        toast.resolve(toastId, 'success', 'Sheet updated', 'STATUS, mode, date, and reference were written to Drive.');
+        toast.resolve(
+          toastId,
+          'success',
+          'Sheet updated',
+          'STATUS, mode, date, and reference were written to Drive.',
+        );
       })
       .catch((cause) => {
         toast.resolve(
@@ -329,7 +384,10 @@ export function SalesPage() {
       return;
     }
     const toast = useToastStore.getState();
-    const toastId = toast.showProgress(editingShopId ? 'Updating shop…' : 'Saving shop…', shopName);
+    const toastId = toast.showProgress(
+      editingShopId ? 'Updating shop…' : 'Saving shop…',
+      shopName,
+    );
     const editing = editingShopId;
     const payload = { shopId, name: shopName, place: shopPlace };
     setForm(null);
@@ -339,7 +397,10 @@ export function SalesPage() {
     setShopPlace('');
     const request = editing
       ? updateShopRequest(editing, { name: payload.name, place: payload.place })
-      : upsertShopsRequest({ shops: [{ shopId: payload.shopId, name: payload.name, place: payload.place }], confirm: true });
+      : upsertShopsRequest({
+          shops: [{ shopId: payload.shopId, name: payload.name, place: payload.place }],
+          confirm: true,
+        });
     void request
       .then((data) => {
         setShops(data.shops);
@@ -372,7 +433,9 @@ export function SalesPage() {
         count: data.shops.length,
         errors: data.errors ?? [],
       });
-      setShopMsg(`Preview: ${data.created} new, ${data.updated} already in the list (will update name/place). Confirm to apply.`);
+      setShopMsg(
+        `Preview: ${data.created} new, ${data.updated} already in the list (will update name/place). Confirm to apply.`,
+      );
     } catch (cause) {
       setShopMsg(cause instanceof Error ? cause.message : 'Unable to import.');
     }
@@ -391,7 +454,12 @@ export function SalesPage() {
     void upsertShopsRequest({ csv, confirm: true })
       .then((data) => {
         setShops(data.shops);
-        toast.resolve(toastId, 'success', 'Shops imported', `${data.created} new, ${data.updated} updated.`);
+        toast.resolve(
+          toastId,
+          'success',
+          'Shops imported',
+          `${data.created} new, ${data.updated} updated.`,
+        );
       })
       .catch((cause) => {
         toast.resolve(
@@ -404,7 +472,11 @@ export function SalesPage() {
   }
 
   async function removeDirectoryShop(id: string, name: string) {
-    if (!window.confirm(`Delete ${name} (${id}) from the directory? Visits already saved stay in history.`)) {
+    if (
+      !window.confirm(
+        `Delete ${name} (${id}) from the directory? Visits already saved stay in history.`,
+      )
+    ) {
       return;
     }
     setShopMsg('');
@@ -433,19 +505,35 @@ export function SalesPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className={chip(tab === 'day')} onClick={() => setTab('day')}>
+          <button
+            type="button"
+            className={chip(tab === 'day')}
+            onClick={() => setTab('day')}
+          >
             Today
           </button>
           {!isExec ? (
-            <button type="button" className={chip(tab === 'team')} onClick={() => setTab('team')}>
+            <button
+              type="button"
+              className={chip(tab === 'team')}
+              onClick={() => setTab('team')}
+            >
               Team
             </button>
           ) : null}
-          <button type="button" className={chip(tab === 'pay')} onClick={() => setTab('pay')}>
+          <button
+            type="button"
+            className={chip(tab === 'pay')}
+            onClick={() => setTab('pay')}
+          >
             Collection
           </button>
           {manageShops ? (
-            <button type="button" className={chip(tab === 'shops')} onClick={() => setTab('shops')}>
+            <button
+              type="button"
+              className={chip(tab === 'shops')}
+              onClick={() => setTab('shops')}
+            >
               Shops
             </button>
           ) : null}
@@ -453,295 +541,341 @@ export function SalesPage() {
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-      {tab === 'day' ? (
-        !dayReady ? (
-          <SalesDaySkeleton />
-        ) : (
-        <div className="flex min-h-0 flex-1 flex-col gap-5">
-          {error && form === null ? <p className="text-sm text-rose">{error}</p> : null}
-          {saved && form === null ? <p className="text-sm text-sage">{saved}</p> : null}
-          {dayReady && shops.length === 0 ? (
-            <p className="text-sm text-muted">
-              No shops in the directory yet. {manageShops ? 'Open the Shops tab to add one or upload the example sheet.' : 'Ask a manager or lead to add shops, or mark the visit as not in our list.'}
-            </p>
-          ) : null}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <ActionCard
-              title="Store visit"
-              detail={`${savedVisits.length} saved today. One shop at a time, then the notebook.`}
-              action="Add visit"
-              icon="/3d-icons/shop.png"
-              onOpen={() => {
-                setError('');
-                setSaved('');
-                setForm('visit');
-              }}
-            />
-            <ActionCard
-              title="Received"
-              detail={`${inr(receivedTotal)} today. Save one payment at a time.`}
-              action="Add payment"
-              icon="/3d-icons/money.png"
-              onOpen={() => {
-                setError('');
-                setSaved('');
-                setForm('received');
-              }}
-            />
-            <ActionCard
-              title="Fuel"
-              detail={
-                fuelLocked
-                  ? `${inr(fuel)} saved today. One fuel entry per work date.`
-                  : 'Save today’s fuel once. After that it cannot be changed.'
-              }
-              action={fuelLocked ? 'Saved today' : 'Add fuel'}
-              icon="/3d-icons/fuel.png"
-              locked={fuelLocked}
-              onOpen={() => {
-                if (fuelLocked) {
-                  return;
-                }
-                setError('');
-                setSaved('');
-                setFuel('');
-                setForm('fuel');
-              }}
-            />
-          </div>
-          {savedVisits.length ? (
-            <div className="divide-y divide-line rounded-lg border border-line bg-surface">
-              {savedVisits.map((row) => (
-                <div key={row.key} className="px-4 py-2 text-sm">
-                  <p className="font-medium">
-                    {row.shopName}
-                    {row.shopId ? <span className="font-mono text-xs text-muted"> · {row.shopId}</span> : null}
-                  </p>
-                  <p className="text-muted">
-                    {row.kind}
-                    {row.place ? ` · ${row.place}` : ''}
-                    {row.notes ? ` · ${row.notes}` : ''}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : null}
-          {savedReceived.length ? (
-            <div className="divide-y divide-line rounded-lg border border-line bg-surface">
-              {savedReceived.map((row) => (
-                <div key={row.key} className="px-4 py-2 text-sm">
-                  <p className="font-medium">
-                    {row.shopName} · {inr(row.amount)} · {row.mode}
-                  </p>
-                  <p className="text-muted">{row.gst}{row.ref ? ` · ${row.ref}` : ''}</p>
-                </div>
-              ))}
-            </div>
-          ) : null}
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() =>
-                setCsvSheet({
-                  title: 'Daily report',
-                  filename: salesCsvFilename('export'),
-                  load: () => fetchSalesCsv('export'),
-                })
-              }
-            >
-              Download this report (CSV)
-            </Button>
-          </div>
-        </div>
-        )
-      ) : null}
-
-      {tab === 'team' && !isExec ? (
-        !teamReady ? (
-          <SalesTeamSkeleton />
-        ) : dash ? (
-        <TeamReports
-          dash={dash}
-          onRefresh={() => {
-            setTeamReady(false);
-            void getSalesDashboardRequest()
-              .then(setDash)
-              .catch(() => undefined)
-              .finally(() => setTeamReady(true));
-          }}
-        />
-        ) : (
-          <p className="text-sm text-muted">No team reports yet.</p>
-        )
-      ) : null}
-
-      {tab === 'pay' ? (
-        <div className="space-y-3">
-          {payError ? <p className="text-sm text-rose">{payError}</p> : null}
-          {payLoading && !pay ? <SalesPaySkeleton /> : null}
-          {payLoading && pay ? <p className="text-sm text-muted">Refreshing workbook…</p> : null}
-          {pay ? (
-            <>
-              <div className="grid gap-3 sm:grid-cols-3">
-                <ActionCard
-                  title="Update collection"
-                  detail={`Excel for ${pay.tabTitle || pay.month} ${pay.year}. STATUS, PAYMENT MODE, DATE, REFERNCE NO only.`}
-                  action="Open form"
-                  icon="/3d-icons/money.png"
-                  onOpen={() => setForm('pay')}
-                />
-                <Card className="flex flex-col justify-between gap-3 rounded-xl p-4">
-                  <div>
-                    <h2 className="text-sm font-semibold">Month tab</h2>
-                    <p className="mt-0.5 text-xs leading-5 text-muted">Workbook month for this collection period.</p>
-                  </div>
-                  <Select
-                    value={pay.month}
-                    onChange={(event) => {
-                      setPayLoading(true);
-                      void getSalesPaymentsRequest(event.target.value, pay.year)
-                        .then((data) => {
-                          setPay(data);
-                          setPayError('');
-                          setSelectedPay(null);
-                          setPayQuery('');
-                        })
-                        .catch((cause) => setPayError(cause instanceof Error ? cause.message : 'Unable to load.'))
-                        .finally(() => setPayLoading(false));
-                    }}
-                  >
-                    {(pay.tabs?.length ? pay.tabs : SALES_MONTH_TABS).map((month) => (
-                      <option key={month} value={month.toLowerCase()}>
-                        {month}
-                      </option>
-                    ))}
-                  </Select>
-                </Card>
-                <Card className="flex flex-col justify-between gap-3 rounded-xl p-4">
-                  <div>
-                    <h2 className="text-sm font-semibold">Drive</h2>
-                    <p className="mt-0.5 text-xs leading-5 text-muted">Reload shops and amounts from the yearly workbook.</p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-8 self-start px-3 text-xs"
-                    onClick={() => {
-                      setPayLoading(true);
-                      void getSalesPaymentsRequest(pay.month, pay.year, true)
-                        .then((data) => {
-                          setPay(data);
-                          setSelectedPay((current) =>
-                            current
-                              ? data.rows.find((row) => row.shopId === current.shopId || row.shopName === current.shopName) ?? null
-                              : null,
-                          );
-                        })
-                        .catch((cause) => setPayError(cause instanceof Error ? cause.message : 'Unable to load.'))
-                        .finally(() => setPayLoading(false));
-                    }}
-                  >
-                    Refresh from Drive
-                  </Button>
-                </Card>
-              </div>
-              {fullCollection ? (
-              <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-                <table className="min-w-[1100px] w-full text-left text-sm">
-                  <thead className="border-b border-line text-xs text-muted">
-                    <tr>
-                      <th className="px-3 py-2 font-medium">Shop ID</th>
-                      <th className="px-3 py-2 font-medium">Shop name</th>
-                      <th className="px-3 py-2 font-medium">Place</th>
-                      <th className="px-3 py-2 font-medium">Amount (₹)</th>
-                      <th className="px-3 py-2 font-medium">GST</th>
-                      <th className="px-3 py-2 font-medium">Status</th>
-                      <th className="px-3 py-2 font-medium">Mode of payment</th>
-                      <th className="px-3 py-2 font-medium">Date</th>
-                      <th className="px-3 py-2 font-medium">Reference no.</th>
-                      <th className="px-3 py-2 font-medium" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pay.rows.map((row) => (
-                        <PaymentEditor
-                          key={`${row.sheetRow}-${row.shopId}`}
-                          row={row}
-                          statusOptions={pay.statusOptions}
-                          modeOptions={pay.modeOptions}
-                          showAccounts
-                          onSave={savePay}
-                        />
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+        {tab === 'day' ? (
+          !dayReady ? (
+            <SalesDaySkeleton />
+          ) : (
+            <div className="flex min-h-0 flex-1 flex-col gap-5">
+              {error && form === null ? (
+                <p className="text-sm text-rose">{error}</p>
               ) : null}
-            </>
-          ) : null}
-        </div>
-      ) : null}
-
-      {tab === 'shops' && manageShops ? (
-        !dayReady ? (
-          <SalesShopsSkeleton />
-        ) : (
-        <div className="space-y-4">
-          <p className="text-sm text-muted">
-            {shops.length} shops. Same ID updates the name and place. Executives cannot add to this list.
-          </p>
-          {shopMsg && form === null ? <p className="text-sm text-sage">{shopMsg}</p> : null}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <ActionCard
-              title="Add shop"
-              detail="One directory row: ID, name, and place."
-              action={editingShopId ? 'Continue edit' : 'Add shop'}
-              icon="/3d-icons/shop.png"
-              onOpen={() => setForm('shop')}
-            />
-            <ActionCard
-              title="Import sheet"
-              detail="Headers ID, SHOP NAME, PLACE. Preview, then confirm."
-              action="Open import"
-              icon="/3d-icons/shop.png"
-              onOpen={() => setForm('bulk')}
-            />
-          </div>
-          <div className="divide-y divide-line rounded-lg border border-line bg-surface">
-            {shops.map((shop) => (
-              <div key={shop.shopId} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
-                <p>
-                  <span className="font-mono text-xs">{shop.shopId}</span>
-                  {' · '}
-                  {shop.name}
-                  {shop.place ? <span className="text-muted"> · {shop.place}</span> : null}
+              {saved && form === null ? (
+                <p className="text-sm text-sage">{saved}</p>
+              ) : null}
+              {dayReady && shops.length === 0 ? (
+                <p className="text-sm text-muted">
+                  No shops in the directory yet.{' '}
+                  {manageShops
+                    ? 'Open the Shops tab to add one or upload the example sheet.'
+                    : 'Ask a manager or lead to add shops, or mark the visit as not in our list.'}
                 </p>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-8 px-2 text-xs"
-                    onClick={() => {
-                      setEditingShopId(shop.shopId);
-                      setShopId(shop.shopId);
-                      setShopName(shop.name);
-                      setShopPlace(shop.place);
-                      setForm('shop');
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button type="button" variant="ghost" className="h-8 px-2 text-xs text-rose" onClick={() => void removeDirectoryShop(shop.shopId, shop.name)}>
-                    Delete
-                  </Button>
-                </div>
+              ) : null}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <ActionCard
+                  title="Store visit"
+                  detail={`${savedVisits.length} saved today. One shop at a time, then the notebook.`}
+                  action="Add visit"
+                  icon="/3d-icons/shop.png"
+                  onOpen={() => {
+                    setError('');
+                    setSaved('');
+                    setForm('visit');
+                  }}
+                />
+                <ActionCard
+                  title="Received"
+                  detail={`${inr(receivedTotal)} today. Save one payment at a time.`}
+                  action="Add payment"
+                  icon="/3d-icons/money.png"
+                  onOpen={() => {
+                    setError('');
+                    setSaved('');
+                    setForm('received');
+                  }}
+                />
+                <ActionCard
+                  title="Fuel"
+                  detail={
+                    fuelLocked
+                      ? `${inr(fuel)} saved today. One fuel entry per work date.`
+                      : 'Save today’s fuel once. After that it cannot be changed.'
+                  }
+                  action={fuelLocked ? 'Saved today' : 'Add fuel'}
+                  icon="/3d-icons/fuel.png"
+                  locked={fuelLocked}
+                  onOpen={() => {
+                    if (fuelLocked) {
+                      return;
+                    }
+                    setError('');
+                    setSaved('');
+                    setFuel('');
+                    setForm('fuel');
+                  }}
+                />
               </div>
-            ))}
+              {savedVisits.length ? (
+                <div className="divide-y divide-line rounded-lg border border-line bg-surface">
+                  {savedVisits.map((row) => (
+                    <div key={row.key} className="px-4 py-2 text-sm">
+                      <p className="font-medium">
+                        {row.shopName}
+                        {row.shopId ? (
+                          <span className="font-mono text-xs text-muted">
+                            {' '}
+                            · {row.shopId}
+                          </span>
+                        ) : null}
+                      </p>
+                      <p className="text-muted">
+                        {row.kind}
+                        {row.place ? ` · ${row.place}` : ''}
+                        {row.notes ? ` · ${row.notes}` : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {savedReceived.length ? (
+                <div className="divide-y divide-line rounded-lg border border-line bg-surface">
+                  {savedReceived.map((row) => (
+                    <div key={row.key} className="px-4 py-2 text-sm">
+                      <p className="font-medium">
+                        {row.shopName} · {inr(row.amount)} · {row.mode}
+                      </p>
+                      <p className="text-muted">
+                        {row.gst}
+                        {row.ref ? ` · ${row.ref}` : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setCsvSheet({
+                      title: 'Daily report',
+                      filename: salesCsvFilename('export'),
+                      load: () => fetchSalesCsv('export'),
+                    })
+                  }
+                >
+                  Download this report (CSV)
+                </Button>
+              </div>
+            </div>
+          )
+        ) : null}
+
+        {tab === 'team' && !isExec ? (
+          !teamReady ? (
+            <SalesTeamSkeleton />
+          ) : dash ? (
+            <TeamReports
+              dash={dash}
+              onRefresh={() => {
+                setTeamReady(false);
+                void getSalesDashboardRequest()
+                  .then(setDash)
+                  .catch(() => undefined)
+                  .finally(() => setTeamReady(true));
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted">No team reports yet.</p>
+          )
+        ) : null}
+
+        {tab === 'pay' ? (
+          <div className="space-y-3">
+            {payError ? <p className="text-sm text-rose">{payError}</p> : null}
+            {payLoading && !pay ? <SalesPaySkeleton /> : null}
+            {payLoading && pay ? (
+              <p className="text-sm text-muted">Refreshing workbook…</p>
+            ) : null}
+            {pay ? (
+              <>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <ActionCard
+                    title="Update collection"
+                    detail={`Excel for ${pay.tabTitle || pay.month} ${pay.year}. STATUS, PAYMENT MODE, DATE, REFERNCE NO only.`}
+                    action="Open form"
+                    icon="/3d-icons/money.png"
+                    onOpen={() => setForm('pay')}
+                  />
+                  <Card className="flex flex-col justify-between gap-3 rounded-xl p-4">
+                    <div>
+                      <h2 className="text-sm font-semibold">Month tab</h2>
+                      <p className="mt-0.5 text-xs leading-5 text-muted">
+                        Workbook month for this collection period.
+                      </p>
+                    </div>
+                    <Select
+                      value={pay.month}
+                      onChange={(event) => {
+                        setPayLoading(true);
+                        void getSalesPaymentsRequest(event.target.value, pay.year)
+                          .then((data) => {
+                            setPay(data);
+                            setPayError('');
+                            setSelectedPay(null);
+                            setPayQuery('');
+                          })
+                          .catch((cause) =>
+                            setPayError(
+                              cause instanceof Error ? cause.message : 'Unable to load.',
+                            ),
+                          )
+                          .finally(() => setPayLoading(false));
+                      }}
+                    >
+                      {(pay.tabs?.length ? pay.tabs : SALES_MONTH_TABS).map((month) => (
+                        <option key={month} value={month.toLowerCase()}>
+                          {month}
+                        </option>
+                      ))}
+                    </Select>
+                  </Card>
+                  <Card className="flex flex-col justify-between gap-3 rounded-xl p-4">
+                    <div>
+                      <h2 className="text-sm font-semibold">Drive</h2>
+                      <p className="mt-0.5 text-xs leading-5 text-muted">
+                        Reload shops and amounts from the yearly workbook.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-8 self-start px-3 text-xs"
+                      onClick={() => {
+                        setPayLoading(true);
+                        void getSalesPaymentsRequest(pay.month, pay.year, true)
+                          .then((data) => {
+                            setPay(data);
+                            setSelectedPay((current) =>
+                              current
+                                ? (data.rows.find(
+                                    (row) =>
+                                      row.shopId === current.shopId ||
+                                      row.shopName === current.shopName,
+                                  ) ?? null)
+                                : null,
+                            );
+                          })
+                          .catch((cause) =>
+                            setPayError(
+                              cause instanceof Error ? cause.message : 'Unable to load.',
+                            ),
+                          )
+                          .finally(() => setPayLoading(false));
+                      }}
+                    >
+                      Refresh from Drive
+                    </Button>
+                  </Card>
+                </div>
+                {fullCollection ? (
+                  <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+                    <table className="min-w-[1100px] w-full text-left text-sm">
+                      <thead className="border-b border-line text-xs text-muted">
+                        <tr>
+                          <th className="px-3 py-2 font-medium">Shop ID</th>
+                          <th className="px-3 py-2 font-medium">Shop name</th>
+                          <th className="px-3 py-2 font-medium">Place</th>
+                          <th className="px-3 py-2 font-medium">Amount (₹)</th>
+                          <th className="px-3 py-2 font-medium">GST</th>
+                          <th className="px-3 py-2 font-medium">Status</th>
+                          <th className="px-3 py-2 font-medium">Mode of payment</th>
+                          <th className="px-3 py-2 font-medium">Date</th>
+                          <th className="px-3 py-2 font-medium">Reference no.</th>
+                          <th className="px-3 py-2 font-medium" />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pay.rows.map((row) => (
+                          <PaymentEditor
+                            key={`${row.sheetRow}-${row.shopId}`}
+                            row={row}
+                            statusOptions={pay.statusOptions}
+                            modeOptions={pay.modeOptions}
+                            showAccounts
+                            onSave={savePay}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
           </div>
-        </div>
-        )
-      ) : null}
+        ) : null}
+
+        {tab === 'shops' && manageShops ? (
+          !dayReady ? (
+            <SalesShopsSkeleton />
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted">
+                {shops.length} shops. Same ID updates the name and place. Executives
+                cannot add to this list.
+              </p>
+              {shopMsg && form === null ? (
+                <p className="text-sm text-sage">{shopMsg}</p>
+              ) : null}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <ActionCard
+                  title="Add shop"
+                  detail="One directory row: ID, name, and place."
+                  action={editingShopId ? 'Continue edit' : 'Add shop'}
+                  icon="/3d-icons/shop.png"
+                  onOpen={() => setForm('shop')}
+                />
+                <ActionCard
+                  title="Import sheet"
+                  detail="Headers ID, SHOP NAME, PLACE. Preview, then confirm."
+                  action="Open import"
+                  icon="/3d-icons/shop.png"
+                  onOpen={() => setForm('bulk')}
+                />
+              </div>
+              <div className="divide-y divide-line rounded-lg border border-line bg-surface">
+                {shops.map((shop) => (
+                  <div
+                    key={shop.shopId}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm"
+                  >
+                    <p>
+                      <span className="font-mono text-xs">{shop.shopId}</span>
+                      {' · '}
+                      {shop.name}
+                      {shop.place ? (
+                        <span className="text-muted"> · {shop.place}</span>
+                      ) : null}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-8 px-2 text-xs"
+                        onClick={() => {
+                          setEditingShopId(shop.shopId);
+                          setShopId(shop.shopId);
+                          setShopName(shop.name);
+                          setShopPlace(shop.place);
+                          setForm('shop');
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="h-8 px-2 text-xs text-rose"
+                        onClick={() => void removeDirectoryShop(shop.shopId, shop.name)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        ) : null}
       </div>
 
       <FormModal
@@ -760,7 +894,12 @@ export function SalesPage() {
           {saved ? <p className="text-sm text-sage">{saved}</p> : null}
           <ShopFields shops={shops} row={visit} onChange={setVisit} />
           <Field label="Type">
-            <Select value={visit.kind} onChange={(event) => setVisit((current) => ({ ...current, kind: event.target.value }))}>
+            <Select
+              value={visit.kind}
+              onChange={(event) =>
+                setVisit((current) => ({ ...current, kind: event.target.value }))
+              }
+            >
               <option value={SALES_VISIT_KIND.VISIT}>Store visit</option>
               <option value={SALES_VISIT_KIND.DEMO}>Demo shown</option>
               <option value={SALES_VISIT_KIND.INSTALLATION}>Installation</option>
@@ -771,7 +910,9 @@ export function SalesPage() {
               type="number"
               min={0}
               value={visit.count}
-              onChange={(event) => setVisit((current) => ({ ...current, count: Number(event.target.value) }))}
+              onChange={(event) =>
+                setVisit((current) => ({ ...current, count: Number(event.target.value) }))
+              }
             />
           </Field>
           <Field label="Notes">
@@ -779,7 +920,9 @@ export function SalesPage() {
               className="min-h-24 w-full rounded-md border border-line bg-surface p-3 text-sm"
               placeholder="Issues, updates, or anything from this shop"
               value={visit.notes}
-              onChange={(event) => setVisit((current) => ({ ...current, notes: event.target.value }))}
+              onChange={(event) =>
+                setVisit((current) => ({ ...current, notes: event.target.value }))
+              }
             />
           </Field>
         </div>
@@ -809,7 +952,12 @@ export function SalesPage() {
         description="One fuel amount per work date. After save it is locked for today."
         onClose={() => setForm(null)}
         footer={
-          <Button type="button" className="w-full" disabled={fuelLocked} onClick={() => saveFuel()}>
+          <Button
+            type="button"
+            className="w-full"
+            disabled={fuelLocked}
+            onClick={() => saveFuel()}
+          >
             Save fuel
           </Button>
         }
@@ -818,7 +966,13 @@ export function SalesPage() {
           {error ? <p className="text-sm text-rose">{error}</p> : null}
           {saved ? <p className="text-sm text-sage">{saved}</p> : null}
           <Field label="Fuel (₹)">
-            <Input type="number" min={0} placeholder="0" value={fuel} onChange={(event) => setFuel(event.target.value)} />
+            <Input
+              type="number"
+              min={0}
+              placeholder="0"
+              value={fuel}
+              onChange={(event) => setFuel(event.target.value)}
+            />
           </Field>
         </div>
       </FormModal>
@@ -847,7 +1001,9 @@ export function SalesPage() {
                     if (!needle) {
                       return true;
                     }
-                    return `${row.shopId} ${row.shopName} ${row.place}`.toLowerCase().includes(needle);
+                    return `${row.shopId} ${row.shopName} ${row.place}`
+                      .toLowerCase()
+                      .includes(needle);
                   })
                   .slice(0, 40)
                   .map((row) => (
@@ -863,7 +1019,9 @@ export function SalesPage() {
                       <span className="font-mono text-xs">{row.shopId || '—'}</span>
                       {' · '}
                       {row.shopName}
-                      {row.place ? <span className="text-muted"> · {row.place}</span> : null}
+                      {row.place ? (
+                        <span className="text-muted"> · {row.place}</span>
+                      ) : null}
                     </button>
                   ))}
               </div>
@@ -934,13 +1092,26 @@ export function SalesPage() {
         <div className="space-y-3">
           {shopMsg ? <p className="text-sm text-sage">{shopMsg}</p> : null}
           <Field label="ID">
-            <Input placeholder="ID" value={shopId} onChange={(event) => setShopId(event.target.value)} disabled={Boolean(editingShopId)} />
+            <Input
+              placeholder="ID"
+              value={shopId}
+              onChange={(event) => setShopId(event.target.value)}
+              disabled={Boolean(editingShopId)}
+            />
           </Field>
           <Field label="SHOP NAME">
-            <Input placeholder="SHOP NAME" value={shopName} onChange={(event) => setShopName(event.target.value)} />
+            <Input
+              placeholder="SHOP NAME"
+              value={shopName}
+              onChange={(event) => setShopName(event.target.value)}
+            />
           </Field>
           <Field label="PLACE">
-            <Input placeholder="PLACE" value={shopPlace} onChange={(event) => setShopPlace(event.target.value)} />
+            <Input
+              placeholder="PLACE"
+              value={shopPlace}
+              onChange={(event) => setShopPlace(event.target.value)}
+            />
           </Field>
         </div>
       </FormModal>
@@ -983,7 +1154,9 @@ export function SalesPage() {
           </div>
           <textarea
             className="min-h-32 w-full rounded-md border border-line bg-surface p-3 font-mono text-xs"
-            placeholder={'ID,SHOP NAME,PLACE\n100022,Families Hypermart Chikkabasavanapura,K R Puram'}
+            placeholder={
+              'ID,SHOP NAME,PLACE\n100022,Families Hypermart Chikkabasavanapura,K R Puram'
+            }
             value={shopCsv}
             onChange={(event) => setShopCsv(event.target.value)}
           />
@@ -993,14 +1166,21 @@ export function SalesPage() {
           {pendingBulk ? (
             <div className="space-y-2 rounded-md border border-line p-3">
               <p className="text-sm">
-                {pendingBulk.count} rows · {pendingBulk.created} new · {pendingBulk.updated} updates
+                {pendingBulk.count} rows · {pendingBulk.created} new ·{' '}
+                {pendingBulk.updated} updates
               </p>
-              {pendingBulk.errors.length ? <p className="text-xs text-rose">{pendingBulk.errors.join(' ')}</p> : null}
+              {pendingBulk.errors.length ? (
+                <p className="text-xs text-rose">{pendingBulk.errors.join(' ')}</p>
+              ) : null}
               <div className="flex gap-2">
                 <Button type="button" onClick={() => void confirmBulk()}>
                   Confirm upsert
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setPendingBulk(null)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setPendingBulk(null)}
+                >
                   Cancel
                 </Button>
               </div>
@@ -1039,7 +1219,12 @@ function ActionCard({
           <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
           <p className="mt-0.5 text-xs leading-5 text-muted">{detail}</p>
         </div>
-        <Button type="button" className="h-8 self-start px-3 text-xs" disabled={locked} onClick={onOpen}>
+        <Button
+          type="button"
+          className="h-8 self-start px-3 text-xs"
+          disabled={locked}
+          onClick={onOpen}
+        >
           {action}
         </Button>
       </div>
@@ -1167,7 +1352,16 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function blankVisit(): VisitRow {
-  return { key: uid(), shopId: '', shopName: '', place: '', listed: true, kind: SALES_VISIT_KIND.VISIT, count: 1, notes: '' };
+  return {
+    key: uid(),
+    shopId: '',
+    shopName: '',
+    place: '',
+    listed: true,
+    kind: SALES_VISIT_KIND.VISIT,
+    count: 1,
+    notes: '',
+  };
 }
 
 function blankReceived(): ReceivedRow {
@@ -1196,9 +1390,14 @@ function applyExcelShop(
     return { ...row, shopId, shopName };
   }
   const gstRaw = excel.gst.trim().toLowerCase();
-  const gst: ReceivedRow['gst'] = gstRaw === 'non-gst' || gstRaw === 'no' || gstRaw === 'non gst' ? 'Non-GST' : 'GST';
+  const gst: ReceivedRow['gst'] =
+    gstRaw === 'non-gst' || gstRaw === 'no' || gstRaw === 'non gst' ? 'Non-GST' : 'GST';
   const modeRaw = excel.paymentMode.toLowerCase();
-  const mode: ReceivedRow['mode'] = modeRaw.includes('cheque') ? 'Cheque' : modeRaw.includes('upi') || modeRaw.includes('online') ? 'UPI' : 'Cash';
+  const mode: ReceivedRow['mode'] = modeRaw.includes('cheque')
+    ? 'Cheque'
+    : modeRaw.includes('upi') || modeRaw.includes('online')
+      ? 'UPI'
+      : 'Cash';
   return {
     ...row,
     shopId: excel.shopId || shopId,
@@ -1220,7 +1419,13 @@ function PaymentFields({
   row: SalesPaymentsView['rows'][number];
   statusOptions: string[];
   modeOptions: string[];
-  onSave: (row: SalesPaymentsView['rows'][number], status: string, mode: string, reference: string, date: string) => void;
+  onSave: (
+    row: SalesPaymentsView['rows'][number],
+    status: string,
+    mode: string,
+    reference: string,
+    date: string,
+  ) => void;
 }) {
   const [status, setStatus] = useState(row.status);
   const [mode, setMode] = useState(row.paymentMode);
@@ -1236,25 +1441,41 @@ function PaymentFields({
     <div className="grid gap-3 sm:grid-cols-2">
       <Field label="STATUS">
         <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-          {[status, ...statusOptions.filter((item) => item !== status), 'PAID', 'PENDING'].filter((item, index, all) => item && all.indexOf(item) === index).map((item) => (
-            <option key={item}>{item}</option>
-          ))}
+          {[status, ...statusOptions.filter((item) => item !== status), 'PAID', 'PENDING']
+            .filter((item, index, all) => item && all.indexOf(item) === index)
+            .map((item) => (
+              <option key={item}>{item}</option>
+            ))}
         </Select>
       </Field>
       <Field label="PAYMENT MODE">
         <Select value={mode} onChange={(event) => setMode(event.target.value)}>
-          {[mode, ...modeOptions.filter((item) => item !== mode), 'Cash', 'Cheque', 'UPI'].filter((item, index, all) => item && all.indexOf(item) === index).map((item) => (
-            <option key={item}>{item}</option>
-          ))}
+          {[mode, ...modeOptions.filter((item) => item !== mode), 'Cash', 'Cheque', 'UPI']
+            .filter((item, index, all) => item && all.indexOf(item) === index)
+            .map((item) => (
+              <option key={item}>{item}</option>
+            ))}
         </Select>
       </Field>
       <Field label="DATE">
-        <Input value={date} placeholder="DATE" onChange={(event) => setDate(event.target.value)} />
+        <Input
+          value={date}
+          placeholder="DATE"
+          onChange={(event) => setDate(event.target.value)}
+        />
       </Field>
       <Field label="REFERNCE NO">
-        <Input value={reference} placeholder="REFERNCE NO" onChange={(event) => setReference(event.target.value)} />
+        <Input
+          value={reference}
+          placeholder="REFERNCE NO"
+          onChange={(event) => setReference(event.target.value)}
+        />
       </Field>
-      <Button type="button" disabled={!row.shopId && !row.shopName} onClick={() => onSave(row, status, mode, reference, date)}>
+      <Button
+        type="button"
+        disabled={!row.shopId && !row.shopName}
+        onClick={() => onSave(row, status, mode, reference, date)}
+      >
         Save to Excel
       </Button>
     </div>
@@ -1282,21 +1503,31 @@ function ShopFields({
   return (
     <div className="space-y-2">
       <Field label="Store name or ID">
-      <Input
-        placeholder="Shop name or ID"
-        value={query}
-        onFocus={() => setOpen(true)}
-        onBlur={() => window.setTimeout(() => setOpen(false), 150)}
-        onChange={(event) => {
-          const value = event.target.value;
-          const hit = shops.find((shop) => shop.shopId === value || shop.name.toLowerCase() === value.trim().toLowerCase());
-          if (hit) {
-            onChange({ ...row, shopId: hit.shopId, shopName: hit.name, place: hit.place, listed: true });
-            return;
-          }
-          onChange({ ...row, shopName: value, listed: false, shopId: '' });
-        }}
-      />
+        <Input
+          placeholder="Shop name or ID"
+          value={query}
+          onFocus={() => setOpen(true)}
+          onBlur={() => window.setTimeout(() => setOpen(false), 150)}
+          onChange={(event) => {
+            const value = event.target.value;
+            const hit = shops.find(
+              (shop) =>
+                shop.shopId === value ||
+                shop.name.toLowerCase() === value.trim().toLowerCase(),
+            );
+            if (hit) {
+              onChange({
+                ...row,
+                shopId: hit.shopId,
+                shopName: hit.name,
+                place: hit.place,
+                listed: true,
+              });
+              return;
+            }
+            onChange({ ...row, shopName: value, listed: false, shopId: '' });
+          }}
+        />
       </Field>
       {open && matches.length > 0 ? (
         <div className="max-h-40 overflow-auto rounded-md border border-line">
@@ -1307,7 +1538,13 @@ function ShopFields({
               className="block w-full px-2 py-1 text-left text-sm hover:bg-line/40"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => {
-                onChange({ ...row, shopId: shop.shopId, shopName: shop.name, place: shop.place, listed: true });
+                onChange({
+                  ...row,
+                  shopId: shop.shopId,
+                  shopName: shop.name,
+                  place: shop.place,
+                  listed: true,
+                });
                 setOpen(false);
               }}
             >
@@ -1320,12 +1557,22 @@ function ShopFields({
         <input
           type="checkbox"
           checked={!row.listed}
-          onChange={(event) => onChange({ ...row, listed: !event.target.checked, shopId: event.target.checked ? '' : row.shopId })}
+          onChange={(event) =>
+            onChange({
+              ...row,
+              listed: !event.target.checked,
+              shopId: event.target.checked ? '' : row.shopId,
+            })
+          }
         />
         Shop is not in our list (notes only, not saved to directory)
       </label>
       <Field label="PLACE">
-        <Input placeholder="Place" value={row.place} onChange={(event) => onChange({ ...row, place: event.target.value })} />
+        <Input
+          placeholder="Place"
+          value={row.place}
+          onChange={(event) => onChange({ ...row, place: event.target.value })}
+        />
       </Field>
     </div>
   );
@@ -1363,7 +1610,9 @@ function ReceivedFields({
       })
       .catch((cause) => {
         if (!cancelled) {
-          setSheetError(cause instanceof Error ? cause.message : 'Unable to load that month sheet.');
+          setSheetError(
+            cause instanceof Error ? cause.message : 'Unable to load that month sheet.',
+          );
           setSheet(null);
         }
       })
@@ -1380,10 +1629,18 @@ function ReceivedFields({
   const excelRows = sheet?.rows ?? [];
   const needle = query.trim().toLowerCase();
   const excelMatches = excelRows.filter(
-    (item) => !needle || `${item.shopId} ${item.shopName} ${item.place}`.toLowerCase().includes(needle),
+    (item) =>
+      !needle ||
+      `${item.shopId} ${item.shopName} ${item.place}`.toLowerCase().includes(needle),
   );
-  const directoryMatches = shops.filter((shop) => !needle || `${shop.shopId} ${shop.name}`.toLowerCase().includes(needle));
-  const tabs = sheet?.tabs?.length ? sheet.tabs : pay?.tabs?.length ? pay.tabs : [...SALES_MONTH_TABS];
+  const directoryMatches = shops.filter(
+    (shop) => !needle || `${shop.shopId} ${shop.name}`.toLowerCase().includes(needle),
+  );
+  const tabs = sheet?.tabs?.length
+    ? sheet.tabs
+    : pay?.tabs?.length
+      ? pay.tabs
+      : [...SALES_MONTH_TABS];
 
   function pickExcel(shop: SalesPaymentsView['rows'][number]) {
     onChange({
@@ -1426,7 +1683,8 @@ function ReceivedFields({
           </Select>
         </Field>
         <p className="mt-1 text-xs text-muted">
-          Shops from {sheet?.tabTitle || month} {year}. Default is {period.tab} (previous calendar month).
+          Shops from {sheet?.tabTitle || month} {year}. Default is {period.tab} (previous
+          calendar month).
         </p>
       </div>
       <div className="sm:col-span-2 space-y-1">
@@ -1438,9 +1696,15 @@ function ReceivedFields({
               const value = event.target.value;
               setQuery(value);
               const excel = excelRows.find(
-                (item) => item.shopId === value || item.shopName.toLowerCase() === value.trim().toLowerCase(),
+                (item) =>
+                  item.shopId === value ||
+                  item.shopName.toLowerCase() === value.trim().toLowerCase(),
               );
-              const hit = shops.find((shop) => shop.shopId === value || shop.name.toLowerCase() === value.trim().toLowerCase());
+              const hit = shops.find(
+                (shop) =>
+                  shop.shopId === value ||
+                  shop.name.toLowerCase() === value.trim().toLowerCase(),
+              );
               if (excel) {
                 onChange({
                   ...applyExcelShop(row, excel, excel.shopId, excel.shopName),
@@ -1452,7 +1716,14 @@ function ReceivedFields({
               }
               onChange(
                 hit
-                  ? { ...row, shopId: hit.shopId, shopName: hit.name, month, year, sheetRow: null }
+                  ? {
+                      ...row,
+                      shopId: hit.shopId,
+                      shopName: hit.name,
+                      month,
+                      year,
+                      sheetRow: null,
+                    }
                   : { ...row, shopId: '', shopName: value, month, year, sheetRow: null },
               );
             }}
@@ -1491,7 +1762,14 @@ function ReceivedFields({
                 className="block w-full px-2 py-1.5 text-left text-sm hover:bg-line/40"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
-                  onChange({ ...row, shopId: shop.shopId, shopName: shop.name, month, year, sheetRow: null });
+                  onChange({
+                    ...row,
+                    shopId: shop.shopId,
+                    shopName: shop.name,
+                    month,
+                    year,
+                    sheetRow: null,
+                  });
                   setQuery(`${shop.shopId} ${shop.name}`.trim());
                 }}
               >
@@ -1505,27 +1783,51 @@ function ReceivedFields({
         ) : null}
       </div>
       <Field label="Amount (₹)">
-        <Input type="number" min={0} placeholder="0" value={row.amount} onChange={(event) => onChange({ ...row, amount: event.target.value })} />
+        <Input
+          type="number"
+          min={0}
+          placeholder="0"
+          value={row.amount}
+          onChange={(event) => onChange({ ...row, amount: event.target.value })}
+        />
       </Field>
       <Field label="GST type">
-        <Select value={row.gst} onChange={(event) => onChange({ ...row, gst: event.target.value as 'GST' | 'Non-GST' })}>
+        <Select
+          value={row.gst}
+          onChange={(event) =>
+            onChange({ ...row, gst: event.target.value as 'GST' | 'Non-GST' })
+          }
+        >
           <option value="GST">GST</option>
           <option value="Non-GST">Non-GST</option>
         </Select>
       </Field>
       <Field label="Mode of payment">
-        <Select value={row.mode} onChange={(event) => onChange({ ...row, mode: event.target.value as ReceivedRow['mode'] })}>
+        <Select
+          value={row.mode}
+          onChange={(event) =>
+            onChange({ ...row, mode: event.target.value as ReceivedRow['mode'] })
+          }
+        >
           <option>Cash</option>
           <option>Cheque</option>
           <option>UPI</option>
         </Select>
       </Field>
       <Field label="Payment ref">
-        <Input placeholder="Transaction / reference no." value={row.ref} onChange={(event) => onChange({ ...row, ref: event.target.value })} />
+        <Input
+          placeholder="Transaction / reference no."
+          value={row.ref}
+          onChange={(event) => onChange({ ...row, ref: event.target.value })}
+        />
       </Field>
       {row.mode === 'Cheque' ? (
         <Field label="Bank name">
-          <Input placeholder="Bank name" value={row.bankName} onChange={(event) => onChange({ ...row, bankName: event.target.value })} />
+          <Input
+            placeholder="Bank name"
+            value={row.bankName}
+            onChange={(event) => onChange({ ...row, bankName: event.target.value })}
+          />
         </Field>
       ) : null}
     </div>
@@ -1543,7 +1845,13 @@ function PaymentEditor({
   statusOptions: string[];
   modeOptions: string[];
   showAccounts: boolean;
-  onSave: (row: SalesPaymentsView['rows'][number], status: string, mode: string, reference: string, date: string) => void;
+  onSave: (
+    row: SalesPaymentsView['rows'][number],
+    status: string,
+    mode: string,
+    reference: string,
+    date: string,
+  ) => void;
 }) {
   const [status, setStatus] = useState(row.status);
   const [mode, setMode] = useState(row.paymentMode);
@@ -1568,23 +1876,35 @@ function PaymentEditor({
       ) : null}
       <td className="px-3 py-2">
         <Select value={status} onChange={(event) => setStatus(event.target.value)}>
-          {[status, ...statusOptions.filter((item) => item !== status)].filter(Boolean).map((item) => (
-            <option key={item}>{item}</option>
-          ))}
+          {[status, ...statusOptions.filter((item) => item !== status)]
+            .filter(Boolean)
+            .map((item) => (
+              <option key={item}>{item}</option>
+            ))}
         </Select>
       </td>
       <td className="px-3 py-2">
         <Select value={mode} onChange={(event) => setMode(event.target.value)}>
-          {[mode, ...modeOptions.filter((item) => item !== mode)].filter(Boolean).map((item) => (
-            <option key={item}>{item}</option>
-          ))}
+          {[mode, ...modeOptions.filter((item) => item !== mode)]
+            .filter(Boolean)
+            .map((item) => (
+              <option key={item}>{item}</option>
+            ))}
         </Select>
       </td>
       <td className="px-3 py-2">
-        <Input value={date} placeholder="DATE" onChange={(event) => setDate(event.target.value)} />
+        <Input
+          value={date}
+          placeholder="DATE"
+          onChange={(event) => setDate(event.target.value)}
+        />
       </td>
       <td className="px-3 py-2">
-        <Input value={reference} placeholder="REFERNCE NO" onChange={(event) => setReference(event.target.value)} />
+        <Input
+          value={reference}
+          placeholder="REFERNCE NO"
+          onChange={(event) => setReference(event.target.value)}
+        />
       </td>
       <td className="px-3 py-2">
         <Button
@@ -1596,7 +1916,9 @@ function PaymentEditor({
         >
           Save
         </Button>
-        {row.updatedByName ? <p className="mt-1 text-[11px] text-muted">{row.updatedByName}</p> : null}
+        {row.updatedByName ? (
+          <p className="mt-1 text-[11px] text-muted">{row.updatedByName}</p>
+        ) : null}
       </td>
     </tr>
   );

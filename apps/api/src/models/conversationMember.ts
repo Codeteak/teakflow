@@ -56,7 +56,10 @@ if (db) {
     },
   );
 
-  Conversation.hasMany(ConversationMember, { foreignKey: 'conversationId', as: 'memberships' });
+  Conversation.hasMany(ConversationMember, {
+    foreignKey: 'conversationId',
+    as: 'memberships',
+  });
   ConversationMember.belongsTo(Conversation, { foreignKey: 'conversationId' });
   ConversationMember.belongsTo(User, { foreignKey: 'userId' });
   User.hasMany(ConversationMember, { foreignKey: 'userId' });

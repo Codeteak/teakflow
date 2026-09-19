@@ -1,6 +1,19 @@
 import { Router } from 'express';
 import { requireAuth } from '../middlewares/auth/index';
-import { csv, createShops, dashboard, day, editShop, payments, removeShop, saveDay, shops, shopsTemplate, summaryCsv, updatePayment } from '../controllers/sales/index';
+import {
+  csv,
+  createShops,
+  dashboard,
+  day,
+  editShop,
+  payments,
+  removeShop,
+  saveDay,
+  shops,
+  shopsTemplate,
+  summaryCsv,
+  updatePayment,
+} from '../controllers/sales/index';
 
 export const salesRouter = Router();
 

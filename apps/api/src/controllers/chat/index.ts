@@ -58,7 +58,9 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function show(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json({ data: await getConversation(req.userId!, param(req, 'id'), req.user!.role) });
+    res.json({
+      data: await getConversation(req.userId!, param(req, 'id'), req.user!.role),
+    });
   } catch (error) {
     next(error);
   }
@@ -66,7 +68,9 @@ export async function show(req: Request, res: Response, next: NextFunction) {
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json({ data: await deleteChannel(req.userId!, req.user!.role, param(req, 'id')) });
+    res.json({
+      data: await deleteChannel(req.userId!, req.user!.role, param(req, 'id')),
+    });
   } catch (error) {
     next(error);
   }
@@ -75,7 +79,12 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
 export async function addMember(req: Request, res: Response, next: NextFunction) {
   try {
     res.json({
-      data: await addConversationMember(req.userId!, req.user!.role, param(req, 'id'), req.body.userId),
+      data: await addConversationMember(
+        req.userId!,
+        req.user!.role,
+        param(req, 'id'),
+        req.body.userId,
+      ),
     });
   } catch (error) {
     next(error);
@@ -100,7 +109,9 @@ export async function removeMember(req: Request, res: Response, next: NextFuncti
 export async function messages(req: Request, res: Response, next: NextFunction) {
   try {
     const thread = typeof req.query.thread === 'string' ? req.query.thread : undefined;
-    res.json({ data: await listMessages(req.userId!, param(req, 'id'), thread, req.user!.role) });
+    res.json({
+      data: await listMessages(req.userId!, param(req, 'id'), thread, req.user!.role),
+    });
   } catch (error) {
     next(error);
   }
@@ -133,7 +144,9 @@ export async function search(req: Request, res: Response, next: NextFunction) {
         q: typeof req.query.q === 'string' ? req.query.q : undefined,
         senderId: typeof req.query.senderId === 'string' ? req.query.senderId : undefined,
         conversationId:
-          typeof req.query.conversationId === 'string' ? req.query.conversationId : undefined,
+          typeof req.query.conversationId === 'string'
+            ? req.query.conversationId
+            : undefined,
         from: typeof req.query.from === 'string' ? req.query.from : undefined,
         to: typeof req.query.to === 'string' ? req.query.to : undefined,
       }),
@@ -145,7 +158,9 @@ export async function search(req: Request, res: Response, next: NextFunction) {
 
 export async function patchMessage(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json({ data: await updateMessage(req.userId!, param(req, 'id'), req.body.content) });
+    res.json({
+      data: await updateMessage(req.userId!, param(req, 'id'), req.body.content),
+    });
   } catch (error) {
     next(error);
   }
@@ -161,7 +176,9 @@ export async function destroyMessage(req: Request, res: Response, next: NextFunc
 
 export async function react(req: Request, res: Response, next: NextFunction) {
   try {
-    res.json({ data: await addReaction(req.userId!, param(req, 'id'), req.body.reaction) });
+    res.json({
+      data: await addReaction(req.userId!, param(req, 'id'), req.body.reaction),
+    });
   } catch (error) {
     next(error);
   }

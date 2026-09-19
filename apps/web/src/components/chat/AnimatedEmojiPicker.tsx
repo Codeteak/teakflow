@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { DEFAULT_REACTIONS } from '@teakflow/shared';
 import { AnimatedEmoji } from '@/components/chat/AnimatedEmoji';
@@ -42,7 +49,9 @@ function positionPanel(trigger: DOMRect): PanelPos {
   }
   left = Math.min(Math.max(GAP, left), vw - PICKER_WIDTH - GAP);
 
-  const top = openBelow ? trigger.bottom + GAP : Math.max(GAP, trigger.top - GAP - maxHeight);
+  const top = openBelow
+    ? trigger.bottom + GAP
+    : Math.max(GAP, trigger.top - GAP - maxHeight);
 
   return { top, left, maxHeight };
 }
@@ -89,9 +98,14 @@ export function AnimatedEmojiPicker({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<(typeof CATEGORY_TABS)[number]['id']>('smileys');
+  const [category, setCategory] =
+    useState<(typeof CATEGORY_TABS)[number]['id']>('smileys');
   const [icons, setIcons] = useState<NotoAnimatedIcon[]>([]);
-  const [pos, setPos] = useState<PanelPos>({ top: 0, left: 0, maxHeight: PICKER_MAX_HEIGHT });
+  const [pos, setPos] = useState<PanelPos>({
+    top: 0,
+    left: 0,
+    maxHeight: PICKER_MAX_HEIGHT,
+  });
 
   useEffect(() => {
     let cancelled = false;

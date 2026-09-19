@@ -20,6 +20,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 ## Phase 1 — Foundation
 
 ### WH-101 Auth
+
 - [x] `POST /api/v1/auth/login` with bcrypt password verify
 - [x] `POST /api/v1/auth/logout` and session/token invalidation
 - [x] `GET /api/v1/auth/me`
@@ -28,6 +29,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Wire login page to the API; remove the preview bypass
 
 ### WH-102 Database (Supabase)
+
 - [x] Fill `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` from the Supabase project
 - [x] Sequelize SSL connection to Supabase Postgres (session pooler or direct)
 - [x] Models: users, roles, daily_work_entries, conversations, conversation_members, messages, message_reactions, notifications, meetings, meeting_participants, channels/conversation types, audit_logs, company_settings (reads via `last_read_message_id` on members)
@@ -37,6 +39,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Keep Cloudinary secrets on the API only; the web app receives public file URLs
 
 ### WH-103 RBAC
+
 - [x] Auth middleware reads the session on every protected route
 - [x] Role middleware for Admin / Manager / Lead / Employee
 - [x] Four-tier reporting: Employee → Lead or Manager; Lead → Manager; Manager may head multiple departments
@@ -44,6 +47,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Frontend hides admin routes; backend still rejects unauthorized calls
 
 ### WH-104 App shell
+
 - [x] Replace preview user chip with `auth/me`
 - [x] Route guards
 - [x] Responsive sidebar / mobile nav
@@ -54,6 +58,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 ## Phase 2 — Daily Work
 
 ### WH-201 Employee today
+
 - [x] `GET /daily-work/today` returns state: LOCKED, OPEN, SUBMITTED, LATE_AVAILABLE, MISSED
 - [x] State uses server time + company timezone
 - [x] Editor only mounts when state is OPEN or LATE_AVAILABLE
@@ -63,6 +68,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Work / Plan tabs on the daily work main area (`/daily-work`, `/daily-work/plan`)
 
 ### WH-202 Submit and lock
+
 - [x] `POST /daily-work` validates window, length, whitespace, uniqueness
 - [x] Store server `submitted_at`
 - [x] Mark LATE when outside window if late is allowed; otherwise reject
@@ -73,11 +79,13 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Notebook auto-saves a local draft while typing
 
 ### WH-203 History
+
 - [x] `GET /daily-work/history`
 - [x] `GET /daily-work/:id` read-only
 - [x] Employee can open only their own history
 
 ### WH-204 Manager / admin monitoring
+
 - [x] `GET /daily-work/admin` counts: submitted, pending, late, missed
 - [x] Row list with name, status, submitted time
 - [x] `GET /daily-work/user/:userId` read-only for permitted managers/admins
@@ -87,6 +95,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Admin assigns employees to a manager or lead; manager daily-work view is the reporting tree; Lead sees their people
 
 ### WH-205 Settings and reminders
+
 - [x] Admin can set start/end times for the daily-work submission window
 - [x] Admin can set min/max chars, allow late, reminder time, timezone
 - [x] Job/cron: notify when window opens
@@ -99,12 +108,14 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 ## Phase 3 — Chat
 
 ### WH-301 Conversations
+
 - [x] Direct messages, group conversations, public/private channels
 - [x] `GET/POST /conversations` and membership rules
 - [x] Default channels from shared constants
 - [x] Admin creates/deletes company channels
 
 ### WH-302 Realtime messages
+
 - [x] Socket.IO auth, `user:{id}` and `conversation:{id}` rooms
 - [x] Persist message, then emit `message:new`
 - [x] Edit (`updated_at`, show “edited”), soft delete (“This message was deleted”)
@@ -115,6 +126,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 - [x] Online/offline presence + Away / DND (sidebar + Settings)
 
 ### WH-303 Mentions, search, notifications
+
 - [x] `@` autocomplete from conversation members
 - [x] Mention notification
 - [x] Message search by text, sender, conversation, date (Meilisearch: typo tolerance, autocomplete, people + membership-only messages)
@@ -125,6 +137,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 ## Phase 4 — Meetings
 
 ### WH-401 Google Meet
+
 - [x] Google OAuth (no stored Google passwords)
 - [x] Create Calendar event with Meet conference
 - [x] Store `google_meet_url` and `google_event_id`
@@ -137,6 +150,7 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 ## Phase 5 — Hardening
 
 ### WH-501 Quality
+
 - [x] Vitest: window math, validation, status, RBAC, notifications
 - [x] Integration: login, submit, lock, duplicate, chat, reactions, meetings
 - [x] Playwright: locked → open → write → submit → immutable; live DM; mention notification; join Meet link
@@ -150,11 +164,13 @@ UI shells in `apps/web` are preview-only until the matching API task is done.
 Finish WH-104 before any ticket below. Mirror each ticket into `spec.md` before coding. Stay Quiet Desk: no Jira boards, no surveillance, no Home analytics charts.
 
 ### WH-601 Polish baseline
+
 - [x] Empty, loading, and error states for every module (carry-over from WH-104)
 - [x] Staff seed beyond `admin@codeteak.com` (demo company tree)
 - [x] Away / DND presence (online/offline already exists)
 
 ### WH-602 Evening tree digest
+
 Unique manager ritual — not a dashboard of charts.
 
 - [ ] At window open (and optional reminder): Manager/Lead gets one notification summarizing their tree — submitted / pending / late / missed for today
@@ -162,6 +178,7 @@ Unique manager ritual — not a dashboard of charts.
 - [ ] No productivity scores, streaks, or rankings
 
 ### WH-603 Plan → morning intent
+
 Makes Work / Plan feel like one product beat without copy-from-plan.
 
 - [ ] Home shows today’s Plan (if any) as a short “Intent” line before the window opens
@@ -169,6 +186,7 @@ Makes Work / Plan feel like one product beat without copy-from-plan.
 - [ ] After submit, Intent clears or marks done for that work date
 
 ### WH-604 Thread → Meet
+
 Fastest path from chat friction to a Google Meet.
 
 - [ ] From a thread or conversation header: “Meet about this”
@@ -176,6 +194,7 @@ Fastest path from chat friction to a Google Meet.
 - [ ] Create Meet + post the meeting card back into that conversation
 
 ### WH-605 Week tape (read-only)
+
 Accountability you can skim — still not a project board.
 
 - [ ] Manager/Lead/Admin: horizontal week strip for one person in the reporting tree
@@ -183,6 +202,7 @@ Accountability you can skim — still not a project board.
 - [ ] Click a day opens the existing person panel notebook
 
 ### WH-606 Reports-to handoff note
+
 Built for services teams when people move leads.
 
 - [ ] When Admin changes `manager_id`, optional one-line handoff note (who / why)
@@ -190,6 +210,7 @@ Built for services teams when people move leads.
 - [ ] Audited; never copies daily-work content
 
 ### WH-607 Sales route day (Yaadro)
+
 Field day that stays outside a CRM.
 
 - [ ] Executive picks shops for today from the directory; ordered visit list
@@ -197,6 +218,7 @@ Field day that stays outside a CRM.
 - [ ] Route does not invent pipeline, leads, or deal stages
 
 ### WH-608 Ship
+
 - [ ] Production deploy runbook (env, Supabase, Cloudinary, Google OAuth, Sales SA)
 - [ ] Health checks + basic error monitoring hook
 - [ ] Final Quiet Desk pass: loading skeletons, empty copy, mobile chat polish
@@ -205,20 +227,20 @@ Field day that stays outside a CRM.
 
 ## Suggested week map
 
-| Week | Focus |
-| --- | --- |
-| 1 | WH-101 to WH-104 |
-| 2 | WH-201 to WH-203 |
-| 3 | WH-204, WH-205, employee directory |
-| 4 | WH-301, WH-302 DMs |
-| 5 | Channels, groups, mentions, threads, reactions, presence |
-| 6 | WH-401 |
-| 7 | WH-501 tests and security |
-| 8 | Deploy, monitor, polish |
-| 9 | WH-601 polish + WH-602 evening digest |
-| 10 | WH-603 Plan intent + WH-604 Thread → Meet |
-| 11 | WH-605 week tape + WH-606 handoff |
-| 12 | WH-607 sales route + WH-608 ship |
+| Week | Focus                                                    |
+| ---- | -------------------------------------------------------- |
+| 1    | WH-101 to WH-104                                         |
+| 2    | WH-201 to WH-203                                         |
+| 3    | WH-204, WH-205, employee directory                       |
+| 4    | WH-301, WH-302 DMs                                       |
+| 5    | Channels, groups, mentions, threads, reactions, presence |
+| 6    | WH-401                                                   |
+| 7    | WH-501 tests and security                                |
+| 8    | Deploy, monitor, polish                                  |
+| 9    | WH-601 polish + WH-602 evening digest                    |
+| 10   | WH-603 Plan intent + WH-604 Thread → Meet                |
+| 11   | WH-605 week tape + WH-606 handoff                        |
+| 12   | WH-607 sales route + WH-608 ship                         |
 
 When you pick up work, implement the next unchecked task, keep the theme, and do not expand scope past that task.
 

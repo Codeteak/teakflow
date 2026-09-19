@@ -14,7 +14,9 @@ export function getIo() {
 }
 
 export function disconnectUserSockets(userId: string) {
-  io?.to(`user:${userId}`).emit(SOCKET_EVENTS.SESSION_ENDED, { reason: 'ACCOUNT_RESTRICTED' });
+  io?.to(`user:${userId}`).emit(SOCKET_EVENTS.SESSION_ENDED, {
+    reason: 'ACCOUNT_RESTRICTED',
+  });
   io?.in(`user:${userId}`).disconnectSockets(true);
 }
 
@@ -22,14 +24,22 @@ export function emitToUser(userId: string, event: string, payload: unknown) {
   io?.to(`user:${userId}`).emit(event, payload);
 }
 
-export function emitToConversation(conversationId: string, event: string, payload: unknown) {
+export function emitToConversation(
+  conversationId: string,
+  event: string,
+  payload: unknown,
+) {
   if (!io) {
     return;
   }
   io.to(`conversation:${conversationId}`).emit(event, payload);
 }
 
-export function broadcastMessage(memberIds: string[], payload: unknown, exceptUserId?: string) {
+export function broadcastMessage(
+  memberIds: string[],
+  payload: unknown,
+  exceptUserId?: string,
+) {
   if (!io) {
     return;
   }

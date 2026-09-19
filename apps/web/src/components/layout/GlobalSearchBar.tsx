@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
-import { CONVERSATION_TYPE, type MessageSearchResult, type PublicUser } from '@teakflow/shared';
+import {
+  CONVERSATION_TYPE,
+  type MessageSearchResult,
+  type PublicUser,
+} from '@teakflow/shared';
 import { Avatar } from '@/components/ui/avatar';
 import { createConversationRequest, searchMessagesRequest } from '@/features/chat/api';
 
@@ -192,7 +196,9 @@ export function GlobalSearchBar() {
                   >
                     <Avatar name={person.name} src={person.avatar} size={28} />
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-ink">{person.name}</span>
+                      <span className="block truncate text-sm font-medium text-ink">
+                        {person.name}
+                      </span>
                       <span className="block truncate text-xs text-muted">
                         {person.designation ?? person.role}
                         {person.department ? ` · ${person.department}` : ''}
@@ -221,7 +227,9 @@ export function GlobalSearchBar() {
                       <span className="block truncate text-sm font-medium text-ink">
                         {hit.conversationName}
                       </span>
-                      <span className="block truncate text-xs text-muted">{hit.message.content}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {hit.message.content}
+                      </span>
                     </button>
                   ))
                 )}

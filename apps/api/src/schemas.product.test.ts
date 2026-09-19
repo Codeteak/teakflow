@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createMeetingSchema, createUserSchema, updateDailyWorkWindowSchema } from '@teakflow/shared';
+import {
+  createMeetingSchema,
+  createUserSchema,
+  updateDailyWorkWindowSchema,
+} from '@teakflow/shared';
 
 describe('createUserSchema', () => {
   const valid = {
@@ -22,9 +26,9 @@ describe('createUserSchema', () => {
   });
 
   it('accepts listed job titles', () => {
-    expect(createUserSchema.parse({ ...valid, designation: 'Project Manager' }).designation).toBe(
-      'Project Manager',
-    );
+    expect(
+      createUserSchema.parse({ ...valid, designation: 'Project Manager' }).designation,
+    ).toBe('Project Manager');
   });
 
   it('rejects an unknown job title', () => {
@@ -33,8 +37,10 @@ describe('createUserSchema', () => {
 
   it('accepts an optional profile photo URL', () => {
     expect(
-      createUserSchema.parse({ ...valid, avatar: 'https://res.cloudinary.com/demo/image/upload/v1/avatars/a.jpg' })
-        .avatar,
+      createUserSchema.parse({
+        ...valid,
+        avatar: 'https://res.cloudinary.com/demo/image/upload/v1/avatars/a.jpg',
+      }).avatar,
     ).toBe('https://res.cloudinary.com/demo/image/upload/v1/avatars/a.jpg');
     expect(createUserSchema.parse({ ...valid, avatar: null }).avatar).toBeNull();
     expect(createUserSchema.parse(valid).avatar).toBeUndefined();

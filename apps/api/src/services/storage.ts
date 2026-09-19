@@ -38,7 +38,8 @@ export async function uploadPublicFile(
 
   const publicId = path.replace(/\.[^/.]+$/, '');
   const isAudio = contentType.startsWith('audio/') || contentType.startsWith('video/');
-  const isPdf = contentType === 'application/pdf' || originalName.toLowerCase().endsWith('.pdf');
+  const isPdf =
+    contentType === 'application/pdf' || originalName.toLowerCase().endsWith('.pdf');
   let result: UploadApiResponse;
   try {
     result = await uploadBuffer(body, {
@@ -68,11 +69,15 @@ export async function uploadPublicFile(
 export async function removeFile(_bucket: StorageFolder, path: string) {
   requireCloudinary();
 
-  const publicId = path.includes('/') ? path : `teakflow/${_bucket}/${path.replace(/\.[^/.]+$/, '')}`;
-  const { error } = await cloudinary.uploader.destroy(publicId, { resource_type: 'image', invalidate: true }).then(
-    () => ({ error: null as string | null }),
-    (err: Error) => ({ error: err.message }),
-  );
+  const publicId = path.includes('/')
+    ? path
+    : `teakflow/${_bucket}/${path.replace(/\.[^/.]+$/, '')}`;
+  const { error } = await cloudinary.uploader
+    .destroy(publicId, { resource_type: 'image', invalidate: true })
+    .then(
+      () => ({ error: null as string | null }),
+      (err: Error) => ({ error: err.message }),
+    );
 
   if (error) {
     throw new AppError(500, 'STORAGE_DELETE_FAILED', error);

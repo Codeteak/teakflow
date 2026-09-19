@@ -1,7 +1,10 @@
 import type { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { MulterError } from 'multer';
-import { UniqueConstraintError, ValidationError as SequelizeValidationError } from 'sequelize';
+import {
+  UniqueConstraintError,
+  ValidationError as SequelizeValidationError,
+} from 'sequelize';
 
 export class AppError extends Error {
   constructor(
@@ -27,14 +30,19 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     res.status(400).json(
       payload('VALIDATION_ERROR', err.issues[0]?.message ?? 'Invalid request.', {
-        issues: err.issues.map((issue) => ({ path: issue.path.join('.'), message: issue.message })),
+        issues: err.issues.map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+        })),
       }),
     );
     return;
   }
 
   if (err instanceof MulterError) {
-    res.status(400).json(payload('UPLOAD_INVALID', err.message || 'That file could not be uploaded.'));
+    res
+      .status(400)
+      .json(payload('UPLOAD_INVALID', err.message || 'That file could not be uploaded.'));
     return;
   }
 
@@ -44,7 +52,9 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   }
 
   if (err instanceof SequelizeValidationError) {
-    res.status(400).json(payload('VALIDATION_ERROR', err.errors[0]?.message ?? 'Invalid data.'));
+    res
+      .status(400)
+      .json(payload('VALIDATION_ERROR', err.errors[0]?.message ?? 'Invalid data.'));
     return;
   }
 

@@ -83,20 +83,28 @@ export async function saveSalesDay(user: SessionUser, input: unknown, now = new 
   if (parsed.data.section === 'received' && parsed.data.received) {
     const row = parsed.data.received;
     if (!row.shopName.trim() || row.amount <= 0) {
-      throw new AppError(400, 'VALIDATION_ERROR', 'Add a shop and amount for this payment.');
+      throw new AppError(
+        400,
+        'VALIDATION_ERROR',
+        'Add a shop and amount for this payment.',
+      );
     }
     const known = row.shopId ? byId.get(row.shopId) : undefined;
     if (row.month) {
-      await patchPayment(user, {
-        year: row.year,
-        month: row.month,
-        shopId: (row.shopId || row.shopName).trim(),
-        sheetRow: row.sheetRow,
-        status: 'PAID',
-        paymentMode: row.mode,
-        date: workDate,
-        reference: row.ref,
-      }, now);
+      await patchPayment(
+        user,
+        {
+          year: row.year,
+          month: row.month,
+          shopId: (row.shopId || row.shopName).trim(),
+          sheetRow: row.sheetRow,
+          status: 'PAID',
+          paymentMode: row.mode,
+          date: workDate,
+          reference: row.ref,
+        },
+        now,
+      );
     }
     await SalesPaymentReceived.create({
       userId: user.id,
@@ -112,18 +120,33 @@ export async function saveSalesDay(user: SessionUser, input: unknown, now = new 
   }
 
   const visits = await SalesVisit.findAll({ where: { userId: user.id, workDate } });
-  const received = await SalesPaymentReceived.findAll({ where: { userId: user.id, workDate } });
+  const received = await SalesPaymentReceived.findAll({
+    where: { userId: user.id, workDate },
+  });
   if (parsed.data.section === 'fuel') {
     if (fuelAlreadySaved(existing)) {
-      throw new AppError(409, 'FUEL_LOCKED', 'Fuel is already saved for today. One fuel entry per work date.');
+      throw new AppError(
+        409,
+        'FUEL_LOCKED',
+        'Fuel is already saved for today. One fuel entry per work date.',
+      );
     }
     if (!(parsed.data.fuel && parsed.data.fuel > 0)) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Add today’s fuel amount.');
     }
   }
-  const fuel = parsed.data.section === 'fuel' ? parsed.data.fuel ?? 0 : existing?.fuel ?? 0;
+  const fuel =
+    parsed.data.section === 'fuel' ? (parsed.data.fuel ?? 0) : (existing?.fuel ?? 0);
   const fuelLocked = parsed.data.section === 'fuel' ? true : fuelAlreadySaved(existing);
-  await upsertDayReport(user, workDate, visits, received, fuel, fuelLocked, notebookBlocks);
+  await upsertDayReport(
+    user,
+    workDate,
+    visits,
+    received,
+    fuel,
+    fuelLocked,
+    notebookBlocks,
+  );
   return getSalesDay(user, now);
 }
 
@@ -153,12 +176,22 @@ async function upsertDayReport(
     mode: row.mode === 'Cheque' || row.mode === 'UPI' ? row.mode : 'Cash',
     bankName: row.bankName,
   }));
-  const installations = visitInputs.filter((visit) => visit.kind === SALES_VISIT_KIND.INSTALLATION);
+  const installations = visitInputs.filter(
+    (visit) => visit.kind === SALES_VISIT_KIND.INSTALLATION,
+  );
   const demos = visitInputs.filter((visit) => visit.kind === SALES_VISIT_KIND.DEMO);
-  const storeVisits = visitInputs.filter((visit) => visit.kind === SALES_VISIT_KIND.VISIT);
-  const cash = receivedInputs.filter((row) => row.mode === 'Cash').reduce((sum, row) => sum + row.amount, 0);
-  const cheque = receivedInputs.filter((row) => row.mode === 'Cheque').reduce((sum, row) => sum + row.amount, 0);
-  const upi = receivedInputs.filter((row) => row.mode === 'UPI').reduce((sum, row) => sum + row.amount, 0);
+  const storeVisits = visitInputs.filter(
+    (visit) => visit.kind === SALES_VISIT_KIND.VISIT,
+  );
+  const cash = receivedInputs
+    .filter((row) => row.mode === 'Cash')
+    .reduce((sum, row) => sum + row.amount, 0);
+  const cheque = receivedInputs
+    .filter((row) => row.mode === 'Cheque')
+    .reduce((sum, row) => sum + row.amount, 0);
+  const upi = receivedInputs
+    .filter((row) => row.mode === 'UPI')
+    .reduce((sum, row) => sum + row.amount, 0);
   const payload = {
     userId: user.id,
     workDate,
@@ -170,8 +203,13 @@ async function upsertDayReport(
     received: receivedInputs.reduce((sum, row) => sum + row.amount, 0),
     recShops: joinShops(receivedInputs.map((row) => row.shopName)),
     gst: receivedInputs.map((row) => row.gst).join(', '),
-    paymentRef: receivedInputs.map((row) => row.ref).filter(Boolean).join(', '),
-    bankName: receivedInputs.map((row) => (row.mode === 'Cheque' ? row.bankName : '')).join(', '),
+    paymentRef: receivedInputs
+      .map((row) => row.ref)
+      .filter(Boolean)
+      .join(', '),
+    bankName: receivedInputs
+      .map((row) => (row.mode === 'Cheque' ? row.bankName : ''))
+      .join(', '),
     amounts: receivedInputs.map((row) => row.amount).join(', '),
     modes: receivedInputs.map((row) => row.mode).join(', '),
     cash,
@@ -199,7 +237,9 @@ export async function getSalesDay(user: SessionUser, now = new Date()) {
   const { workDate } = clockParts(now, settings.timezone);
   const report = await SalesDayReport.findOne({ where: { userId: user.id, workDate } });
   const visits = await SalesVisit.findAll({ where: { userId: user.id, workDate } });
-  const received = await SalesPaymentReceived.findAll({ where: { userId: user.id, workDate } });
+  const received = await SalesPaymentReceived.findAll({
+    where: { userId: user.id, workDate },
+  });
   return {
     workDate,
     report: report ? toDto(report) : null,
@@ -236,20 +276,34 @@ function workDateFilter(value?: string) {
     return undefined;
   }
   const date = new Date(Date.UTC(year, month - 1, day));
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
     return undefined;
   }
   return value;
 }
 
-export async function salesDashboard(user: SessionUser, from?: string, to?: string, salesmanId?: string, now = new Date()) {
+export async function salesDashboard(
+  user: SessionUser,
+  from?: string,
+  to?: string,
+  salesmanId?: string,
+  now = new Date(),
+) {
   assertCanOpenSales(user);
   const settings = await getCompanySettings();
   const { workDate } = clockParts(now, settings.timezone);
   const people = await listSalesPeople(user.id, user.role as Role);
   const allowed = people.map((person) => person.id);
   if (salesmanId && !allowed.includes(salesmanId)) {
-    throw new AppError(403, 'FORBIDDEN', 'You can only view reports for people in your Sales tree.');
+    throw new AppError(
+      403,
+      'FORBIDDEN',
+      'You can only view reports for people in your Sales tree.',
+    );
   }
   const ids = salesmanId ? [salesmanId] : allowed;
   const fromDate = workDateFilter(from);
@@ -285,20 +339,38 @@ export async function salesDashboard(user: SessionUser, from?: string, to?: stri
   };
 }
 
-export async function salesCsv(user: SessionUser, from?: string, to?: string, salesmanId?: string) {
+export async function salesCsv(
+  user: SessionUser,
+  from?: string,
+  to?: string,
+  salesmanId?: string,
+) {
   const view = await salesDashboard(user, from, to, salesmanId);
   return reportsToCsv(view.rows);
 }
 
-export async function salesSummaryCsv(user: SessionUser, from?: string, to?: string, salesmanId?: string) {
+export async function salesSummaryCsv(
+  user: SessionUser,
+  from?: string,
+  to?: string,
+  salesmanId?: string,
+) {
   if (user.role === 'EMPLOYEE') {
-    throw new AppError(403, 'FORBIDDEN', 'Shop summary download is for your manager, lead, or admin.');
+    throw new AppError(
+      403,
+      'FORBIDDEN',
+      'Shop summary download is for your manager, lead, or admin.',
+    );
   }
   const view = await salesDashboard(user, from, to, salesmanId);
   return shopSummaryCsv(view.rows, `${from ?? ''}–${to ?? 'all'}`);
 }
 
-export async function shopScopeThisMonth(userIds: string[], year: number, monthIndex: number) {
+export async function shopScopeThisMonth(
+  userIds: string[],
+  year: number,
+  monthIndex: number,
+) {
   const pad = (value: number) => String(value).padStart(2, '0');
   const from = `${year}-${pad(monthIndex)}-01`;
   const last = new Date(Date.UTC(year, monthIndex, 0)).getUTCDate();
@@ -322,7 +394,11 @@ export async function shopScopeThisMonth(userIds: string[], year: number, monthI
   return { ids, names };
 }
 
-export async function shopIdsTouchedThisMonth(userIds: string[], year: number, monthIndex: number) {
+export async function shopIdsTouchedThisMonth(
+  userIds: string[],
+  year: number,
+  monthIndex: number,
+) {
   const scope = await shopScopeThisMonth(userIds, year, monthIndex);
   return scope.ids;
 }

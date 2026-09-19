@@ -75,7 +75,9 @@ export function looksLikePastedCode(text: string) {
   if (looksLikeBareCode(trimmed)) return true;
   const lines = trimmed.split(/\r?\n/);
   if (lines.length < 2) return false;
-  return /[{};]|=>|function |import |export |class |const |let |var |def |return |<\/?[a-zA-Z]/.test(trimmed);
+  return /[{};]|=>|function |import |export |class |const |let |var |def |return |<\/?[a-zA-Z]/.test(
+    trimmed,
+  );
 }
 
 export function wrapPastedCode(text: string) {
@@ -87,7 +89,8 @@ export function wrapPastedCode(text: string) {
 
 export function getComposerCodeBlocks(text: string) {
   return parseMessageContent(text).filter(
-    (segment): segment is Extract<MessageSegment, { type: 'code' }> => segment.type === 'code',
+    (segment): segment is Extract<MessageSegment, { type: 'code' }> =>
+      segment.type === 'code',
   );
 }
 
@@ -110,13 +113,21 @@ export function ComposerCodePreview({
           {allMarkdown ? 'Markdown preview' : 'Code preview'}
         </p>
         {onClearCode ? (
-          <button type="button" className="text-xs text-muted hover:text-ink" onClick={onClearCode}>
+          <button
+            type="button"
+            className="text-xs text-muted hover:text-ink"
+            onClick={onClearCode}
+          >
             Clear {allMarkdown ? 'markdown' : 'code'}
           </button>
         ) : null}
       </div>
       {blocks.map((block, index) => (
-        <ChatCodeBlock key={`${block.language}-${index}`} code={block.value} language={block.language} />
+        <ChatCodeBlock
+          key={`${block.language}-${index}`}
+          code={block.value}
+          language={block.language}
+        />
       ))}
     </div>
   );
@@ -178,7 +189,9 @@ function CodeBody({
       <div
         className={cn(
           'sticky left-0 z-[1] shrink-0 select-none border-r text-right font-mono text-[11px] leading-5',
-          dark ? 'border-white/10 bg-[#1B1A17] text-[#6F6B64]' : 'border-line bg-surface text-muted',
+          dark
+            ? 'border-white/10 bg-[#1B1A17] text-[#6F6B64]'
+            : 'border-line bg-surface text-muted',
         )}
         aria-hidden
       >
@@ -216,8 +229,13 @@ export function ChatCodeBlock({
   className?: string;
   defaultView?: MdViewMode;
 }) {
-  const resolvedLanguage = useMemo(() => detectCodeLanguage(code, language), [code, language]);
-  const isMarkdown = isMarkdownLanguage(language || resolvedLanguage) || isMarkdownLanguage(resolvedLanguage);
+  const resolvedLanguage = useMemo(
+    () => detectCodeLanguage(code, language),
+    [code, language],
+  );
+  const isMarkdown =
+    isMarkdownLanguage(language || resolvedLanguage) ||
+    isMarkdownLanguage(resolvedLanguage);
   const lines = useMemo(() => code.replace(/\r\n/g, '\n').split('\n'), [code]);
   const long = lines.length > COLLAPSED_LINES;
   const [expanded, setExpanded] = useState(false);
@@ -258,7 +276,9 @@ export function ChatCodeBlock({
                 type="button"
                 className={cn(
                   'rounded px-2 py-0.5 text-[11px] font-medium',
-                  viewMode === 'code' ? 'bg-sage-soft text-sage' : 'text-muted hover:text-ink',
+                  viewMode === 'code'
+                    ? 'bg-sage-soft text-sage'
+                    : 'text-muted hover:text-ink',
                 )}
                 onClick={() => setViewMode('code')}
               >
@@ -268,7 +288,9 @@ export function ChatCodeBlock({
                 type="button"
                 className={cn(
                   'rounded px-2 py-0.5 text-[11px] font-medium',
-                  viewMode === 'preview' ? 'bg-sage-soft text-sage' : 'text-muted hover:text-ink',
+                  viewMode === 'preview'
+                    ? 'bg-sage-soft text-sage'
+                    : 'text-muted hover:text-ink',
                 )}
                 onClick={() => setViewMode('preview')}
               >
@@ -276,14 +298,24 @@ export function ChatCodeBlock({
               </button>
             </div>
           ) : null}
-          <ToolbarButton label={copied ? 'Copied' : 'Copy'} onClick={() => void copyCode()}>
-            {copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.75} />}
+          <ToolbarButton
+            label={copied ? 'Copied' : 'Copy'}
+            onClick={() => void copyCode()}
+          >
+            {copied ? (
+              <Check size={13} strokeWidth={2} />
+            ) : (
+              <Copy size={13} strokeWidth={1.75} />
+            )}
           </ToolbarButton>
           <ToolbarButton label="Expand" onClick={() => setPreviewOpen(true)}>
             <Expand size={13} strokeWidth={1.75} />
           </ToolbarButton>
           {long && showCode ? (
-            <ToolbarButton label={expanded ? 'Collapse' : 'Expand lines'} onClick={() => setExpanded((value) => !value)}>
+            <ToolbarButton
+              label={expanded ? 'Collapse' : 'Expand lines'}
+              onClick={() => setExpanded((value) => !value)}
+            >
               {expanded ? (
                 <ChevronsDownUp size={13} strokeWidth={1.75} />
               ) : (
@@ -350,7 +382,9 @@ function LanguageBadge({
   const icon = codeLanguageIcon(language, code);
 
   return (
-    <span className={cn('mr-auto inline-flex min-w-0 items-center gap-1.5', large && 'gap-2')}>
+    <span
+      className={cn('mr-auto inline-flex min-w-0 items-center gap-1.5', large && 'gap-2')}
+    >
       {icon ? (
         <img
           src={icon}
@@ -427,8 +461,17 @@ function CodePreviewModal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true">
-      <button type="button" className="absolute inset-0 bg-ink/35" aria-label="Close preview" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <button
+        type="button"
+        className="absolute inset-0 bg-ink/35"
+        aria-label="Close preview"
+        onClick={onClose}
+      />
       <div className="relative flex max-h-[min(90dvh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-lg">
         <div className="flex items-center gap-2 border-b border-line bg-paper px-3 py-2.5">
           <div className="mr-auto min-w-0">
@@ -441,7 +484,9 @@ function CodePreviewModal({
                 type="button"
                 className={cn(
                   'rounded px-2.5 py-1 text-xs font-medium',
-                  viewMode === 'code' ? 'bg-sage-soft text-sage' : 'text-muted hover:text-ink',
+                  viewMode === 'code'
+                    ? 'bg-sage-soft text-sage'
+                    : 'text-muted hover:text-ink',
                 )}
                 onClick={() => setViewMode('code')}
               >
@@ -451,7 +496,9 @@ function CodePreviewModal({
                 type="button"
                 className={cn(
                   'rounded px-2.5 py-1 text-xs font-medium',
-                  viewMode === 'preview' ? 'bg-sage-soft text-sage' : 'text-muted hover:text-ink',
+                  viewMode === 'preview'
+                    ? 'bg-sage-soft text-sage'
+                    : 'text-muted hover:text-ink',
                 )}
                 onClick={() => setViewMode('preview')}
               >

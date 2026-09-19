@@ -46,7 +46,12 @@ export function timeToSeconds(time: string, second = 0) {
   return Number(hourText) * 3600 + Number(minuteText) * 60 + second;
 }
 
-export function windowPhase(now: Date, timezone: string, startTime: string, endTime: string): WindowPhase {
+export function windowPhase(
+  now: Date,
+  timezone: string,
+  startTime: string,
+  endTime: string,
+): WindowPhase {
   const { seconds } = clockParts(now, timezone);
   const start = timeToSeconds(startTime);
   const end = timeToSeconds(endTime, 59);

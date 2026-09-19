@@ -36,9 +36,19 @@ export function inlineFormat(text: string): ReactNode[] {
   });
 }
 
-function NotebookNoteBody({ text, compact = false }: { text: string; compact?: boolean }) {
+function NotebookNoteBody({
+  text,
+  compact = false,
+}: {
+  text: string;
+  compact?: boolean;
+}) {
   if (!text.trim()) {
-    return <p className={compact ? 'text-sm text-muted' : 'notebook-read text-muted'}>Empty page.</p>;
+    return (
+      <p className={compact ? 'text-sm text-muted' : 'notebook-read text-muted'}>
+        Empty page.
+      </p>
+    );
   }
 
   const lines = text.split('\n');
@@ -133,10 +143,20 @@ function NotebookNoteBody({ text, compact = false }: { text: string; compact?: b
   flushBullets();
   flushNumbers();
 
-  return <div className={compact ? 'space-y-1 text-sm leading-6' : 'notebook-read-wrap'}>{blocks}</div>;
+  return (
+    <div className={compact ? 'space-y-1 text-sm leading-6' : 'notebook-read-wrap'}>
+      {blocks}
+    </div>
+  );
 }
 
-export function NotebookNote({ text, compact = false }: { text: string; compact?: boolean }) {
+export function NotebookNote({
+  text,
+  compact = false,
+}: {
+  text: string;
+  compact?: boolean;
+}) {
   if (compact) {
     return <NotebookNoteBody text={text.replaceAll('\f', '\n')} compact />;
   }

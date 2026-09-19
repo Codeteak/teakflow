@@ -44,9 +44,13 @@ function hashTokenId(jti: string) {
 }
 
 export function signAccessToken(userId: string) {
-  return jwt.sign({ sub: userId, typ: 'access' } satisfies AccessPayload, env.JWT_ACCESS_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions['expiresIn'],
-  });
+  return jwt.sign(
+    { sub: userId, typ: 'access' } satisfies AccessPayload,
+    env.JWT_ACCESS_SECRET,
+    {
+      expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+    },
+  );
 }
 
 export function signSession(userId: string) {
@@ -114,7 +118,9 @@ export async function issueAuthCookies(res: Response, userId: string) {
 export async function rotateRefreshCookies(res: Response, refreshToken: string) {
   const payload = readRefresh(refreshToken);
   const tokenHash = hashTokenId(payload.jti);
-  const stored = await RefreshToken.findOne({ where: { tokenHash, userId: payload.sub } });
+  const stored = await RefreshToken.findOne({
+    where: { tokenHash, userId: payload.sub },
+  });
   if (!stored || stored.expiresAt.getTime() <= Date.now()) {
     if (stored) {
       await stored.destroy();

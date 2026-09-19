@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,13 +35,13 @@ export function NotebookModal({
     }
   }, [open]);
 
-  function requestClose() {
+  const requestClose = useCallback(() => {
     if (dirty) {
       setConfirming(true);
       return;
     }
     onClose();
-  }
+  }, [dirty, onClose]);
 
   useEffect(() => {
     if (!open) {
@@ -60,7 +60,7 @@ export function NotebookModal({
 
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [confirming, dirty, open, onClose]);
+  }, [confirming, open, requestClose]);
 
   if (typeof document === 'undefined') {
     return null;
@@ -96,7 +96,9 @@ export function NotebookModal({
         <header className="flex h-12 shrink-0 items-center gap-3 border-b border-line px-3 md:h-auto md:px-5 md:py-3">
           <span className="hidden h-2.5 w-2.5 rounded-full bg-sage md:block" />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-medium tracking-wide text-muted uppercase">Notebook</p>
+            <p className="text-[11px] font-medium tracking-wide text-muted uppercase">
+              Notebook
+            </p>
             <h2 id="notebook-title" className="truncate font-mono text-sm text-ink">
               {dateLabel}
             </h2>
@@ -110,9 +112,13 @@ export function NotebookModal({
             <X size={18} strokeWidth={1.75} />
           </button>
         </header>
-        {toolbar ? <div className="border-b border-line bg-surface px-3 py-2">{toolbar}</div> : null}
+        {toolbar ? (
+          <div className="border-b border-line bg-surface px-3 py-2">{toolbar}</div>
+        ) : null}
         <div className="relative min-h-0 flex-1 overflow-hidden bg-paper">{children}</div>
-        {footer ? <div className="border-t border-line bg-surface px-5 py-3">{footer}</div> : null}
+        {footer ? (
+          <div className="border-t border-line bg-surface px-5 py-3">{footer}</div>
+        ) : null}
 
         {confirming ? (
           <div className="absolute inset-0 z-10 flex items-end justify-center bg-ink/25 p-4 md:items-center">

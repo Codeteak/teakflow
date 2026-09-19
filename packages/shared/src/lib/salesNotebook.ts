@@ -1,7 +1,12 @@
 import { SALES_VISIT_KIND } from '../constants/index';
 import type { SalesVisitInput } from '../types/sales';
 
-export function formatVisitBlock(visit: SalesVisitInput, at: Date, timezone: string, sequence = 1) {
+export function formatVisitBlock(
+  visit: SalesVisitInput,
+  at: Date,
+  timezone: string,
+  sequence = 1,
+) {
   const time = new Intl.DateTimeFormat('en-IN', {
     hour: 'numeric',
     minute: '2-digit',
@@ -24,7 +29,12 @@ export function formatVisitBlock(visit: SalesVisitInput, at: Date, timezone: str
         ? 'Demo'
         : 'Store visit';
   const count = visit.count > 1 ? ` × ${visit.count}` : '';
-  const meta = [`${day}, ${time}`, place, `${kind}${count}`, shopId ? `ID ${shopId}` : 'Not in directory']
+  const meta = [
+    `${day}, ${time}`,
+    place,
+    `${kind}${count}`,
+    shopId ? `ID ${shopId}` : 'Not in directory',
+  ]
     .filter(Boolean)
     .join('  ·  ');
   const notes = visit.notes.trim();

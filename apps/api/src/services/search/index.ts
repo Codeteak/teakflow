@@ -50,7 +50,11 @@ export function levenshtein(a: string, b: string) {
   for (let i = 1; i < rows; i += 1) {
     for (let j = 1; j < cols; j += 1) {
       const cost = left[i - 1] === right[j - 1] ? 0 : 1;
-      grid[i]![j] = Math.min(grid[i - 1]![j]! + 1, grid[i]![j - 1]! + 1, grid[i - 1]![j - 1]! + cost);
+      grid[i]![j] = Math.min(
+        grid[i - 1]![j]! + 1,
+        grid[i]![j - 1]! + 1,
+        grid[i - 1]![j - 1]! + cost,
+      );
     }
   }
   return grid[left.length]![right.length]!;
@@ -85,7 +89,15 @@ async function ensureIndexes() {
     searchableAttributes: ['content', 'senderName', 'conversationName'],
     filterableAttributes: ['conversationId', 'senderId', 'createdAt'],
     sortableAttributes: ['createdAt'],
-    displayedAttributes: ['id', 'content', 'senderId', 'senderName', 'conversationId', 'conversationName', 'createdAt'],
+    displayedAttributes: [
+      'id',
+      'content',
+      'senderId',
+      'senderName',
+      'conversationId',
+      'conversationName',
+      'createdAt',
+    ],
     typoTolerance: {
       enabled: true,
       minWordSizeForTypos: { oneTypo: 3, twoTypos: 6 },
@@ -95,7 +107,15 @@ async function ensureIndexes() {
   await people.updateSettings({
     searchableAttributes: ['name', 'email', 'designation', 'department', 'role'],
     filterableAttributes: ['status', 'role'],
-    displayedAttributes: ['id', 'name', 'email', 'designation', 'department', 'role', 'status'],
+    displayedAttributes: [
+      'id',
+      'name',
+      'email',
+      'designation',
+      'department',
+      'role',
+      'status',
+    ],
     typoTolerance: {
       enabled: true,
       minWordSizeForTypos: { oneTypo: 3, twoTypos: 6 },
@@ -174,7 +194,9 @@ export async function indexMessageRow(row: {
       where: { conversationId: row.conversationId },
       include: [{ model: User, attributes: ['id', 'name'] }],
     });
-    const other = members.find((member) => member.userId !== row.senderId)?.get('User') as User | undefined;
+    const other = members
+      .find((member) => member.userId !== row.senderId)
+      ?.get('User') as User | undefined;
     conversationName = other?.name ?? 'Direct message';
   }
   await indexMessageDocument({
@@ -202,76 +224,83 @@ export async function searchChatIndex(
   options: { senderId?: string; from?: string; to?: string; viewerId: string },
 ): Promise<ChatIndexSearch | null> {
   try {
-  if (!(await ensureSearchReady()) || !isMeiliConfigured()) {
-    return null;
-  }
-  const q = query.trim();
-  const filterParts: string[] = [];
-  const idFilter = conversationIdFilter(conversationIds);
-  if (!idFilter) {
+    if (!(await ensureSearchReady()) || !isMeiliConfigured()) {
+      return null;
+    }
+    const q = query.trim();
+    const filterParts: string[] = [];
+    const idFilter = conversationIdFilter(conversationIds);
+    if (!idFilter) {
+      return {
+        messageIds: [],
+        personIds: [],
+        suggestions: [],
+        completions: [],
+        correctedQuery: null,
+      };
+    }
+    filterParts.push(idFilter);
+    if (options.senderId) {
+      filterParts.push(`senderId = "${options.senderId}"`);
+    }
+    if (options.from) {
+      filterParts.push(
+        `createdAt >= ${Math.floor(new Date(options.from).getTime() / 1000)}`,
+      );
+    }
+    if (options.to) {
+      filterParts.push(
+        `createdAt <= ${Math.floor(new Date(options.to).getTime() / 1000)}`,
+      );
+    }
+
+    const [messages, people] = await Promise.all([
+      meili.index(MESSAGES_INDEX).search<IndexedMessage>(q, {
+        filter: filterParts.join(' AND '),
+        limit: 40,
+        attributesToCrop: ['content'],
+        cropLength: 8,
+        matchingStrategy: 'last',
+      }),
+      meili.index(PEOPLE_INDEX).search<IndexedPerson>(q, {
+        filter: `status = "${USER_STATUS.ACTIVE}"`,
+        limit: 8,
+        matchingStrategy: 'last',
+      }),
+    ]);
+
+    const messageHits = messages.hits as IndexedMessage[];
+    const peopleHits = people.hits as IndexedPerson[];
+    const cropped = messageHits
+      .map((hit) => {
+        const formatted = (hit as IndexedMessage & { _formatted?: { content?: string } })
+          ._formatted?.content;
+        return (formatted ?? hit.content).replace(/<\/?em>/g, '').trim();
+      })
+      .filter(Boolean);
+    const completions = [...new Set(cropped)].slice(0, 6);
+    const nameHits = [
+      ...messageHits.map((hit) => hit.senderName),
+      ...messageHits.map((hit) => hit.conversationName),
+      ...peopleHits.map((hit) => hit.name),
+    ].filter(Boolean);
+    const suggestions = [...new Set([...completions, ...nameHits])].slice(0, 8);
+    const personIds = peopleHits
+      .map((hit) => hit.id)
+      .filter((id) => id !== options.viewerId);
+    const correctedQuery = closestCorrection(q, [
+      ...messageHits.map((hit) => hit.content),
+      ...messageHits.map((hit) => hit.senderName),
+      ...peopleHits.map((hit) => hit.name),
+    ]);
+
     return {
-      messageIds: [],
-      personIds: [],
-      suggestions: [],
-      completions: [],
-      correctedQuery: null,
+      messageIds: messageHits.map((hit) => hit.id),
+      personIds,
+      suggestions,
+      completions,
+      correctedQuery,
     };
-  }
-  filterParts.push(idFilter);
-  if (options.senderId) {
-    filterParts.push(`senderId = "${options.senderId}"`);
-  }
-  if (options.from) {
-    filterParts.push(`createdAt >= ${Math.floor(new Date(options.from).getTime() / 1000)}`);
-  }
-  if (options.to) {
-    filterParts.push(`createdAt <= ${Math.floor(new Date(options.to).getTime() / 1000)}`);
-  }
-
-  const [messages, people] = await Promise.all([
-    meili.index(MESSAGES_INDEX).search<IndexedMessage>(q, {
-      filter: filterParts.join(' AND '),
-      limit: 40,
-      attributesToCrop: ['content'],
-      cropLength: 8,
-      matchingStrategy: 'last',
-    }),
-    meili.index(PEOPLE_INDEX).search<IndexedPerson>(q, {
-      filter: `status = "${USER_STATUS.ACTIVE}"`,
-      limit: 8,
-      matchingStrategy: 'last',
-    }),
-  ]);
-
-  const messageHits = messages.hits as IndexedMessage[];
-  const peopleHits = people.hits as IndexedPerson[];
-  const cropped = messageHits
-    .map((hit) => {
-      const formatted = (hit as IndexedMessage & { _formatted?: { content?: string } })._formatted?.content;
-      return (formatted ?? hit.content).replace(/<\/?em>/g, '').trim();
-    })
-    .filter(Boolean);
-  const completions = [...new Set(cropped)].slice(0, 6);
-  const nameHits = [
-    ...messageHits.map((hit) => hit.senderName),
-    ...messageHits.map((hit) => hit.conversationName),
-    ...peopleHits.map((hit) => hit.name),
-  ].filter(Boolean);
-  const suggestions = [...new Set([...completions, ...nameHits])].slice(0, 8);
-  const personIds = peopleHits.map((hit) => hit.id).filter((id) => id !== options.viewerId);
-  const correctedQuery = closestCorrection(q, [
-    ...messageHits.map((hit) => hit.content),
-    ...messageHits.map((hit) => hit.senderName),
-    ...peopleHits.map((hit) => hit.name),
-  ]);
-
-  return {
-    messageIds: messageHits.map((hit) => hit.id),
-    personIds,
-    suggestions,
-    completions,
-    correctedQuery,
-  };
   } catch {
     return null;
   }
@@ -284,7 +313,14 @@ export async function reindexChatSearch() {
   const [messages, users] = await Promise.all([
     Message.findAll({
       where: { deletedAt: null, content: { [Op.ne]: '' } },
-      attributes: ['id', 'content', 'senderId', 'conversationId', 'createdAt', 'deletedAt'],
+      attributes: [
+        'id',
+        'content',
+        'senderId',
+        'conversationId',
+        'createdAt',
+        'deletedAt',
+      ],
       limit: 5000,
       order: [['createdAt', 'DESC']],
     }),

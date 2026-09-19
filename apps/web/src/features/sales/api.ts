@@ -42,7 +42,11 @@ export function saveSalesDayRequest(body: unknown) {
   });
 }
 
-export function getSalesDashboardRequest(from?: string, to?: string, salesmanId?: string) {
+export function getSalesDashboardRequest(
+  from?: string,
+  to?: string,
+  salesmanId?: string,
+) {
   const q = new URLSearchParams();
   if (from) q.set('from', from);
   if (to) q.set('to', to);
@@ -61,7 +65,10 @@ export function getSalesPaymentsRequest(month?: string, year?: number, refresh =
 }
 
 export function patchSalesPaymentRequest(body: unknown) {
-  return apiRequest<SalesPaymentsView>('/sales/payments', { method: 'PATCH', body: JSON.stringify(body) });
+  return apiRequest<SalesPaymentsView>('/sales/payments', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
 }
 
 export function upsertShopsRequest(body: {
@@ -81,19 +88,30 @@ export function upsertShopsRequest(body: {
   });
 }
 
-export function updateShopRequest(shopId: string, body: { name: string; place?: string }) {
-  return apiRequest<{ shops: SalesShop[] }>(`/sales/shops/${encodeURIComponent(shopId)}`, {
-    method: 'PATCH',
-    body: JSON.stringify(body),
-  });
+export function updateShopRequest(
+  shopId: string,
+  body: { name: string; place?: string },
+) {
+  return apiRequest<{ shops: SalesShop[] }>(
+    `/sales/shops/${encodeURIComponent(shopId)}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    },
+  );
 }
 
 export function deleteShopRequest(shopId: string) {
-  return apiRequest<{ shops: SalesShop[] }>(`/sales/shops/${encodeURIComponent(shopId)}`, { method: 'DELETE' });
+  return apiRequest<{ shops: SalesShop[] }>(
+    `/sales/shops/${encodeURIComponent(shopId)}`,
+    { method: 'DELETE' },
+  );
 }
 
 export async function fetchShopTemplateCsv() {
-  const response = await fetch('/api/v1/sales/shops/template.csv', { credentials: 'include' });
+  const response = await fetch('/api/v1/sales/shops/template.csv', {
+    credentials: 'include',
+  });
   if (!response.ok) {
     throw new Error('Unable to load the example sheet.');
   }
@@ -110,7 +128,9 @@ export async function fetchSalesCsv(
   if (filters?.salesmanId) q.set('salesmanId', filters.salesmanId);
   const path = kind === 'export' ? '/sales/export.csv' : '/sales/summary.csv';
   const qs = q.toString();
-  const response = await fetch(`/api/v1${path}${qs ? `?${qs}` : ''}`, { credentials: 'include' });
+  const response = await fetch(`/api/v1${path}${qs ? `?${qs}` : ''}`, {
+    credentials: 'include',
+  });
   if (!response.ok) {
     throw new Error('Unable to load CSV.');
   }

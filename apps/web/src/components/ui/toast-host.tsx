@@ -19,12 +19,18 @@ export function ToastHost() {
           <div className="flex items-start gap-3 px-4 py-3">
             <span
               className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
-                item.status === 'progress' ? 'bg-sage' : item.status === 'success' ? 'bg-sage' : 'bg-rose'
+                item.status === 'progress'
+                  ? 'bg-sage'
+                  : item.status === 'success'
+                    ? 'bg-sage'
+                    : 'bg-rose'
               }`}
             />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-ink">{item.title}</p>
-              {item.detail ? <p className="mt-0.5 text-xs leading-5 text-muted">{item.detail}</p> : null}
+              {item.detail ? (
+                <p className="mt-0.5 text-xs leading-5 text-muted">{item.detail}</p>
+              ) : null}
             </div>
             {item.status !== 'progress' ? (
               <button

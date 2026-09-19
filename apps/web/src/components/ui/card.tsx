@@ -9,12 +9,7 @@ export function Card({
   children: ReactNode;
 }) {
   return (
-    <section
-      className={cn(
-        'rounded-lg border border-line bg-surface p-5',
-        className,
-      )}
-    >
+    <section className={cn('rounded-lg border border-line bg-surface p-5', className)}>
       {children}
     </section>
   );

@@ -17,18 +17,18 @@ Simple. Smooth. Quiet. Employees should open it every evening without thinking.
 
 Defined in `apps/web/src/index.css`.
 
-| Token | Value | Use |
-| --- | --- | --- |
-| paper | `#F4F1EB` | App background |
-| surface | `#FCFAF6` | Cards, fields, chat pane |
-| ink | `#1B1A17` | Headings and body |
-| muted | `#6F6B64` | Secondary text |
-| line | `#E6E1D8` | Borders, dividers |
-| sage | `#FC4903` | Primary actions, active nav, sent bubbles |
-| sage-hover | `#E04103` | Primary button hover |
-| sage-soft | `#FFE6DC` | Active nav fill, success badges |
-| amber | `#9A6B2F` | Waiting / late |
-| rose | `#A24B3D` | Pending / danger |
+| Token      | Value     | Use                                       |
+| ---------- | --------- | ----------------------------------------- |
+| paper      | `#F4F1EB` | App background                            |
+| surface    | `#FCFAF6` | Cards, fields, chat pane                  |
+| ink        | `#1B1A17` | Headings and body                         |
+| muted      | `#6F6B64` | Secondary text                            |
+| line       | `#E6E1D8` | Borders, dividers                         |
+| sage       | `#FC4903` | Primary actions, active nav, sent bubbles |
+| sage-hover | `#E04103` | Primary button hover                      |
+| sage-soft  | `#FFE6DC` | Active nav fill, success badges           |
+| amber      | `#9A6B2F` | Waiting / late                            |
+| rose       | `#A24B3D` | Pending / danger                          |
 
 Radius: 8 / 12 / 18. Type: **Plus Jakarta Sans** for UI, **IBM Plex Mono** for dates and timestamps.
 

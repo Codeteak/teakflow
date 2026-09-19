@@ -1,5 +1,12 @@
-import type { CompanySettings as CompanySettingsDto, UpdateDailyWorkWindowInput } from '@teakflow/shared';
-import { AUDIT_ACTION, DEFAULT_COMPANY_SETTINGS, updateDailyWorkWindowSchema } from '@teakflow/shared';
+import type {
+  CompanySettings as CompanySettingsDto,
+  UpdateDailyWorkWindowInput,
+} from '@teakflow/shared';
+import {
+  AUDIT_ACTION,
+  DEFAULT_COMPANY_SETTINGS,
+  updateDailyWorkWindowSchema,
+} from '@teakflow/shared';
 import { COMPANY_SETTINGS_ID, CompanySettings } from '../../models/companySettings';
 import { AppError } from '../../middlewares/errorHandler/index';
 import { writeAudit } from '../audit/index';
@@ -26,7 +33,10 @@ export async function getCompanySettings(): Promise<CompanySettingsDto> {
   return row.toPublic();
 }
 
-export async function updateDailyWorkWindow(input: unknown, actorId?: string): Promise<CompanySettingsDto> {
+export async function updateDailyWorkWindow(
+  input: unknown,
+  actorId?: string,
+): Promise<CompanySettingsDto> {
   const parsed = updateDailyWorkWindowSchema.safeParse(input);
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message ?? 'Invalid submission window.';

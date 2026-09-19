@@ -5,7 +5,8 @@ const databaseUrl = env.DATABASE_URL;
 const usesSupabase = databaseUrl.includes('supabase.co');
 const usesTransactionPooler = /:(6543)(\/|$)/.test(databaseUrl);
 const usesDirectDb = /\/\/db\.[^/]+\.supabase\.co/.test(databaseUrl);
-const usesSessionPooler = databaseUrl.includes('pooler.supabase.com') && !usesTransactionPooler;
+const usesSessionPooler =
+  databaseUrl.includes('pooler.supabase.com') && !usesTransactionPooler;
 
 if (usesTransactionPooler) {
   console.warn(
@@ -70,13 +71,18 @@ export async function connectDatabase(): Promise<boolean> {
     if (usesSessionPooler) {
       console.log('[db] Connected via Supabase Session pooler');
     } else if (usesDirectDb) {
-      console.log('[db] Connected via Supabase Direct (consider switching to Session pooler)');
+      console.log(
+        '[db] Connected via Supabase Direct (consider switching to Session pooler)',
+      );
     } else {
       console.log('[db] Connected');
     }
     return true;
   } catch (error) {
-    console.error('[db] authenticate failed:', error instanceof Error ? error.message : error);
+    console.error(
+      '[db] authenticate failed:',
+      error instanceof Error ? error.message : error,
+    );
     return false;
   }
 }

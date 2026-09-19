@@ -1,4 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type FormEvent, type KeyboardEvent, type ReactNode, type SetStateAction } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+  type SetStateAction,
+} from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   CHANNEL_VISIBILITY,
@@ -18,14 +29,34 @@ import {
   type PublicUser,
   type StoredFile,
 } from '@teakflow/shared';
-import { ChevronLeft, MessageSquarePlus, Pencil, Reply, Search, SmilePlus, Trash2, Users } from 'lucide-react';
+import {
+  ChevronLeft,
+  MessageSquarePlus,
+  Pencil,
+  Reply,
+  Search,
+  SmilePlus,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { AnimatedEmoji } from '@/components/chat/AnimatedEmoji';
 import { EmojiPickerShell } from '@/components/chat/AnimatedEmojiPicker';
 import { ReactionPeopleModal } from '@/components/chat/ReactionPeopleModal';
 import { PeopleSearchPicker } from '@/components/chat/PeopleSearchPicker';
-import { FilePreviewModal, LinkPreviewCard, MessageAttachments, MessageText, ComposerFilePreview, VoiceNotePlayer, type ComposerFile } from '@/components/chat/MessageMedia';
-import { MessageReceiptTicks, messageReceiptStatus } from '@/components/chat/MessageReceiptTicks';
+import {
+  FilePreviewModal,
+  LinkPreviewCard,
+  MessageAttachments,
+  MessageText,
+  ComposerFilePreview,
+  VoiceNotePlayer,
+  type ComposerFile,
+} from '@/components/chat/MessageMedia';
+import {
+  MessageReceiptTicks,
+  messageReceiptStatus,
+} from '@/components/chat/MessageReceiptTicks';
 import { AIChatInput } from '@/components/ui/ai-chat-input';
 import { Button } from '@/components/ui/button';
 import { IconTooltipButton } from '@/components/ui/icon-tooltip-button';
@@ -63,7 +94,12 @@ import {
 import { CountBadge } from '@/components/ui/count-badge';
 import { EmptyState, ErrorBanner, ListLoading } from '@/components/ui/page-state';
 import { Typing } from '@/components/ui/typing';
-import { Bubble, BubbleContent, BubbleGroup, BubbleReactions } from '@/components/ui/bubble';
+import {
+  Bubble,
+  BubbleContent,
+  BubbleGroup,
+  BubbleReactions,
+} from '@/components/ui/bubble';
 import { cn } from '@/lib/cn';
 
 function mergeMessage(existing: Message, incoming: Message): Message {
@@ -72,16 +108,25 @@ function mergeMessage(existing: Message, incoming: Message): Message {
     ...incoming,
     senderName: incoming.senderName || existing.senderName,
     senderAvatar: incoming.senderAvatar ?? existing.senderAvatar,
-    attachments: incoming.attachments?.length ? incoming.attachments : existing.attachments ?? [],
+    attachments: incoming.attachments?.length
+      ? incoming.attachments
+      : (existing.attachments ?? []),
     meeting: incoming.meeting ?? existing.meeting ?? null,
-    linkPreviews: incoming.linkPreviews?.length ? incoming.linkPreviews : existing.linkPreviews ?? [],
+    linkPreviews: incoming.linkPreviews?.length
+      ? incoming.linkPreviews
+      : (existing.linkPreviews ?? []),
     replyTo: incoming.replyTo ?? existing.replyTo,
     replyCount: incoming.replyCount || existing.replyCount,
     reactions: incoming.reactions ?? existing.reactions,
   };
 }
 
-function withReaction(message: Message, viewerId: string, reaction: string, add: boolean): Message {
+function withReaction(
+  message: Message,
+  viewerId: string,
+  reaction: string,
+  add: boolean,
+): Message {
   const groups = message.reactions.map((row) => ({ ...row, userIds: [...row.userIds] }));
   const index = groups.findIndex((row) => row.reaction === reaction);
   if (add) {
@@ -101,7 +146,11 @@ function withReaction(message: Message, viewerId: string, reaction: string, add:
   return { ...message, reactions: groups };
 }
 
-function mergeChatMessages(fromApi: Message[], current: Message[], conversationId: string) {
+function mergeChatMessages(
+  fromApi: Message[],
+  current: Message[],
+  conversationId: string,
+) {
   const map = new Map<string, Message>();
   for (const row of fromApi) {
     map.set(row.id, row);
@@ -190,7 +239,9 @@ export function ChatPage() {
       })
       .catch((cause) => {
         if (!cancelled) {
-          setListError(cause instanceof Error ? cause.message : 'Unable to load conversations.');
+          setListError(
+            cause instanceof Error ? cause.message : 'Unable to load conversations.',
+          );
         }
       })
       .finally(() => {
@@ -215,7 +266,9 @@ export function ChatPage() {
 
   useEffect(() => {
     if (!newGroupOpen || users.length > 0) return;
-    void listUsersRequest().then(setUsers).catch(() => undefined);
+    void listUsersRequest()
+      .then(setUsers)
+      .catch(() => undefined);
   }, [newGroupOpen, users.length]);
 
   useEffect(() => {
@@ -275,7 +328,9 @@ export function ChatPage() {
             .catch(() => undefined);
           clearUnread(conversationId);
           setList((current) =>
-            current.map((item) => (item.id === conversationId ? { ...item, unreadCount: 0 } : item)),
+            current.map((item) =>
+              item.id === conversationId ? { ...item, unreadCount: 0 } : item,
+            ),
           );
         }
       })
@@ -306,12 +361,16 @@ export function ChatPage() {
             return current;
           }
           if (current.some((row) => row.id === message.id)) {
-            return current.map((row) => (row.id === message.id ? mergeMessage(row, message) : row));
+            return current.map((row) =>
+              row.id === message.id ? mergeMessage(row, message) : row,
+            );
           }
           const next = [...current, message];
           if (message.replyToMessageId) {
             return next.map((row) =>
-              row.id === message.replyToMessageId ? { ...row, replyCount: row.replyCount + 1 } : row,
+              row.id === message.replyToMessageId
+                ? { ...row, replyCount: row.replyCount + 1 }
+                : row,
             );
           }
           return next;
@@ -348,7 +407,11 @@ export function ChatPage() {
         }
       },
       onMessageUpdate(message) {
-        setMessages((current) => current.map((row) => (row.id === message.id ? mergeMessage(row, message) : row)));
+        setMessages((current) =>
+          current.map((row) =>
+            row.id === message.id ? mergeMessage(row, message) : row,
+          ),
+        );
       },
       onTyping({ conversationId: id, userId, typing }) {
         if (id !== conversationIdRef.current || userId === viewerId) return;
@@ -370,7 +433,9 @@ export function ChatPage() {
           return {
             ...current,
             members: current.members.map((member) =>
-              member.userId === userId ? { ...member, lastReadMessageId: messageId } : member,
+              member.userId === userId
+                ? { ...member, lastReadMessageId: messageId }
+                : member,
             ),
           };
         });
@@ -382,7 +447,9 @@ export function ChatPage() {
             return {
               ...item,
               members: item.members.map((member) =>
-                member.userId === userId ? { ...member, lastReadMessageId: messageId } : member,
+                member.userId === userId
+                  ? { ...member, lastReadMessageId: messageId }
+                  : member,
               ),
             };
           }),
@@ -395,7 +462,9 @@ export function ChatPage() {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
   }, [messages.length]);
 
-  const directs = list.filter((item) => item.type === CONVERSATION_TYPE.DIRECT && item.lastMessage);
+  const directs = list.filter(
+    (item) => item.type === CONVERSATION_TYPE.DIRECT && item.lastMessage,
+  );
   const groups = list.filter((item) => item.type === CONVERSATION_TYPE.GROUP);
   const channels = list.filter((item) => item.type === CONVERSATION_TYPE.CHANNEL);
 
@@ -418,7 +487,9 @@ export function ChatPage() {
     if (needle.includes(' ')) return [];
     return (active?.members ?? [])
       .map((member) => member.user)
-      .filter((person) => person.id !== viewerId && person.name.toLowerCase().includes(needle))
+      .filter(
+        (person) => person.id !== viewerId && person.name.toLowerCase().includes(needle),
+      )
       .slice(0, 6);
   }, [active, draft, viewerId]);
 
@@ -436,7 +507,12 @@ export function ChatPage() {
     }, 250);
   }
 
-  async function persistMessage(text: string, files: StoredFile[], previews: LinkPreview[] = [], staged: ComposerFile[] = []) {
+  async function persistMessage(
+    text: string,
+    files: StoredFile[],
+    previews: LinkPreview[] = [],
+    staged: ComposerFile[] = [],
+  ) {
     if (!conversationId || !user) return;
     if (!text && files.length === 0) return;
     const tempId = `temp-${crypto.randomUUID()}`;
@@ -479,8 +555,20 @@ export function ChatPage() {
     emitTyping(conversationId, false);
 
     try {
-      const created = await sendMessageLive(conversationId, text, optimistic.replyToMessageId, files, previews).catch(
-        () => sendMessageRequest(conversationId, text, optimistic.replyToMessageId, files, previews),
+      const created = await sendMessageLive(
+        conversationId,
+        text,
+        optimistic.replyToMessageId,
+        files,
+        previews,
+      ).catch(() =>
+        sendMessageRequest(
+          conversationId,
+          text,
+          optimistic.replyToMessageId,
+          files,
+          previews,
+        ),
       );
       for (const file of staged) {
         URL.revokeObjectURL(file.previewUrl);
@@ -488,13 +576,20 @@ export function ChatPage() {
       setMessages((current) => {
         const withoutTemp = current.filter((row) => row.id !== tempId);
         const merged = withoutTemp.some((row) => row.id === created.id)
-          ? withoutTemp.map((row) => (row.id === created.id ? mergeMessage(row, created) : row))
+          ? withoutTemp.map((row) =>
+              row.id === created.id ? mergeMessage(row, created) : row,
+            )
           : [...withoutTemp, mergeMessage(optimistic, created)];
-        if (!optimistic.replyToMessageId || withoutTemp.some((row) => row.id === created.id)) {
+        if (
+          !optimistic.replyToMessageId ||
+          withoutTemp.some((row) => row.id === created.id)
+        ) {
           return merged;
         }
         return merged.map((row) =>
-          row.id === optimistic.replyToMessageId ? { ...row, replyCount: row.replyCount + 1 } : row,
+          row.id === optimistic.replyToMessageId
+            ? { ...row, replyCount: row.replyCount + 1 }
+            : row,
         );
       });
     } catch (cause) {
@@ -512,7 +607,9 @@ export function ChatPage() {
     event.preventDefault();
     if (!conversationId || !user) return;
     const text = draft.trim();
-    const files = composerFiles.map((file) => file.stored).filter((file): file is StoredFile => Boolean(file));
+    const files = composerFiles
+      .map((file) => file.stored)
+      .filter((file): file is StoredFile => Boolean(file));
     const previews = pendingLink ? [pendingLink] : [];
     if (!text && files.length === 0) return;
     if (composerFiles.some((file) => !file.stored)) {
@@ -524,7 +621,11 @@ export function ChatPage() {
       if (!text) return;
       try {
         const updated = await editMessageRequest(editing.id, text);
-        setMessages((current) => current.map((row) => (row.id === updated.id ? mergeMessage(row, updated) : row)));
+        setMessages((current) =>
+          current.map((row) =>
+            row.id === updated.id ? mergeMessage(row, updated) : row,
+          ),
+        );
         setEditing(null);
         setDraft('');
       } catch (cause) {
@@ -546,7 +647,9 @@ export function ChatPage() {
       const stored = await uploadFileRequest(file, 'chat');
       await persistMessage('', [stored]);
     } catch (error) {
-      setComposerError(error instanceof Error ? error.message : 'Could not send the voice message.');
+      setComposerError(
+        error instanceof Error ? error.message : 'Could not send the voice message.',
+      );
     } finally {
       setVoiceSending(false);
     }
@@ -575,7 +678,9 @@ export function ChatPage() {
         }),
       );
     } catch (error) {
-      setComposerError(error instanceof Error ? error.message : 'Could not upload the file.');
+      setComposerError(
+        error instanceof Error ? error.message : 'Could not upload the file.',
+      );
     }
   }
 
@@ -584,7 +689,10 @@ export function ChatPage() {
     if (!conversationId) return;
     emitTyping(conversationId, true);
     window.clearTimeout(typingTimer.current);
-    typingTimer.current = window.setTimeout(() => emitTyping(conversationId, false), 1200);
+    typingTimer.current = window.setTimeout(
+      () => emitTyping(conversationId, false),
+      1200,
+    );
     window.clearTimeout(ogTimer.current);
     const url = extractHttpUrls(value)[0] ?? '';
     if (!url) {
@@ -645,7 +753,10 @@ export function ChatPage() {
   }
 
   async function startDirect(userId: string) {
-    const conversation = await createConversationRequest({ type: CONVERSATION_TYPE.DIRECT, userId });
+    const conversation = await createConversationRequest({
+      type: CONVERSATION_TYPE.DIRECT,
+      userId,
+    });
     await refreshList();
     navigate(`/chat/${conversation.id}`);
   }
@@ -660,7 +771,10 @@ export function ChatPage() {
       name: groupName.trim(),
       visibility: isPublic ? CHANNEL_VISIBILITY.PUBLIC : CHANNEL_VISIBILITY.PRIVATE,
       memberIds: isPublic ? [] : groupMembers,
-      department: isPublic && user?.role === ROLES.ADMIN && groupDepartment ? (groupDepartment as Department) : null,
+      department:
+        isPublic && user?.role === ROLES.ADMIN && groupDepartment
+          ? (groupDepartment as Department)
+          : null,
     });
     setNewGroupOpen(false);
     setGroupName('');
@@ -673,7 +787,10 @@ export function ChatPage() {
 
   const showPane = Boolean(conversationId);
   const typingNames = typingIds
-    .map((id) => active?.members.find((member) => member.userId === id)?.user.name.split(' ')[0])
+    .map(
+      (id) =>
+        active?.members.find((member) => member.userId === id)?.user.name.split(' ')[0],
+    )
     .filter((name): name is string => Boolean(name));
   const typingLabel =
     typingNames.length === 0
@@ -684,7 +801,9 @@ export function ChatPage() {
           ? `${typingNames[0]} and ${typingNames[1]} are typing`
           : `${typingNames[0]} and ${typingNames.length - 1} others are typing`;
 
-  const threadReplies = thread ? messages.filter((row) => row.replyToMessageId === thread.id) : [];
+  const threadReplies = thread
+    ? messages.filter((row) => row.replyToMessageId === thread.id)
+    : [];
   const messagesById = useMemo(() => {
     const map = new Map<string, Message>();
     for (const row of messages) {
@@ -704,7 +823,7 @@ export function ChatPage() {
   }, [active?.members, users]);
   const dmPeer =
     active?.type === CONVERSATION_TYPE.DIRECT
-      ? active.members.find((member) => member.userId !== viewerId)?.user ?? null
+      ? (active.members.find((member) => member.userId !== viewerId)?.user ?? null)
       : null;
   const messageGroups = useMemo(() => {
     const groups: Message[][] = [];
@@ -743,26 +862,31 @@ export function ChatPage() {
             <div className="space-y-3">
               {hits.correctedQuery ? (
                 <p className="px-2 text-xs text-muted">
-                  Showing spelling close to <span className="font-medium text-ink">{hits.correctedQuery}</span>
+                  Showing spelling close to{' '}
+                  <span className="font-medium text-ink">{hits.correctedQuery}</span>
                 </p>
               ) : null}
               {hits.completions.length > 0 || hits.suggestions.length > 0 ? (
                 <div className="flex flex-wrap gap-1 px-2">
-                  {[...new Set([...hits.completions, ...hits.suggestions])].slice(0, 8).map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className="rounded-md border border-line bg-surface px-2 py-1 text-xs text-ink hover:bg-line/50"
-                      onClick={() => void onSearchChange(item)}
-                    >
-                      {item}
-                    </button>
-                  ))}
+                  {[...new Set([...hits.completions, ...hits.suggestions])]
+                    .slice(0, 8)
+                    .map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className="rounded-md border border-line bg-surface px-2 py-1 text-xs text-ink hover:bg-line/50"
+                        onClick={() => void onSearchChange(item)}
+                      >
+                        {item}
+                      </button>
+                    ))}
                 </div>
               ) : null}
               {hits.people.length > 0 ? (
                 <div className="space-y-1">
-                  <p className="px-2 pb-1 text-[11px] font-medium tracking-wide text-muted uppercase">People</p>
+                  <p className="px-2 pb-1 text-[11px] font-medium tracking-wide text-muted uppercase">
+                    People
+                  </p>
                   {hits.people.map((person) => (
                     <button
                       key={person.id}
@@ -776,7 +900,9 @@ export function ChatPage() {
                     >
                       <Avatar name={person.name} src={person.avatar} size={36} />
                       <span className="min-w-0">
-                        <span className="block truncate text-sm font-medium">{person.name}</span>
+                        <span className="block truncate text-sm font-medium">
+                          {person.name}
+                        </span>
                         <span className="block truncate text-xs text-muted">
                           {person.designation ?? person.role}
                           {person.department ? ` · ${person.department}` : ''}
@@ -787,40 +913,54 @@ export function ChatPage() {
                 </div>
               ) : null}
               <div className="space-y-1">
-                <p className="px-2 pb-2 text-[11px] font-medium tracking-wide text-muted uppercase">Messages</p>
-                {hits.items.length === 0 ? <p className="px-2 text-sm text-muted">No message matches.</p> : null}
+                <p className="px-2 pb-2 text-[11px] font-medium tracking-wide text-muted uppercase">
+                  Messages
+                </p>
+                {hits.items.length === 0 ? (
+                  <p className="px-2 text-sm text-muted">No message matches.</p>
+                ) : null}
                 {hits.items.map((hit) => (
                   <button
                     key={hit.message.id}
                     className="mb-0.5 w-full rounded-md px-2.5 py-2 text-left hover:bg-line/50"
                     onClick={() => navigate(`/chat/${hit.conversationId}`)}
                   >
-                    <span className="block text-sm font-medium">{hit.conversationName}</span>
-                    <span className="block text-xs text-muted">{hit.message.content}</span>
+                    <span className="block text-sm font-medium">
+                      {hit.conversationName}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {hit.message.content}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
           ) : (
             <>
-              {listError ? <ErrorBanner message={listError} className="mx-2 mb-2" /> : null}
+              {listError ? (
+                <ErrorBanner message={listError} className="mx-2 mb-2" />
+              ) : null}
               {loadingList ? <ListLoading rows={6} /> : null}
               {!loadingList ? (
-              <Section title="Direct">
-                {directs.map((item) => (
-                  <ConversationButton
-                    key={item.id}
-                    item={item}
-                    viewerId={viewerId}
-                    presenceByUser={presenceByUser}
-                    active={item.id === conversationId}
-                    onClick={() => navigate(`/chat/${item.id}`)}
-                  />
-                ))}
-                {directs.length === 0 ? (
-                  <EmptyState title="No direct chats yet" description="Search for someone above to start a DM." className="px-2 py-4 text-left" />
-                ) : null}
-              </Section>
+                <Section title="Direct">
+                  {directs.map((item) => (
+                    <ConversationButton
+                      key={item.id}
+                      item={item}
+                      viewerId={viewerId}
+                      presenceByUser={presenceByUser}
+                      active={item.id === conversationId}
+                      onClick={() => navigate(`/chat/${item.id}`)}
+                    />
+                  ))}
+                  {directs.length === 0 ? (
+                    <EmptyState
+                      title="No direct chats yet"
+                      description="Search for someone above to start a DM."
+                      className="px-2 py-4 text-left"
+                    />
+                  ) : null}
+                </Section>
               ) : null}
               {groups.length > 0 ? (
                 <Section title="Groups">
@@ -869,13 +1009,22 @@ export function ChatPage() {
           </div>
         ) : null}
         {newGroupOpen ? (
-          <form className="max-h-72 space-y-2 overflow-y-auto border-t border-line p-3 scrollbar-none" onSubmit={(event) => void createGroup(event)}>
-            <Input value={groupName} onChange={(event) => setGroupName(event.target.value)} placeholder="Group name" />
+          <form
+            className="max-h-72 space-y-2 overflow-y-auto border-t border-line p-3 scrollbar-none"
+            onSubmit={(event) => void createGroup(event)}
+          >
+            <Input
+              value={groupName}
+              onChange={(event) => setGroupName(event.target.value)}
+              placeholder="Group name"
+            />
             {user?.role !== ROLES.EMPLOYEE ? (
               <select
                 className="h-10 w-full rounded-md border border-line bg-surface px-3 text-sm"
                 value={groupVisibility}
-                onChange={(event) => setGroupVisibility(event.target.value as 'PUBLIC' | 'PRIVATE')}
+                onChange={(event) =>
+                  setGroupVisibility(event.target.value as 'PUBLIC' | 'PRIVATE')
+                }
               >
                 <option value="PRIVATE">Private — chosen people</option>
                 <option value="PUBLIC">
@@ -909,7 +1058,9 @@ export function ChatPage() {
               </p>
             ) : (
               <>
-                <p className="text-xs text-muted">Search and add anyone in the company.</p>
+                <p className="text-xs text-muted">
+                  Search and add anyone in the company.
+                </p>
                 <PeopleSearchPicker
                   mode="multi"
                   people={users}
@@ -920,7 +1071,14 @@ export function ChatPage() {
                 />
               </>
             )}
-            <Button type="submit" className="w-full" disabled={!groupName.trim() || (groupVisibility !== 'PUBLIC' && groupMembers.length === 0)}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={
+                !groupName.trim() ||
+                (groupVisibility !== 'PUBLIC' && groupMembers.length === 0)
+              }
+            >
               Create group
             </Button>
           </form>
@@ -950,7 +1108,10 @@ export function ChatPage() {
       </aside>
 
       <section
-        className={cn('relative min-w-0 flex-1 flex-col bg-surface', showPane ? 'flex' : 'hidden md:flex')}
+        className={cn(
+          'relative min-w-0 flex-1 flex-col bg-surface',
+          showPane ? 'flex' : 'hidden md:flex',
+        )}
         onDragEnter={(event) => {
           if (!active || editing || !event.dataTransfer.types.includes('Files')) {
             return;
@@ -1020,11 +1181,15 @@ export function ChatPage() {
                     name={dmPeer.name}
                     src={dmPeer.avatar}
                     size={36}
-                    status={avatarStatusFromPresence(peerPresence(active, viewerId, presenceByUser))}
+                    status={avatarStatusFromPresence(
+                      peerPresence(active, viewerId, presenceByUser),
+                    )}
                   />
                 ) : null}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{conversationTitle(active, viewerId)}</p>
+                  <p className="truncate text-sm font-semibold">
+                    {conversationTitle(active, viewerId)}
+                  </p>
                   <p className="hidden text-xs text-muted md:block">
                     {active.type === CONVERSATION_TYPE.DIRECT
                       ? presenceLabel(peerPresence(active, viewerId, presenceByUser))
@@ -1046,7 +1211,10 @@ export function ChatPage() {
                 ) : null}
               </div>
             </header>
-            <div ref={scroller} className="flex-1 overflow-y-auto px-4 py-6 scrollbar-none md:px-6">
+            <div
+              ref={scroller}
+              className="flex-1 overflow-y-auto px-4 py-6 scrollbar-none md:px-6"
+            >
               {loadingMessages ? <ListLoading rows={4} className="px-4 py-3" /> : null}
               <div className="flex flex-col gap-8">
                 {messageGroups.map((group) => {
@@ -1056,7 +1224,10 @@ export function ChatPage() {
                   const senderAvatar =
                     first.senderAvatar ?? peopleById.get(first.senderId)?.avatar ?? null;
                   return (
-                    <div key={first.id} className={cn('flex flex-col', self && 'items-end')}>
+                    <div
+                      key={first.id}
+                      className={cn('flex flex-col', self && 'items-end')}
+                    >
                       <div
                         className={cn(
                           'mb-2 flex items-center gap-2',
@@ -1074,11 +1245,20 @@ export function ChatPage() {
                             self={self}
                             viewerId={viewerId}
                             people={peopleById}
-                            parent={message.replyToMessageId ? messagesById.get(message.replyToMessageId) : undefined}
+                            parent={
+                              message.replyToMessageId
+                                ? messagesById.get(message.replyToMessageId)
+                                : undefined
+                            }
                             highlighted={highlightId === message.id}
                             receipt={
                               active
-                                ? messageReceiptStatus(message, messages, active.members, viewerId)
+                                ? messageReceiptStatus(
+                                    message,
+                                    messages,
+                                    active.members,
+                                    viewerId,
+                                  )
                                 : null
                             }
                             onJumpToReply={jumpToMessage}
@@ -1092,12 +1272,19 @@ export function ChatPage() {
                             onDelete={() =>
                               void deleteMessageRequest(message.id).then((updated) =>
                                 setMessages((current) =>
-                                  current.map((row) => (row.id === updated.id ? updated : row)),
+                                  current.map((row) =>
+                                    row.id === updated.id ? updated : row,
+                                  ),
                                 ),
                               )
                             }
                             onReact={(reaction) =>
-                              void toggleReaction(message, viewerId, reaction, setMessages)
+                              void toggleReaction(
+                                message,
+                                viewerId,
+                                reaction,
+                                setMessages,
+                              )
                             }
                           />
                         ))}
@@ -1142,7 +1329,9 @@ export function ChatPage() {
                     key={person.id}
                     type="button"
                     className="block w-full rounded-md px-2 py-1.5 text-left text-sm hover:bg-line/50"
-                    onClick={() => insertMention(person.name.split(' ')[0] ?? person.name)}
+                    onClick={() =>
+                      insertMention(person.name.split(' ')[0] ?? person.name)
+                    }
                   >
                     @{person.name}
                   </button>
@@ -1155,7 +1344,10 @@ export function ChatPage() {
               onSubmit={(event) => void submit(event)}
               onKeyDown={onComposerKey}
               onVoiceFile={(file) => sendVoiceNote(file)}
-              canSubmit={Boolean(draft.trim() || composerFiles.some((file) => file.stored)) && !composerFiles.some((file) => !file.stored)}
+              canSubmit={
+                Boolean(draft.trim() || composerFiles.some((file) => file.stored)) &&
+                !composerFiles.some((file) => !file.stored)
+              }
               uploading={voiceSending || composerFiles.some((file) => !file.stored)}
               preview={
                 <ComposerFilePreview
@@ -1181,7 +1373,8 @@ export function ChatPage() {
                       url: file.previewUrl,
                       publicId: file.id,
                       bytes: 0,
-                      contentType: file.kind === 'image' ? 'image/jpeg' : 'application/octet-stream',
+                      contentType:
+                        file.kind === 'image' ? 'image/jpeg' : 'application/octet-stream',
                       originalName: file.name,
                       kind: file.kind,
                     });
@@ -1203,7 +1396,11 @@ export function ChatPage() {
         <aside className="hidden w-80 flex-col border-l border-line bg-paper lg:flex">
           <header className="flex items-center justify-between border-b border-line px-4 py-4">
             <p className="text-sm font-semibold">Thread</p>
-            <button type="button" className="text-xs text-muted" onClick={() => setThread(null)}>
+            <button
+              type="button"
+              className="text-xs text-muted"
+              onClick={() => setThread(null)}
+            >
               Close
             </button>
           </header>
@@ -1248,8 +1445,17 @@ function MemberStack({ members }: { members: Conversation['members'] }) {
   return (
     <div className="flex items-center" aria-label={`${members.length} members`}>
       {shown.map((member, index) => (
-        <span key={member.id} className="relative" style={{ marginLeft: index === 0 ? 0 : -10, zIndex: shown.length - index }}>
-          <Avatar name={member.user.name} src={member.user.avatar} size={28} className="border-surface ring-2 ring-surface" />
+        <span
+          key={member.id}
+          className="relative"
+          style={{ marginLeft: index === 0 ? 0 : -10, zIndex: shown.length - index }}
+        >
+          <Avatar
+            name={member.user.name}
+            src={member.user.avatar}
+            size={28}
+            className="border-surface ring-2 ring-surface"
+          />
         </span>
       ))}
       {extra > 0 ? (
@@ -1267,7 +1473,9 @@ function MemberStack({ members }: { members: Conversation['members'] }) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mb-4">
-      <p className="px-2 pb-2 text-[11px] font-medium tracking-wide text-muted uppercase">{title}</p>
+      <p className="px-2 pb-2 text-[11px] font-medium tracking-wide text-muted uppercase">
+        {title}
+      </p>
       {children}
     </div>
   );
@@ -1290,7 +1498,9 @@ function ConversationButton({
     item.type === CONVERSATION_TYPE.DIRECT
       ? (item.members.find((member) => member.userId !== viewerId)?.user ?? null)
       : null;
-  const peerStatus = peer ? peerPresence(item, viewerId, presenceByUser) : PRESENCE_STATUS.OFFLINE;
+  const peerStatus = peer
+    ? peerPresence(item, viewerId, presenceByUser)
+    : PRESENCE_STATUS.OFFLINE;
   const subtitle = peer
     ? [peer.designation, conversationPreview(item)].filter(Boolean).join(' · ')
     : conversationPreview(item);
@@ -1304,10 +1514,17 @@ function ConversationButton({
       onClick={onClick}
     >
       {peer ? (
-        <Avatar name={peer.name} src={peer.avatar} size={36} status={avatarStatusFromPresence(peerStatus)} />
+        <Avatar
+          name={peer.name}
+          src={peer.avatar}
+          size={36}
+          status={avatarStatusFromPresence(peerStatus)}
+        />
       ) : null}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">{conversationTitle(item, viewerId)}</span>
+        <span className="block truncate text-sm font-medium">
+          {conversationTitle(item, viewerId)}
+        </span>
         <span className="block truncate text-xs text-muted">{subtitle}</span>
       </span>
       {item.unreadCount > 0 ? (
@@ -1373,14 +1590,25 @@ function MessageBubble({
     setPeopleOpen(true);
   }
 
-  const replyImage = (message.replyTo?.attachments ?? parent?.attachments ?? []).find((file) => file.kind === 'image');
+  const replyImage = (message.replyTo?.attachments ?? parent?.attachments ?? []).find(
+    (file) => file.kind === 'image',
+  );
   const audioFiles = (message.attachments ?? []).filter((file) => file.kind === 'audio');
   const otherFiles = (message.attachments ?? []).filter((file) => file.kind !== 'audio');
-  const voiceOnly = !deleted && !message.content && audioFiles.length > 0 && otherFiles.length === 0 && !message.replyTo;
+  const voiceOnly =
+    !deleted &&
+    !message.content &&
+    audioFiles.length > 0 &&
+    otherFiles.length === 0 &&
+    !message.replyTo;
   const showTextBubble =
-    deleted || Boolean(message.content.trim()) || Boolean(message.replyTo) || audioFiles.length > 0;
+    deleted ||
+    Boolean(message.content.trim()) ||
+    Boolean(message.replyTo) ||
+    audioFiles.length > 0;
   const showMeeting = !deleted && Boolean(message.meeting);
-  const showMedia = !deleted && (otherFiles.length > 0 || (message.linkPreviews ?? []).length > 0);
+  const showMedia =
+    !deleted && (otherFiles.length > 0 || (message.linkPreviews ?? []).length > 0);
   const actionsVisible = pickerOpen || peopleOpen;
 
   return (
@@ -1393,116 +1621,141 @@ function MessageBubble({
       )}
     >
       {showTextBubble ? (
-      <Bubble
-        variant={self && !deleted ? 'default' : 'muted'}
-        align={self ? 'end' : 'start'}
-        className={cn('max-w-full', deleted && 'opacity-80')}
-      >
-        <div
-          className={cn('relative max-w-full', message.reactions.length > 0 && 'mb-3')}
-          style={{ minWidth: bubbleMinWidth }}
+        <Bubble
+          variant={self && !deleted ? 'default' : 'muted'}
+          align={self ? 'end' : 'start'}
+          className={cn('max-w-full', deleted && 'opacity-80')}
         >
-          <BubbleContent
-            className={cn(
-              'w-full',
-              self && !deleted ? 'bg-sage text-surface' : 'bg-paper text-ink',
-              voiceOnly && self && 'rounded-full bg-sage px-2.5 py-1.5 text-surface',
-              voiceOnly && !self && 'rounded-full bg-sage-soft px-2.5 py-1.5 text-sage',
-              deleted && 'bg-paper italic text-muted',
-            )}
+          <div
+            className={cn('relative max-w-full', message.reactions.length > 0 && 'mb-3')}
             style={{ minWidth: bubbleMinWidth }}
           >
-            {message.replyTo ? (
-              <button
-                type="button"
-                className="mb-1 flex max-w-full items-center gap-2 rounded-md bg-black/10 px-1.5 py-1 text-left"
-                onClick={() => {
-                  if (message.replyToMessageId) {
-                    onJumpToReply(message.replyToMessageId);
-                  }
-                }}
-              >
-                {replyImage ? (
-                  <img src={replyImage.url} alt="" className="size-10 shrink-0 rounded object-cover" />
-                ) : null}
-                <span className="min-w-0 truncate text-[11px] opacity-80">
-                  ↳ {message.replyTo.content}
-                </span>
-              </button>
-            ) : null}
-            {message.content ? <MessageText text={message.content} inverted={self && !deleted} /> : null}
-            {message.editedAt && !deleted ? <span className="ml-1 text-[10px] opacity-80">(edited)</span> : null}
-            {!deleted
-              ? audioFiles.map((file) => (
-                  <VoiceNotePlayer key={file.publicId} file={file} tone={self ? 'sent' : 'received'} />
-                ))
-              : null}
-            {self && receipt ? (
-              <span className="mt-1 flex min-h-[14px] w-full min-w-[4.75rem] shrink-0 items-center justify-end gap-1">
-                <span
-                  className={cn(
-                    'inline-block min-w-[2.75rem] text-right font-mono text-[10px] tabular-nums',
-                    self && !deleted ? 'text-surface/75' : 'text-muted',
-                  )}
+            <BubbleContent
+              className={cn(
+                'w-full',
+                self && !deleted ? 'bg-sage text-surface' : 'bg-paper text-ink',
+                voiceOnly && self && 'rounded-full bg-sage px-2.5 py-1.5 text-surface',
+                voiceOnly && !self && 'rounded-full bg-sage-soft px-2.5 py-1.5 text-sage',
+                deleted && 'bg-paper italic text-muted',
+              )}
+              style={{ minWidth: bubbleMinWidth }}
+            >
+              {message.replyTo ? (
+                <button
+                  type="button"
+                  className="mb-1 flex max-w-full items-center gap-2 rounded-md bg-black/10 px-1.5 py-1 text-left"
+                  onClick={() => {
+                    if (message.replyToMessageId) {
+                      onJumpToReply(message.replyToMessageId);
+                    }
+                  }}
                 >
-                  {new Intl.DateTimeFormat('en-IN', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  }).format(new Date(message.createdAt))}
-                </span>
-                <MessageReceiptTicks status={receipt} inverted={self && !deleted} className="w-3.5 shrink-0" />
-              </span>
-            ) : !self ? (
-              <span className="mt-1 flex min-h-[14px] w-full min-w-[2.75rem] shrink-0 justify-end">
-                <span className="inline-block min-w-[2.75rem] text-right font-mono text-[10px] tabular-nums text-muted">
-                  {new Intl.DateTimeFormat('en-IN', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                  }).format(new Date(message.createdAt))}
-                </span>
-              </span>
-            ) : null}
-          </BubbleContent>
-          {message.reactions.length > 0 ? (
-            <>
-              <BubbleReactions
-                role="button"
-                aria-label="Who reacted"
-                align="end"
-                className="cursor-pointer"
-                onClick={() => openPeople()}
-              >
-                {visibleReactions.map((reaction) => (
-                  <button
-                    key={reaction.reaction}
-                    type="button"
-                    className="inline-flex size-4 items-center justify-center rounded-full"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      openPeople(reaction.reaction);
-                    }}
+                  {replyImage ? (
+                    <img
+                      src={replyImage.url}
+                      alt=""
+                      className="size-10 shrink-0 rounded object-cover"
+                    />
+                  ) : null}
+                  <span className="min-w-0 truncate text-[11px] opacity-80">
+                    ↳ {message.replyTo.content}
+                  </span>
+                </button>
+              ) : null}
+              {message.content ? (
+                <MessageText text={message.content} inverted={self && !deleted} />
+              ) : null}
+              {message.editedAt && !deleted ? (
+                <span className="ml-1 text-[10px] opacity-80">(edited)</span>
+              ) : null}
+              {!deleted
+                ? audioFiles.map((file) => (
+                    <VoiceNotePlayer
+                      key={file.publicId}
+                      file={file}
+                      tone={self ? 'sent' : 'received'}
+                    />
+                  ))
+                : null}
+              {self && receipt ? (
+                <span className="mt-1 flex min-h-[14px] w-full min-w-[4.75rem] shrink-0 items-center justify-end gap-1">
+                  <span
+                    className={cn(
+                      'inline-block min-w-[2.75rem] text-right font-mono text-[10px] tabular-nums',
+                      self && !deleted ? 'text-surface/75' : 'text-muted',
+                    )}
                   >
-                    <AnimatedEmoji emoji={reaction.reaction} size={14} />
-                  </button>
-                ))}
-                {extraReactions > 0 ? <span className="pl-0.5 text-[10px] text-muted">+{extraReactions}</span> : null}
-              </BubbleReactions>
-              <ReactionPeopleModal
-                open={peopleOpen}
-                reactions={message.reactions}
-                people={people}
-                viewerId={viewerId}
-                initialReaction={peopleReaction}
-                onClose={() => setPeopleOpen(false)}
-                onToggle={onReact}
-              />
-            </>
-          ) : null}
-        </div>
-      </Bubble>
+                    {new Intl.DateTimeFormat('en-IN', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    }).format(new Date(message.createdAt))}
+                  </span>
+                  <MessageReceiptTicks
+                    status={receipt}
+                    inverted={self && !deleted}
+                    className="w-3.5 shrink-0"
+                  />
+                </span>
+              ) : !self ? (
+                <span className="mt-1 flex min-h-[14px] w-full min-w-[2.75rem] shrink-0 justify-end">
+                  <span className="inline-block min-w-[2.75rem] text-right font-mono text-[10px] tabular-nums text-muted">
+                    {new Intl.DateTimeFormat('en-IN', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    }).format(new Date(message.createdAt))}
+                  </span>
+                </span>
+              ) : null}
+            </BubbleContent>
+            {message.reactions.length > 0 ? (
+              <>
+                <BubbleReactions
+                  role="button"
+                  aria-label="Who reacted"
+                  align="end"
+                  className="cursor-pointer"
+                  onClick={() => openPeople()}
+                >
+                  {visibleReactions.map((reaction) => (
+                    <button
+                      key={reaction.reaction}
+                      type="button"
+                      className="inline-flex size-4 items-center justify-center rounded-full"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openPeople(reaction.reaction);
+                      }}
+                    >
+                      <AnimatedEmoji emoji={reaction.reaction} size={14} />
+                    </button>
+                  ))}
+                  {extraReactions > 0 ? (
+                    <span className="pl-0.5 text-[10px] text-muted">
+                      +{extraReactions}
+                    </span>
+                  ) : null}
+                </BubbleReactions>
+                <ReactionPeopleModal
+                  open={peopleOpen}
+                  reactions={message.reactions}
+                  people={people}
+                  viewerId={viewerId}
+                  initialReaction={peopleReaction}
+                  onClose={() => setPeopleOpen(false)}
+                  onToggle={onReact}
+                />
+              </>
+            ) : null}
+          </div>
+        </Bubble>
       ) : null}
       {showMeeting && message.meeting ? (
-        <div className={cn('w-full min-w-[220px] max-w-sm rounded-md border border-line bg-paper p-3', showTextBubble && 'mt-2')}>
+        <div
+          className={cn(
+            'w-full min-w-[220px] max-w-sm rounded-md border border-line bg-paper p-3',
+            showTextBubble && 'mt-2',
+          )}
+        >
           <div className="flex items-start gap-2.5">
             <GoogleMeetIcon size={20} className="mt-0.5" />
             <div className="min-w-0 flex-1">
@@ -1529,8 +1782,18 @@ function MessageBubble({
         </div>
       ) : null}
       {showMedia ? (
-        <div className={cn('relative w-full min-w-[220px] max-w-sm', showTextBubble && 'mt-2', message.reactions.length > 0 && !showTextBubble && 'mb-3')}>
-          <MessageAttachments attachments={otherFiles} onOpen={onOpenFile} includeAudio={false} />
+        <div
+          className={cn(
+            'relative w-full min-w-[220px] max-w-sm',
+            showTextBubble && 'mt-2',
+            message.reactions.length > 0 && !showTextBubble && 'mb-3',
+          )}
+        >
+          <MessageAttachments
+            attachments={otherFiles}
+            onOpen={onOpenFile}
+            includeAudio={false}
+          />
           {(message.linkPreviews ?? []).map((preview) => (
             <LinkPreviewCard key={preview.url} preview={preview} />
           ))}
@@ -1567,7 +1830,9 @@ function MessageBubble({
                     <AnimatedEmoji emoji={reaction.reaction} size={14} />
                   </button>
                 ))}
-                {extraReactions > 0 ? <span className="pl-0.5 text-[10px] text-muted">+{extraReactions}</span> : null}
+                {extraReactions > 0 ? (
+                  <span className="pl-0.5 text-[10px] text-muted">+{extraReactions}</span>
+                ) : null}
               </BubbleReactions>
               <ReactionPeopleModal
                 open={peopleOpen}
@@ -1627,7 +1892,11 @@ function MessageBubble({
               </button>
             </>
           ) : null}
-          <EmojiPickerShell open={pickerOpen} onOpenChange={setPickerOpen} onPick={onReact}>
+          <EmojiPickerShell
+            open={pickerOpen}
+            onOpenChange={setPickerOpen}
+            onPick={onReact}
+          >
             <button
               type="button"
               title="React"
@@ -1668,15 +1937,23 @@ async function toggleReaction(
   reaction: string,
   setMessages: Dispatch<SetStateAction<Message[]>>,
 ) {
-  const mine = message.reactions.some((row) => row.reaction === reaction && row.userIds.includes(viewerId));
+  const mine = message.reactions.some(
+    (row) => row.reaction === reaction && row.userIds.includes(viewerId),
+  );
   const optimistic = withReaction(message, viewerId, reaction, !mine);
-  setMessages((current) => current.map((row) => (row.id === message.id ? optimistic : row)));
+  setMessages((current) =>
+    current.map((row) => (row.id === message.id ? optimistic : row)),
+  );
   try {
     const updated = mine
       ? await removeReactionRequest(message.id, reaction)
       : await addReactionRequest(message.id, reaction);
-    setMessages((current) => current.map((row) => (row.id === updated.id ? mergeMessage(row, updated) : row)));
+    setMessages((current) =>
+      current.map((row) => (row.id === updated.id ? mergeMessage(row, updated) : row)),
+    );
   } catch {
-    setMessages((current) => current.map((row) => (row.id === message.id ? message : row)));
+    setMessages((current) =>
+      current.map((row) => (row.id === message.id ? message : row)),
+    );
   }
 }

@@ -18,7 +18,13 @@ import { SalesPaymentLedger } from '../../models/salesPaymentLedger';
 import { User } from '../../models/user';
 import { getCompanySettings } from '../settings/index';
 import { assertCanOpenSales } from './access';
-import { findYearWorkbook, isSalesSheetConfigured, listSheetTabs, readSheetValues, writeSheetCells } from './googleSheets';
+import {
+  findYearWorkbook,
+  isSalesSheetConfigured,
+  listSheetTabs,
+  readSheetValues,
+  writeSheetCells,
+} from './googleSheets';
 
 const VIEW_TTL_MS = 90_000;
 const viewCache = new Map<string, { view: SalesPaymentsView; at: number }>();
@@ -92,18 +98,26 @@ async function persistLedger(
   });
 }
 
-async function withUpdaterNames(rows: ReturnType<typeof toRow>[], year: number, month: string) {
+async function withUpdaterNames(
+  rows: ReturnType<typeof toRow>[],
+  year: number,
+  month: string,
+) {
   const ledgers = await SalesPaymentLedger.findAll({ where: { year, month } });
   const byId = new Map(ledgers.map((row) => [row.shopId, row]));
-  const updaterIds = [...new Set(ledgers.map((row) => row.updatedBy).filter(Boolean))] as string[];
-  const updaters = updaterIds.length ? await User.findAll({ where: { id: updaterIds } }) : [];
+  const updaterIds = [
+    ...new Set(ledgers.map((row) => row.updatedBy).filter(Boolean)),
+  ] as string[];
+  const updaters = updaterIds.length
+    ? await User.findAll({ where: { id: updaterIds } })
+    : [];
   const names = new Map(updaters.map((person) => [person.id, person.name]));
   return rows.map((row) => {
     const ledger = byId.get(row.shopId);
     return {
       ...row,
       updatedBy: ledger?.updatedBy ?? null,
-      updatedByName: ledger?.updatedBy ? names.get(ledger.updatedBy) ?? null : null,
+      updatedByName: ledger?.updatedBy ? (names.get(ledger.updatedBy) ?? null) : null,
       updatedAt: ledger?.updatedAt ? ledger.updatedAt.toISOString() : null,
     };
   });
@@ -126,19 +140,37 @@ function paymentView(
     source,
     fullWorkbook: true,
     tabs: tabs.length ? tabs : [...SALES_MONTH_TABS],
-    statusOptions: [...new Set(['PAID', 'PENDING', ...rows.map((row) => row.status).filter(Boolean)])],
-    modeOptions: [...new Set(['Cash', 'Cheque', 'UPI', ...rows.map((row) => row.paymentMode).filter(Boolean)])],
+    statusOptions: [
+      ...new Set(['PAID', 'PENDING', ...rows.map((row) => row.status).filter(Boolean)]),
+    ],
+    modeOptions: [
+      ...new Set([
+        'Cash',
+        'Cheque',
+        'UPI',
+        ...rows.map((row) => row.paymentMode).filter(Boolean),
+      ]),
+    ],
     rows,
   };
 }
 
-async function viewFromLedger(year: number, month: string, fileName: string, tabs: string[]) {
+async function viewFromLedger(
+  year: number,
+  month: string,
+  fileName: string,
+  tabs: string[],
+) {
   const ledgers = await SalesPaymentLedger.findAll({
     where: { year, month },
     order: [['shopId', 'ASC']],
   });
-  const updaterIds = [...new Set(ledgers.map((row) => row.updatedBy).filter(Boolean))] as string[];
-  const updaters = updaterIds.length ? await User.findAll({ where: { id: updaterIds } }) : [];
+  const updaterIds = [
+    ...new Set(ledgers.map((row) => row.updatedBy).filter(Boolean)),
+  ] as string[];
+  const updaters = updaterIds.length
+    ? await User.findAll({ where: { id: updaterIds } })
+    : [];
   const names = new Map(updaters.map((person) => [person.id, person.name]));
   const rows = ledgers.map((row, index) => ({
     shopId: row.shopId,
@@ -152,7 +184,7 @@ async function viewFromLedger(year: number, month: string, fileName: string, tab
     reference: row.reference,
     sheetRow: index + 2,
     updatedBy: row.updatedBy,
-    updatedByName: row.updatedBy ? names.get(row.updatedBy) ?? null : null,
+    updatedByName: row.updatedBy ? (names.get(row.updatedBy) ?? null) : null,
     updatedAt: row.updatedAt ? row.updatedAt.toISOString() : null,
   }));
   return paymentView(year, month, fileName, month, 'ledger', tabs, rows);
@@ -160,7 +192,10 @@ async function viewFromLedger(year: number, month: string, fileName: string, tab
 
 async function loadDrivePayments(workbookYear: number, tab: string) {
   const file = await findYearWorkbook(workbookYear);
-  const [sheet, tabs] = await Promise.all([readSheetValues(file.id, tab), listSheetTabs(file.id)]);
+  const [sheet, tabs] = await Promise.all([
+    readSheetValues(file.id, tab),
+    listSheetTabs(file.id),
+  ]);
   const headerRow = findPaymentHeaderRow(sheet.values);
   if (headerRow < 0) {
     throw new AppError(
@@ -210,18 +245,32 @@ export async function listPayments(
     }
   }
   if (!isSalesSheetConfigured()) {
-    const ledger = await viewFromLedger(workbookYear, tab, `monthly payment ${workbookYear}`, []);
+    const ledger = await viewFromLedger(
+      workbookYear,
+      tab,
+      `monthly payment ${workbookYear}`,
+      [],
+    );
     if (ledger.rows.length) {
       return scopePaymentsForUser(user, ledger);
     }
-    throw new AppError(503, 'SALES_SHEET_NOT_CONFIGURED', 'Connect the yearly payment workbook in Drive first.');
+    throw new AppError(
+      503,
+      'SALES_SHEET_NOT_CONFIGURED',
+      'Connect the yearly payment workbook in Drive first.',
+    );
   }
   try {
     const view = await loadDrivePayments(workbookYear, tab);
     viewCache.set(key, { view, at: Date.now() });
     return scopePaymentsForUser(user, view);
   } catch (error) {
-    const ledger = await viewFromLedger(workbookYear, tab, `monthly payment ${workbookYear}`, []);
+    const ledger = await viewFromLedger(
+      workbookYear,
+      tab,
+      `monthly payment ${workbookYear}`,
+      [],
+    );
     if (ledger.rows.length) {
       viewCache.set(key, { view: ledger, at: Date.now() });
       return scopePaymentsForUser(user, ledger);
@@ -246,19 +295,29 @@ export async function patchPayment(user: SessionUser, input: unknown, now = new 
   const sheet = await readSheetValues(file.id, tab);
   const headerRow = findPaymentHeaderRow(sheet.values);
   if (headerRow < 0) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', 'Could not find a header row with ID and SHOP NAME.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      'Could not find a header row with ID and SHOP NAME.',
+    );
   }
   const headers = (sheet.values[headerRow] ?? []).map((item) => String(item));
   const columns = requirePaymentColumns(headers);
   if (columns.missing.length === 2) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', 'Payment ID or SHOP NAME column could not be read from the workbook.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      'Payment ID or SHOP NAME column could not be read from the workbook.',
+    );
   }
   let rowIndex = sheet.values.findIndex((row, index) => {
     if (index <= headerRow) {
       return false;
     }
     const current = toRow(headers, row.map(String), index + 1);
-    return current.shopId === shopId || current.shopName.trim().toLowerCase() === wantedName;
+    return (
+      current.shopId === shopId || current.shopName.trim().toLowerCase() === wantedName
+    );
   });
   if (rowIndex < 0 && parsed.data.sheetRow) {
     const hinted = parsed.data.sheetRow - 1;
@@ -267,9 +326,17 @@ export async function patchPayment(user: SessionUser, input: unknown, now = new 
     }
   }
   if (rowIndex < 0) {
-    throw new AppError(404, 'NOT_FOUND', 'That shop is not on this month’s payment sheet.');
+    throw new AppError(
+      404,
+      'NOT_FOUND',
+      'That shop is not on this month’s payment sheet.',
+    );
   }
-  const previous = toRow(headers, (sheet.values[rowIndex] ?? []).map(String), rowIndex + 1);
+  const previous = toRow(
+    headers,
+    (sheet.values[rowIndex] ?? []).map(String),
+    rowIndex + 1,
+  );
   let date = parsed.data.date;
   if (!date && /paid/i.test(parsed.data.status) && !previous.date) {
     date = new Intl.DateTimeFormat('en-CA', { timeZone: settings.timezone }).format(now);
@@ -299,7 +366,11 @@ export async function patchPayment(user: SessionUser, input: unknown, now = new 
       values: [[value]],
     }));
   if (!writes.length) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', 'Workbook is missing STATUS, PAYMENT MODE, DATE, or REFERNCE NO.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      'Workbook is missing STATUS, PAYMENT MODE, DATE, or REFERNCE NO.',
+    );
   }
   await writeSheetCells(file.id, tab, writes);
   await persistLedger(workbookYear, tab, [next], user.id);
@@ -308,7 +379,14 @@ export async function patchPayment(user: SessionUser, input: unknown, now = new 
     action: AUDIT_ACTION.SALES_PAYMENT_PATCH,
     entityType: 'sales_payment',
     entityId: randomUUID(),
-    metadata: { year: workbookYear, month: tab, shopId: next.shopId || shopId, before: previous, after: next, file: file.name },
+    metadata: {
+      year: workbookYear,
+      month: tab,
+      shopId: next.shopId || shopId,
+      before: previous,
+      after: next,
+      file: file.name,
+    },
   });
   viewCache.delete(cacheKey(workbookYear, tab));
   return listPayments(user, tab, workbookYear, now, { refresh: true });

@@ -40,7 +40,11 @@ conversationsRouter.post('/', validateBody(createConversationSchema), create);
 conversationsRouter.get('/search', search);
 conversationsRouter.get('/:id', show);
 conversationsRouter.delete('/:id', requireRole(ROLES.ADMIN), remove);
-conversationsRouter.post('/:id/members', validateBody(addConversationMemberSchema), addMember);
+conversationsRouter.post(
+  '/:id/members',
+  validateBody(addConversationMemberSchema),
+  addMember,
+);
 conversationsRouter.delete('/:id/members/:userId', removeMember);
 conversationsRouter.get('/:id/messages', messages);
 conversationsRouter.post('/:id/messages', validateBody(createMessageSchema), postMessage);

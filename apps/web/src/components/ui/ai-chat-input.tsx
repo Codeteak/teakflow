@@ -10,7 +10,11 @@ import {
   type ReactNode,
 } from 'react';
 import { Paperclip, Send, SmilePlus } from 'lucide-react';
-import { ComposerCodePreview, looksLikePastedCode, wrapPastedCode } from '@/components/chat/ChatCodeBlock';
+import {
+  ComposerCodePreview,
+  looksLikePastedCode,
+  wrapPastedCode,
+} from '@/components/chat/ChatCodeBlock';
 import { EmojiPickerShell } from '@/components/chat/AnimatedEmojiPicker';
 import { VoiceInput } from '@/components/ui/voice-input';
 import { cn } from '@/lib/cn';
@@ -81,7 +85,10 @@ export function AIChatInput({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const hasCodePreview = useMemo(() => looksLikePastedCode(value) || value.includes('```'), [value]);
+  const hasCodePreview = useMemo(
+    () => looksLikePastedCode(value) || value.includes('```'),
+    [value],
+  );
   const tall = value.includes('\n') || hasCodePreview;
 
   useEffect(() => {
@@ -162,7 +169,9 @@ export function AIChatInput({
       streamRef.current = stream;
       chunksRef.current = [];
       const mime = pickAudioType();
-      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      const recorder = mime
+        ? new MediaRecorder(stream, { mimeType: mime })
+        : new MediaRecorder(stream);
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           chunksRef.current.push(event.data);
@@ -177,9 +186,13 @@ export function AIChatInput({
           setVoiceError('Recording was too short.');
           return;
         }
-        const file = new File([blob], audioFileName(type), { type: blob.type || 'audio/webm' });
+        const file = new File([blob], audioFileName(type), {
+          type: blob.type || 'audio/webm',
+        });
         void Promise.resolve(onVoiceFile?.(file)).catch((cause: unknown) => {
-          setVoiceError(cause instanceof Error ? cause.message : 'Could not send the voice message.');
+          setVoiceError(
+            cause instanceof Error ? cause.message : 'Could not send the voice message.',
+          );
         });
       };
       recorder.onerror = () => {
@@ -316,7 +329,9 @@ export function AIChatInput({
         <button
           type="submit"
           title="Send"
-          disabled={disabled || fileBusy || uploading || !(canSubmit ?? Boolean(value.trim()))}
+          disabled={
+            disabled || fileBusy || uploading || !(canSubmit ?? Boolean(value.trim()))
+          }
           className={cn(
             'mb-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full disabled:opacity-40 md:size-10',
             (canSubmit ?? Boolean(value.trim()))
@@ -327,12 +342,18 @@ export function AIChatInput({
           <Send size={16} />
         </button>
       </div>
-      {fileBusy || uploading ? <p className="mx-auto mt-2 max-w-3xl px-2 text-xs text-muted">Uploading…</p> : null}
+      {fileBusy || uploading ? (
+        <p className="mx-auto mt-2 max-w-3xl px-2 text-xs text-muted">Uploading…</p>
+      ) : null}
       {fileLabel && !fileBusy && !uploading ? (
-        <p className="mx-auto mt-2 max-w-3xl truncate px-2 text-xs text-muted">File: {fileLabel}</p>
+        <p className="mx-auto mt-2 max-w-3xl truncate px-2 text-xs text-muted">
+          File: {fileLabel}
+        </p>
       ) : null}
       {voiceError || error ? (
-        <p className="mx-auto mt-2 max-w-3xl px-2 text-sm text-rose">{voiceError || error}</p>
+        <p className="mx-auto mt-2 max-w-3xl px-2 text-sm text-rose">
+          {voiceError || error}
+        </p>
       ) : null}
     </form>
   );

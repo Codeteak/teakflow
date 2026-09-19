@@ -41,7 +41,10 @@ export function Avatar({
             : undefined;
 
   return (
-    <span className={cn('relative inline-flex shrink-0', className)} style={{ width: size, height: size }}>
+    <span
+      className={cn('relative inline-flex shrink-0', className)}
+      style={{ width: size, height: size }}
+    >
       <span
         className="inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-line bg-sage-soft text-xs font-medium text-sage"
         aria-hidden

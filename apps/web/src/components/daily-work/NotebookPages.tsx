@@ -133,7 +133,9 @@ export function NotebookPageChrome({
             }
           }}
         >
-          <LeafFaces shade={<div className="notebook-leaf-shade" />}>{children}</LeafFaces>
+          <LeafFaces shade={<div className="notebook-leaf-shade" />}>
+            {children}
+          </LeafFaces>
         </div>
       </div>
 

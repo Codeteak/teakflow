@@ -1,7 +1,10 @@
 import type { SessionUser, StoredFile, LinkPreview } from '@teakflow/shared';
 import { apiRequest } from '@/services/api/client';
 
-export function uploadFileRequest(file: File, folder: 'avatars' | 'chat' | 'files' = 'files') {
+export function uploadFileRequest(
+  file: File,
+  folder: 'avatars' | 'chat' | 'files' = 'files',
+) {
   const body = new FormData();
   body.append('file', file);
   body.append('folder', folder);

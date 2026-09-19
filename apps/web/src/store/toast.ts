@@ -14,7 +14,12 @@ type ToastState = {
   salesDayVersion: number;
   salesPayVersion: number;
   showProgress: (title: string, detail?: string) => string;
-  resolve: (id: string, status: 'success' | 'error', title: string, detail?: string) => void;
+  resolve: (
+    id: string,
+    status: 'success' | 'error',
+    title: string,
+    detail?: string,
+  ) => void;
   dismiss: (id: string) => void;
   bumpSalesDay: () => void;
   bumpSalesPay: () => void;
@@ -32,7 +37,9 @@ export const useToastStore = create<ToastState>((set, get) => ({
   salesPayVersion: 0,
   showProgress(title, detail) {
     const id = uid();
-    set((state) => ({ items: [...state.items, { id, status: 'progress', title, detail }] }));
+    set((state) => ({
+      items: [...state.items, { id, status: 'progress', title, detail }],
+    }));
     return id;
   },
   resolve(id, status, title, detail) {
@@ -40,15 +47,20 @@ export const useToastStore = create<ToastState>((set, get) => ({
       return;
     }
     set((state) => ({
-      items: state.items.map((item) => (item.id === id ? { ...item, status, title, detail } : item)),
+      items: state.items.map((item) =>
+        item.id === id ? { ...item, status, title, detail } : item,
+      ),
     }));
     const previous = dismissTimers.get(id);
     if (previous) {
       window.clearTimeout(previous);
     }
-    const timer = window.setTimeout(() => {
-      get().dismiss(id);
-    }, status === 'success' ? 4200 : 5600);
+    const timer = window.setTimeout(
+      () => {
+        get().dismiss(id);
+      },
+      status === 'success' ? 4200 : 5600,
+    );
     dismissTimers.set(id, timer);
   },
   dismiss(id) {

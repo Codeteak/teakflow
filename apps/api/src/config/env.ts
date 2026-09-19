@@ -47,7 +47,9 @@ const envSchema = z.object({
   COMPANY_TIMEZONE: z.string().default('Asia/Kolkata'),
   GOOGLE_CLIENT_ID: z.string().default(''),
   GOOGLE_CLIENT_SECRET: z.string().default(''),
-  GOOGLE_REDIRECT_URI: z.string().default('http://localhost:3005/api/v1/auth/google/callback'),
+  GOOGLE_REDIRECT_URI: z
+    .string()
+    .default('http://localhost:3005/api/v1/auth/google/callback'),
   GOOGLE_SALES_SA_JSON: z.string().default(''),
   GOOGLE_SALES_FOLDER_ID: z.string().default(''),
   GOOGLE_SALES_SPREADSHEET_ID: z.string().default(''),

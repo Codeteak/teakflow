@@ -16,7 +16,31 @@ export default [
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'warn',
+        {
+          allowConstantExport: true,
+          allowExportNames: [
+            'buttonClassName',
+            'messageReceiptStatus',
+            'inlineFormat',
+            'canOpenSales',
+            'canManageShops',
+            'canSeeFullCollection',
+            'currentMonthRange',
+            'monthRange',
+            'monthRangeFromKey',
+            'looksLikePastedCode',
+            'wrapPastedCode',
+            'getComposerCodeBlocks',
+            'parseMessageContent',
+            'renderMarkdownHtml',
+            'isMarkdownLanguage',
+            'isMarkdownFile',
+            'looksLikeMarkdownDocument',
+          ],
+        },
+      ],
     },
   },
 ];

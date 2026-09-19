@@ -23,7 +23,9 @@ export function ReactionPeopleModal({
   onClose: () => void;
   onToggle: (reaction: string) => void;
 }) {
-  const [selected, setSelected] = useState(initialReaction ?? reactions[0]?.reaction ?? '');
+  const [selected, setSelected] = useState(
+    initialReaction ?? reactions[0]?.reaction ?? '',
+  );
 
   useEffect(() => {
     if (open) {
@@ -52,7 +54,12 @@ export function ReactionPeopleModal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <button type="button" className="absolute inset-0 bg-ink/25" aria-label="Close reactions" onClick={onClose} />
+      <button
+        type="button"
+        className="absolute inset-0 bg-ink/25"
+        aria-label="Close reactions"
+        onClick={onClose}
+      />
       <div
         role="dialog"
         aria-modal="true"
@@ -79,7 +86,9 @@ export function ReactionPeopleModal({
               type="button"
               className={cn(
                 'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-xs',
-                row.reaction === active?.reaction ? 'bg-sage-soft text-sage' : 'text-muted hover:bg-line/50',
+                row.reaction === active?.reaction
+                  ? 'bg-sage-soft text-sage'
+                  : 'text-muted hover:bg-line/50',
               )}
               onClick={() => setSelected(row.reaction)}
             >

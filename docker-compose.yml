@@ -4,9 +4,9 @@ services:
     container_name: teakflow-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -16,15 +16,15 @@ services:
     container_name: teakflow-meilisearch
     restart: unless-stopped
     ports:
-      - "7700:7700"
+      - '7700:7700'
     environment:
       MEILI_ENV: development
       MEILI_MASTER_KEY: teakflow-dev-master-key
-      MEILI_NO_ANALYTICS: "true"
+      MEILI_NO_ANALYTICS: 'true'
     volumes:
       - meili_data:/meili_data
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:7700/health || exit 1"]
+      test: ['CMD-SHELL', 'wget -q -O - http://127.0.0.1:7700/health || exit 1']
       interval: 5s
       timeout: 5s
       retries: 10

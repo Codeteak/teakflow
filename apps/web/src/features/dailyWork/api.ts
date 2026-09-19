@@ -1,4 +1,8 @@
-import type { DailyWorkAdminView, DailyWorkEntry, DailyWorkToday } from '@teakflow/shared';
+import type {
+  DailyWorkAdminView,
+  DailyWorkEntry,
+  DailyWorkToday,
+} from '@teakflow/shared';
 import { apiRequest } from '@/services/api/client';
 
 export function getTodayRequest() {

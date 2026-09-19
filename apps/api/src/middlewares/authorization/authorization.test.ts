@@ -4,7 +4,10 @@ import { ROLES } from '@teakflow/shared';
 import { AppError } from '../errorHandler/index';
 import { requireRole } from './index';
 
-function call(role: string | undefined, allowed: Array<(typeof ROLES)[keyof typeof ROLES]>) {
+function call(
+  role: string | undefined,
+  allowed: Array<(typeof ROLES)[keyof typeof ROLES]>,
+) {
   const req = { user: role ? { role } : undefined } as Request;
   const next = vi.fn() as unknown as NextFunction;
   requireRole(...allowed)(req, {} as Response, next);

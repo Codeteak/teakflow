@@ -39,14 +39,28 @@ function isPrivateIp(ip: string) {
   if (ip === '::1' || ip === '0.0.0.0') {
     return true;
   }
-  if (ip.startsWith('127.') || ip.startsWith('10.') || ip.startsWith('169.254.') || ip.startsWith('192.168.')) {
+  if (
+    ip.startsWith('127.') ||
+    ip.startsWith('10.') ||
+    ip.startsWith('169.254.') ||
+    ip.startsWith('192.168.')
+  ) {
     return true;
   }
   const parts = ip.split('.').map(Number);
-  if (parts.length === 4 && parts[0] === 172 && (parts[1] ?? 0) >= 16 && (parts[1] ?? 0) <= 31) {
+  if (
+    parts.length === 4 &&
+    parts[0] === 172 &&
+    (parts[1] ?? 0) >= 16 &&
+    (parts[1] ?? 0) <= 31
+  ) {
     return true;
   }
-  return ip.toLowerCase().startsWith('fc') || ip.toLowerCase().startsWith('fd') || ip.toLowerCase().startsWith('fe80');
+  return (
+    ip.toLowerCase().startsWith('fc') ||
+    ip.toLowerCase().startsWith('fd') ||
+    ip.toLowerCase().startsWith('fe80')
+  );
 }
 
 async function assertPublicHttpUrl(raw: string) {
@@ -116,9 +130,18 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview | nu
     const title =
       metaContent(html, ['og:title', 'twitter:title']) ||
       decodeEntities(html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] ?? '');
-    const description = metaContent(html, ['og:description', 'twitter:description', 'description']);
-    const imageRaw = metaContent(html, ['og:image', 'twitter:image', 'twitter:image:src']);
-    const siteName = metaContent(html, ['og:site_name']) || parsed.hostname.replace(/^www\./, '');
+    const description = metaContent(html, [
+      'og:description',
+      'twitter:description',
+      'description',
+    ]);
+    const imageRaw = metaContent(html, [
+      'og:image',
+      'twitter:image',
+      'twitter:image:src',
+    ]);
+    const siteName =
+      metaContent(html, ['og:site_name']) || parsed.hostname.replace(/^www\./, '');
     const preview: LinkPreview = {
       url: parsed.toString(),
       title: title || parsed.hostname,
@@ -134,9 +157,14 @@ export async function fetchLinkPreview(rawUrl: string): Promise<LinkPreview | nu
   }
 }
 
-export async function previewsForText(text: string, skipUrls: string[] = []): Promise<LinkPreview[]> {
+export async function previewsForText(
+  text: string,
+  skipUrls: string[] = [],
+): Promise<LinkPreview[]> {
   const skip = new Set(skipUrls);
-  const urls = extractHttpUrls(text).filter((url) => !skip.has(url) && !url.includes('res.cloudinary.com'));
+  const urls = extractHttpUrls(text).filter(
+    (url) => !skip.has(url) && !url.includes('res.cloudinary.com'),
+  );
   const rows = await Promise.all(urls.map((url) => fetchLinkPreview(url)));
   return rows.filter((row): row is LinkPreview => Boolean(row));
 }

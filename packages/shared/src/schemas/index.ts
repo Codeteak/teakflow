@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { CHANNEL_VISIBILITY, CONVERSATION_TYPE, DEPARTMENTS, DESIGNATIONS, ROLE_VALUES, SALES_VISIT_KIND } from '../constants/index';
+import {
+  CHANNEL_VISIBILITY,
+  CONVERSATION_TYPE,
+  DEPARTMENTS,
+  DESIGNATIONS,
+  ROLE_VALUES,
+  SALES_VISIT_KIND,
+} from '../constants/index';
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -54,7 +61,9 @@ export const createMeetingSchema = z
     conversationId: z.string().uuid().nullable().optional(),
   })
   .transform((value) => {
-    const participantUserIds = [...new Set([...(value.participantUserIds ?? []), ...(value.participantIds ?? [])])];
+    const participantUserIds = [
+      ...new Set([...(value.participantUserIds ?? []), ...(value.participantIds ?? [])]),
+    ];
     return {
       title: value.title,
       participantUserIds,
@@ -114,33 +123,44 @@ export const messageReactionSchema = z.object({
   reaction: z.string().trim().min(1).max(32),
 });
 
-export const createConversationSchema = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal(CONVERSATION_TYPE.DIRECT),
-    userId: z.string().uuid(),
-  }),
-  z.object({
-    type: z.literal(CONVERSATION_TYPE.GROUP),
-    name: z.string().trim().min(2).max(80),
-    visibility: z.enum([CHANNEL_VISIBILITY.PUBLIC, CHANNEL_VISIBILITY.PRIVATE]).default(CHANNEL_VISIBILITY.PRIVATE),
-    memberIds: z.array(z.string().uuid()).optional().default([]),
-    department: z.enum(DEPARTMENTS).nullable().optional(),
-  }),
-  z.object({
-    type: z.literal(CONVERSATION_TYPE.CHANNEL),
-    name: z.string().trim().min(2).max(80),
-    visibility: z.enum([CHANNEL_VISIBILITY.PUBLIC, CHANNEL_VISIBILITY.PRIVATE]),
-    memberIds: z.array(z.string().uuid()).optional(),
-    department: z.enum(DEPARTMENTS).nullable().optional(),
-  }),
-]).superRefine((value, ctx) => {
-  if (value.type === CONVERSATION_TYPE.DIRECT) {
-    return;
-  }
-  if (value.visibility === CHANNEL_VISIBILITY.PRIVATE && (value.memberIds?.length ?? 0) < 1) {
-    ctx.addIssue({ code: 'custom', message: 'Invite at least one person.', path: ['memberIds'] });
-  }
-});
+export const createConversationSchema = z
+  .discriminatedUnion('type', [
+    z.object({
+      type: z.literal(CONVERSATION_TYPE.DIRECT),
+      userId: z.string().uuid(),
+    }),
+    z.object({
+      type: z.literal(CONVERSATION_TYPE.GROUP),
+      name: z.string().trim().min(2).max(80),
+      visibility: z
+        .enum([CHANNEL_VISIBILITY.PUBLIC, CHANNEL_VISIBILITY.PRIVATE])
+        .default(CHANNEL_VISIBILITY.PRIVATE),
+      memberIds: z.array(z.string().uuid()).optional().default([]),
+      department: z.enum(DEPARTMENTS).nullable().optional(),
+    }),
+    z.object({
+      type: z.literal(CONVERSATION_TYPE.CHANNEL),
+      name: z.string().trim().min(2).max(80),
+      visibility: z.enum([CHANNEL_VISIBILITY.PUBLIC, CHANNEL_VISIBILITY.PRIVATE]),
+      memberIds: z.array(z.string().uuid()).optional(),
+      department: z.enum(DEPARTMENTS).nullable().optional(),
+    }),
+  ])
+  .superRefine((value, ctx) => {
+    if (value.type === CONVERSATION_TYPE.DIRECT) {
+      return;
+    }
+    if (
+      value.visibility === CHANNEL_VISIBILITY.PRIVATE &&
+      (value.memberIds?.length ?? 0) < 1
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Invite at least one person.',
+        path: ['memberIds'],
+      });
+    }
+  });
 
 export const addConversationMemberSchema = z.object({
   userId: z.string().uuid(),
@@ -175,7 +195,11 @@ export const salesVisitItemSchema = z.object({
   shopId: z.string().trim().max(32).nullable().optional(),
   shopName: z.string().trim().min(1).max(120),
   place: z.string().trim().max(120).optional().default(''),
-  kind: z.enum([SALES_VISIT_KIND.INSTALLATION, SALES_VISIT_KIND.DEMO, SALES_VISIT_KIND.VISIT]),
+  kind: z.enum([
+    SALES_VISIT_KIND.INSTALLATION,
+    SALES_VISIT_KIND.DEMO,
+    SALES_VISIT_KIND.VISIT,
+  ]),
   count: z.coerce.number().int().min(0).max(99),
   notes: z.string().max(4000),
 });

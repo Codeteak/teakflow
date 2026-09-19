@@ -13,7 +13,11 @@ import {
   Store,
   Users,
 } from 'lucide-react';
-import { ACCOUNT_RESTRICTED_MESSAGE, isTeamSupervisorRole, ROLES } from '@teakflow/shared';
+import {
+  ACCOUNT_RESTRICTED_MESSAGE,
+  isTeamSupervisorRole,
+  ROLES,
+} from '@teakflow/shared';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
@@ -24,9 +28,17 @@ import { NotificationBell } from '@/components/layout/NotificationBell';
 import { PresencePicker } from '@/components/layout/PresencePicker';
 import { OfflineBanner } from '@/components/layout/OfflineBanner';
 import { ToastHost } from '@/components/ui/toast-host';
-import { listConversationsRequest, listNotificationsRequest, markNotificationReadRequest } from '@/features/chat/api';
+import {
+  listConversationsRequest,
+  listNotificationsRequest,
+  markNotificationReadRequest,
+} from '@/features/chat/api';
 import { shouldSuppressChatAlert } from '@/features/chat/activeConversation';
-import { connectChatSocket, disconnectChatSocket, subscribeChatSocket } from '@/services/socket/chat';
+import {
+  connectChatSocket,
+  disconnectChatSocket,
+  subscribeChatSocket,
+} from '@/services/socket/chat';
 import { canOpenSales } from '@/features/sales/RequireSales';
 import { markRestricted, useAuthStore } from '@/store/auth';
 import { selectTotalUnread, useChatUnreadStore } from '@/store/chatUnread';
@@ -126,13 +138,22 @@ export function AppShell() {
     return () => {
       unsubscribe();
     };
-  }, [clearSession, hydrate, hydrateNotifications, noteIncoming, noteNewNotification, user]);
+  }, [
+    clearSession,
+    hydrate,
+    hydrateNotifications,
+    noteIncoming,
+    noteNewNotification,
+    user,
+  ]);
 
   const mobileNav = [...mobilePrimary, ...(canOpenSales(user) ? salesNav : [])];
   const extraMobile = [
     ...meetingsNav,
     ...(user?.role === ROLES.ADMIN ? adminNav : []),
-    ...(user?.role && isTeamSupervisorRole(user.role) && user.role !== ROLES.ADMIN ? managerNav : []),
+    ...(user?.role && isTeamSupervisorRole(user.role) && user.role !== ROLES.ADMIN
+      ? managerNav
+      : []),
   ];
   const moreActive = extraMobile.some((item) => isItemActive(location.pathname, item));
   const fullBleed = isChat || isDailyWork || isEmployees || isSales;
@@ -257,7 +278,10 @@ export function AppShell() {
                 <span className="relative inline-flex">
                   <item.icon size={18} strokeWidth={1.75} />
                   {item.to === '/chat' ? (
-                    <CountBadge count={chatUnread} className="absolute -top-1.5 -right-2.5" />
+                    <CountBadge
+                      count={chatUnread}
+                      className="absolute -top-1.5 -right-2.5"
+                    />
                   ) : null}
                 </span>
                 {item.label.split(' ')[0]}
@@ -367,7 +391,10 @@ function NavGroup({
           <span className="relative inline-flex">
             <item.icon size={16} strokeWidth={1.75} />
             {item.to === '/chat' ? (
-              <CountBadge count={chatUnread ?? 0} className="absolute -top-1.5 -right-2.5" />
+              <CountBadge
+                count={chatUnread ?? 0}
+                className="absolute -top-1.5 -right-2.5"
+              />
             ) : null}
           </span>
           {item.label}

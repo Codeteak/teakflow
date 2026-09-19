@@ -95,7 +95,14 @@ function shopSummary(rows: SalesDayReport[]) {
                 shop: report.recShops || '—',
                 amount: report.received,
                 gst: report.gst === 'Non-GST' ? 'Non-GST' : 'GST',
-                mode: report.cash > 0 ? 'Cash' : report.cheque > 0 ? 'Cheque' : report.upi > 0 ? 'UPI' : '',
+                mode:
+                  report.cash > 0
+                    ? 'Cash'
+                    : report.cheque > 0
+                      ? 'Cheque'
+                      : report.upi > 0
+                        ? 'UPI'
+                        : '',
               },
             ]
           : [];
@@ -103,7 +110,10 @@ function shopSummary(rows: SalesDayReport[]) {
       if (!item.shop || item.amount <= 0) {
         return;
       }
-      const mode = item.mode === 'Cash' || item.mode === 'Cheque' || item.mode === 'UPI' ? item.mode : null;
+      const mode =
+        item.mode === 'Cash' || item.mode === 'Cheque' || item.mode === 'UPI'
+          ? item.mode
+          : null;
       if (!mode) {
         return;
       }
@@ -201,7 +211,12 @@ export function TeamReports({
     <div className="space-y-4">
       <CsvSheetPreview source={csvSheet} onClose={() => setCsvSheet(null)} />
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="outline" className="h-8 px-3 text-xs" onClick={onRefresh}>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-8 px-3 text-xs"
+          onClick={onRefresh}
+        >
           Refresh
         </Button>
         <Button
@@ -246,7 +261,9 @@ export function TeamReports({
       <Card className="space-y-3 p-4">
         <div>
           <h2 className="text-sm font-semibold">Collection breakdown</h2>
-          <p className="text-xs text-muted">Totals by payment mode for the current filters.</p>
+          <p className="text-xs text-muted">
+            Totals by payment mode for the current filters.
+          </p>
         </div>
         <div className="space-y-1 text-sm">
           <Row label="Cash" value={inr(totals.cash)} />
@@ -259,11 +276,16 @@ export function TeamReports({
       <Card className="space-y-3 p-4">
         <div>
           <h2 className="text-sm font-semibold">Filters</h2>
-          <p className="text-xs text-muted">Your reporting tree only. Defaults to this month.</p>
+          <p className="text-xs text-muted">
+            Your reporting tree only. Defaults to this month.
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Salesman">
-            <Select value={salesmanId} onChange={(event) => setSalesmanId(event.target.value)}>
+            <Select
+              value={salesmanId}
+              onChange={(event) => setSalesmanId(event.target.value)}
+            >
               <option value="all">All in your tree</option>
               {(dash.people ?? []).map((person) => (
                 <option key={person.id} value={person.id}>
@@ -273,10 +295,20 @@ export function TeamReports({
             </Select>
           </Field>
           <Field label="From">
-            <Input type="date" className="font-mono" value={from} onChange={(event) => setFrom(event.target.value)} />
+            <Input
+              type="date"
+              className="font-mono"
+              value={from}
+              onChange={(event) => setFrom(event.target.value)}
+            />
           </Field>
           <Field label="To">
-            <Input type="date" className="font-mono" value={to} onChange={(event) => setTo(event.target.value)} />
+            <Input
+              type="date"
+              className="font-mono"
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+            />
           </Field>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -309,7 +341,9 @@ export function TeamReports({
       <Card className="space-y-3 p-4">
         <div>
           <h2 className="text-sm font-semibold">Reports by month</h2>
-          <p className="text-xs text-muted">Open a month, then a salesman, for the full entries.</p>
+          <p className="text-xs text-muted">
+            Open a month, then a salesman, for the full entries.
+          </p>
         </div>
         {months.length === 0 ? (
           <p className="text-sm text-muted">No reports yet for this tree.</p>
@@ -326,12 +360,21 @@ export function TeamReports({
                   setExpandedMonth(expandedMonth === key ? null : key);
                   setOpenSalesman('');
                 }}
-                onSalesman={(name) => setOpenSalesman((current) => (current === name ? '' : name))}
+                onSalesman={(name) =>
+                  setOpenSalesman((current) => (current === name ? '' : name))
+                }
               />
             ))}
             {months.length > 1 ? (
-              <Button type="button" variant="ghost" className="h-8 px-3 text-xs" onClick={() => setShowAllMonths((value) => !value)}>
-                {showAllMonths ? 'Hide earlier months' : `Show ${months.length - 1} earlier month${months.length - 1 > 1 ? 's' : ''}`}
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-8 px-3 text-xs"
+                onClick={() => setShowAllMonths((value) => !value)}
+              >
+                {showAllMonths
+                  ? 'Hide earlier months'
+                  : `Show ${months.length - 1} earlier month${months.length - 1 > 1 ? 's' : ''}`}
               </Button>
             ) : null}
           </div>
@@ -341,7 +384,9 @@ export function TeamReports({
       <Card className="space-y-3 p-4">
         <div>
           <h2 className="text-sm font-semibold">Shop summary</h2>
-          <p className="text-xs text-muted">Shop totals by payment type and GST for one month.</p>
+          <p className="text-xs text-muted">
+            Shop totals by payment type and GST for one month.
+          </p>
         </div>
         {months.length === 0 ? (
           <p className="text-sm text-muted">No reports yet.</p>
@@ -349,7 +394,10 @@ export function TeamReports({
           <>
             <div className="flex flex-wrap items-end gap-2">
               <Field label="Month">
-                <Select value={effectiveSummary} onChange={(event) => setSummaryMonth(event.target.value)}>
+                <Select
+                  value={effectiveSummary}
+                  onChange={(event) => setSummaryMonth(event.target.value)}
+                >
                   {months.map(([key]) => (
                     <option key={key} value={key}>
                       {monthLabel(key)}
@@ -389,16 +437,28 @@ export function TeamReports({
                         <table className="w-full text-sm">
                           <tbody>
                             {summary[mode].map((item) => (
-                              <tr key={`${item.shop}-${item.gst}`} className="border-b border-line last:border-b-0">
+                              <tr
+                                key={`${item.shop}-${item.gst}`}
+                                className="border-b border-line last:border-b-0"
+                              >
                                 <td className="px-3 py-2">{item.shop}</td>
-                                <td className="px-3 py-2 text-right font-mono text-xs">{inr(item.amount)}</td>
-                                <td className="px-3 py-2 text-right text-xs text-muted">{item.gst}</td>
+                                <td className="px-3 py-2 text-right font-mono text-xs">
+                                  {inr(item.amount)}
+                                </td>
+                                <td className="px-3 py-2 text-right text-xs text-muted">
+                                  {item.gst}
+                                </td>
                               </tr>
                             ))}
                             <tr>
                               <td className="px-3 py-2 font-medium">Subtotal</td>
                               <td className="px-3 py-2 text-right font-mono text-xs">
-                                {inr(summary[mode].reduce((sum, item) => sum + item.amount, 0))}
+                                {inr(
+                                  summary[mode].reduce(
+                                    (sum, item) => sum + item.amount,
+                                    0,
+                                  ),
+                                )}
                               </td>
                               <td />
                             </tr>
@@ -411,7 +471,12 @@ export function TeamReports({
                 <div className="flex justify-between text-sm font-medium">
                   <span>Grand total</span>
                   <span className="font-mono text-xs">
-                    {inr([...summary.Cash, ...summary.Cheque, ...summary.UPI].reduce((sum, item) => sum + item.amount, 0))}
+                    {inr(
+                      [...summary.Cash, ...summary.Cheque, ...summary.UPI].reduce(
+                        (sum, item) => sum + item.amount,
+                        0,
+                      ),
+                    )}
                   </span>
                 </div>
               </div>
@@ -432,7 +497,15 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <div className={`flex justify-between ${strong ? 'font-medium' : ''}`}>
       <span className="text-muted">{label}</span>
@@ -473,10 +546,27 @@ function MonthGroup({
     received: rows.reduce((sum, row) => sum + row.received, 0),
     fuel: rows.reduce((sum, row) => sum + row.fuel, 0),
   };
-  const byName = new Map<string, { reports: number; inst: number; demos: number; visits: number; received: number; fuel: number }>();
+  const byName = new Map<
+    string,
+    {
+      reports: number;
+      inst: number;
+      demos: number;
+      visits: number;
+      received: number;
+      fuel: number;
+    }
+  >();
   rows.forEach((row) => {
     const name = row.salesmanName || '—';
-    const current = byName.get(name) ?? { reports: 0, inst: 0, demos: 0, visits: 0, received: 0, fuel: 0 };
+    const current = byName.get(name) ?? {
+      reports: 0,
+      inst: 0,
+      demos: 0,
+      visits: 0,
+      received: 0,
+      fuel: 0,
+    };
     current.reports += 1;
     current.inst += row.instCount;
     current.demos += row.demoCount;
@@ -486,14 +576,21 @@ function MonthGroup({
     byName.set(name, current);
   });
   const salesmen = [...byName.entries()].sort((a, b) => b[1].received - a[1].received);
-  const detail = openSalesman ? rows.filter((row) => (row.salesmanName || '—') === openSalesman) : [];
+  const detail = openSalesman
+    ? rows.filter((row) => (row.salesmanName || '—') === openSalesman)
+    : [];
 
   return (
     <div className="overflow-hidden rounded-md border border-line">
-      <button type="button" className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-line/40" onClick={onToggle}>
+      <button
+        type="button"
+        className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-line/40"
+        onClick={onToggle}
+      >
         <span className="font-medium">{monthLabel(monthKey)}</span>
         <span className="text-xs text-muted">
-          {t.reports} reports · {t.inst} inst. · {t.demos} demos · {t.visits} visits · {inr(t.fuel)} fuel · {inr(t.received)}
+          {t.reports} reports · {t.inst} inst. · {t.demos} demos · {t.visits} visits ·{' '}
+          {inr(t.fuel)} fuel · {inr(t.received)}
         </span>
       </button>
       {expanded ? (
@@ -550,17 +647,24 @@ function MonthGroup({
                 </thead>
                 <tbody>
                   {detail.map((row) => (
-                    <tr key={`${row.userId}-${row.workDate}`} className="border-b border-line last:border-b-0">
+                    <tr
+                      key={`${row.userId}-${row.workDate}`}
+                      className="border-b border-line last:border-b-0"
+                    >
                       <td className="px-2 py-2 font-mono">{row.workDate}</td>
                       <td className="px-2 py-2 font-mono">{row.instCount}</td>
                       <td className="px-2 py-2 font-mono">{inr(row.received)}</td>
-                      <td className="px-2 py-2">{row.recShops || row.visitShops || '—'}</td>
+                      <td className="px-2 py-2">
+                        {row.recShops || row.visitShops || '—'}
+                      </td>
                       <td className="px-2 py-2 font-mono">{inr(row.cash)}</td>
                       <td className="px-2 py-2 font-mono">{inr(row.cheque)}</td>
                       <td className="px-2 py-2 font-mono">{inr(row.upi)}</td>
                       <td className="px-2 py-2 font-mono">{row.visits}</td>
                       <td className="px-2 py-2 font-mono">{inr(row.fuel)}</td>
-                      <td className="px-2 py-2 text-muted">{row.updates || row.issues || '—'}</td>
+                      <td className="px-2 py-2 text-muted">
+                        {row.updates || row.issues || '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

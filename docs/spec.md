@@ -3,9 +3,11 @@
 ## 1. Project Overview
 
 ### Project Name
+
 **Teakflow**
 
 ### Product Type
+
 Internal employee daily-work tracking and team communication platform.
 
 ### Primary Goal
@@ -1156,7 +1158,6 @@ Executives pick a shop from the month tab and then see **that Excel row** (ID, n
 Sales nav is for Admin, Manager, Lead, Sales department, and anyone who heads Sales.
 
 ---
-
 
 Admin-only. Managers, leads, and employees do not get a company employee list. They see people through chat, meetings, and Team daily work (their reporting tree).
 

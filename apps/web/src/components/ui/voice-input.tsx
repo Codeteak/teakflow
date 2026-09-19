@@ -70,13 +70,17 @@ export function VoiceInput({
       disabled={disabled}
       className={cn(
         'inline-flex h-9 shrink-0 items-center justify-center rounded-full text-muted md:h-10',
-        listening ? 'w-auto gap-1.5 bg-sage-soft px-2.5 text-sage' : 'w-9 hover:bg-paper hover:text-ink md:w-10',
+        listening
+          ? 'w-auto gap-1.5 bg-sage-soft px-2.5 text-sage'
+          : 'w-9 hover:bg-paper hover:text-ink md:w-10',
         className,
       )}
       onClick={onClickHandler}
     >
       <Mic size={18} />
-      {listening ? <span className="font-mono text-[11px] tabular-nums">{formatTime(time)}</span> : null}
+      {listening ? (
+        <span className="font-mono text-[11px] tabular-nums">{formatTime(time)}</span>
+      ) : null}
     </button>
   );
 }

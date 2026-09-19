@@ -7,7 +7,11 @@ function Typing({
   ...props
 }: ComponentProps<'span'> & { dots?: number }) {
   return (
-    <span role="status" className={cn('inline-flex items-center gap-[12%]', className)} {...props}>
+    <span
+      role="status"
+      className={cn('inline-flex items-center gap-[12%]', className)}
+      {...props}
+    >
       {Array.from({ length: dots }, (_, index) => (
         <span
           key={index}

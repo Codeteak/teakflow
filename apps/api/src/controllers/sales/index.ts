@@ -1,9 +1,22 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../middlewares/errorHandler/index';
 import { assertCanOpenSales } from '../../services/sales/access';
-import { getSalesDay, salesCsv, salesDashboard, salesSummaryCsv, saveSalesDay } from '../../services/sales/day';
+import {
+  getSalesDay,
+  salesCsv,
+  salesDashboard,
+  salesSummaryCsv,
+  saveSalesDay,
+} from '../../services/sales/day';
 import { listPayments, patchPayment } from '../../services/sales/payments';
-import { listDirectory, shopTemplateCsv, upsertShops, upsertShopsFromCsv, updateShop, deleteShop } from '../../services/sales/shops';
+import {
+  listDirectory,
+  shopTemplateCsv,
+  upsertShops,
+  upsertShopsFromCsv,
+  updateShop,
+  deleteShop,
+} from '../../services/sales/shops';
 import { collectionPeriod } from '@teakflow/shared';
 import { getCompanySettings } from '../../services/settings/index';
 
@@ -77,7 +90,10 @@ export async function shopsTemplate(req: Request, res: Response, next: NextFunct
     assertCanOpenSales(requireUser(req));
     const body = shopTemplateCsv();
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', 'attachment; filename="teakflow-shops-example.csv"');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="teakflow-shops-example.csv"',
+    );
     res.send(body);
   } catch (error) {
     next(error);
@@ -88,7 +104,8 @@ export async function dashboard(req: Request, res: Response, next: NextFunction)
   try {
     const from = typeof req.query.from === 'string' ? req.query.from : undefined;
     const to = typeof req.query.to === 'string' ? req.query.to : undefined;
-    const salesmanId = typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
+    const salesmanId =
+      typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
     const settings = await getCompanySettings();
     const period = collectionPeriod(new Date(), settings.timezone);
     const data = await salesDashboard(requireUser(req), from, to, salesmanId);
@@ -104,7 +121,8 @@ export async function csv(req: Request, res: Response, next: NextFunction) {
   try {
     const from = typeof req.query.from === 'string' ? req.query.from : undefined;
     const to = typeof req.query.to === 'string' ? req.query.to : undefined;
-    const salesmanId = typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
+    const salesmanId =
+      typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
     const body = await salesCsv(requireUser(req), from, to, salesmanId);
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="sales-daily.csv"');
@@ -118,7 +136,8 @@ export async function summaryCsv(req: Request, res: Response, next: NextFunction
   try {
     const from = typeof req.query.from === 'string' ? req.query.from : undefined;
     const to = typeof req.query.to === 'string' ? req.query.to : undefined;
-    const salesmanId = typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
+    const salesmanId =
+      typeof req.query.salesmanId === 'string' ? req.query.salesmanId : undefined;
     const body = await salesSummaryCsv(requireUser(req), from, to, salesmanId);
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="shop-summary.csv"');
@@ -133,7 +152,9 @@ export async function payments(req: Request, res: Response, next: NextFunction) 
     const month = typeof req.query.month === 'string' ? req.query.month : undefined;
     const year = typeof req.query.year === 'string' ? Number(req.query.year) : undefined;
     const refresh = req.query.refresh === '1' || req.query.refresh === 'true';
-    res.json({ data: await listPayments(requireUser(req), month, year, new Date(), { refresh }) });
+    res.json({
+      data: await listPayments(requireUser(req), month, year, new Date(), { refresh }),
+    });
   } catch (error) {
     next(error);
   }

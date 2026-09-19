@@ -155,7 +155,11 @@ describe('integration · daily work', () => {
   it('rejects a duplicate submit', async () => {
     authed();
     vi.mocked(dailyWork.submitToday).mockRejectedValue(
-      new AppError(409, 'ALREADY_SUBMITTED', "Today's daily work has already been submitted."),
+      new AppError(
+        409,
+        'ALREADY_SUBMITTED',
+        "Today's daily work has already been submitted.",
+      ),
     );
     const response = await request(app)
       .post('/api/v1/daily-work')
@@ -226,7 +230,9 @@ describe('integration · meetings', () => {
       },
     ] as never);
 
-    const response = await request(app).get('/api/v1/meetings').set('Cookie', 'teakflow_access=test');
+    const response = await request(app)
+      .get('/api/v1/meetings')
+      .set('Cookie', 'teakflow_access=test');
     expect(response.status).toBe(200);
     expect(response.body.data[0].googleMeetUrl).toContain('meet.google.com');
   });
@@ -250,7 +256,9 @@ describe('integration · audit logs', () => {
       },
     ]);
 
-    const response = await request(app).get('/api/v1/audit-logs').set('Cookie', 'teakflow_access=test');
+    const response = await request(app)
+      .get('/api/v1/audit-logs')
+      .set('Cookie', 'teakflow_access=test');
     expect(response.status).toBe(200);
     expect(response.body.data[0].action).toBe(AUDIT_ACTION.DAILY_WORK_SUBMITTED);
   });

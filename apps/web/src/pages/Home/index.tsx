@@ -14,7 +14,9 @@ import { formatClockLabel } from '@/lib/formatClock';
 import { useAuthStore } from '@/store/auth';
 
 const HomeIdCard = lazy(() =>
-  import('@/components/home/HomeIdCard').then((module) => ({ default: module.HomeIdCard })),
+  import('@/components/home/HomeIdCard').then((module) => ({
+    default: module.HomeIdCard,
+  })),
 );
 
 function greeting() {
@@ -46,7 +48,11 @@ export function HomePage() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.allSettled([getTodayRequest(), listUnreadTotalRequest(), listMeetingsRequest()])
+    Promise.allSettled([
+      getTodayRequest(),
+      listUnreadTotalRequest(),
+      listMeetingsRequest(),
+    ])
       .then(([todayResult, unreadResult, meetingsResult]) => {
         if (cancelled) {
           return;
@@ -99,7 +105,9 @@ export function HomePage() {
         <div className="pointer-events-none space-y-8 pt-5 md:pt-8 lg:pr-8">
           <div className="pointer-events-auto relative z-20 max-w-3xl space-y-8">
             <header className="space-y-1">
-              <p className="font-mono text-xs tracking-wide text-muted uppercase">{dateLabel}</p>
+              <p className="font-mono text-xs tracking-wide text-muted uppercase">
+                {dateLabel}
+              </p>
               <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                 {greeting()}, {firstName(user?.name ?? 'there')}
               </h1>
@@ -110,40 +118,48 @@ export function HomePage() {
             {loadingHome ? (
               <PageLoading rows={2} />
             ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Card>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-medium tracking-wide text-muted uppercase">Daily work</p>
-                    <h2 className="mt-2 text-lg font-semibold">{homeTitle(today)}</h2>
-                    <p className="mt-1 text-sm text-muted">{homeDetail(today)}</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Card>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-medium tracking-wide text-muted uppercase">
+                        Daily work
+                      </p>
+                      <h2 className="mt-2 text-lg font-semibold">{homeTitle(today)}</h2>
+                      <p className="mt-1 text-sm text-muted">{homeDetail(today)}</p>
+                    </div>
+                    <HomeBadge today={today} />
                   </div>
-                  <HomeBadge today={today} />
-                </div>
-                <Link to="/daily-work" className={buttonClassName('soft', 'mt-5')}>
-                  View today&apos;s work
-                  <ArrowRight size={16} />
-                </Link>
-              </Card>
+                  <Link to="/daily-work" className={buttonClassName('soft', 'mt-5')}>
+                    View today&apos;s work
+                    <ArrowRight size={16} />
+                  </Link>
+                </Card>
 
-              <Card>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-medium tracking-wide text-muted uppercase">Chat</p>
-                    <h2 className="mt-2 text-lg font-semibold">
-                      {unread && unread > 0 ? `${unread} unread` : 'No unread'}
-                    </h2>
-                    <p className="mt-1 text-sm text-muted">
-                      {unread && unread > 0 ? 'Open chat to catch up.' : 'Messages will appear here'}
-                    </p>
+                <Card>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-medium tracking-wide text-muted uppercase">
+                        Chat
+                      </p>
+                      <h2 className="mt-2 text-lg font-semibold">
+                        {unread && unread > 0 ? `${unread} unread` : 'No unread'}
+                      </h2>
+                      <p className="mt-1 text-sm text-muted">
+                        {unread && unread > 0
+                          ? 'Open chat to catch up.'
+                          : 'Messages will appear here'}
+                      </p>
+                    </div>
+                    {unread && unread > 0 ? (
+                      <Badge tone="sage">{unread} new</Badge>
+                    ) : null}
                   </div>
-                  {unread && unread > 0 ? <Badge tone="sage">{unread} new</Badge> : null}
-                </div>
-                <Link to="/chat" className={buttonClassName('outline', 'mt-5')}>
-                  Open chat
-                </Link>
-              </Card>
-            </div>
+                  <Link to="/chat" className={buttonClassName('outline', 'mt-5')}>
+                    Open chat
+                  </Link>
+                </Card>
+              </div>
             )}
 
             {meetingsError ? <ErrorBanner message={meetingsError} /> : null}
@@ -151,7 +167,9 @@ export function HomePage() {
 
             {showIdCard && user ? (
               <section className="space-y-2 lg:hidden" aria-label="Company ID tag">
-                <p className="text-xs font-medium tracking-wide text-muted uppercase">Company tag</p>
+                <p className="text-xs font-medium tracking-wide text-muted uppercase">
+                  Company tag
+                </p>
                 <Suspense fallback={null}>
                   <HomeIdCard user={user} placement="section" />
                 </Suspense>
@@ -160,7 +178,9 @@ export function HomePage() {
           </div>
         </div>
 
-        {showIdCard ? <div className="pointer-events-none hidden lg:block" aria-hidden /> : null}
+        {showIdCard ? (
+          <div className="pointer-events-none hidden lg:block" aria-hidden />
+        ) : null}
       </div>
     </div>
   );

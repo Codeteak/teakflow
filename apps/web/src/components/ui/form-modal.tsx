@@ -13,7 +13,16 @@ type Props = {
   children: ReactNode;
 };
 
-export function FormModal({ open, title, description, onClose, busy = false, wide = false, footer, children }: Props) {
+export function FormModal({
+  open,
+  title,
+  description,
+  onClose,
+  busy = false,
+  wide = false,
+  footer,
+  children,
+}: Props) {
   useEffect(() => {
     if (!open) {
       return;
@@ -54,7 +63,9 @@ export function FormModal({ open, title, description, onClose, busy = false, wid
             <h2 id="form-modal-title" className="text-lg font-semibold tracking-tight">
               {title}
             </h2>
-            {description ? <p className="mt-0.5 text-sm text-muted">{description}</p> : null}
+            {description ? (
+              <p className="mt-0.5 text-sm text-muted">{description}</p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -67,7 +78,11 @@ export function FormModal({ open, title, description, onClose, busy = false, wid
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer ? <div className="shrink-0 border-t border-line bg-surface px-5 py-3">{footer}</div> : null}
+        {footer ? (
+          <div className="shrink-0 border-t border-line bg-surface px-5 py-3">
+            {footer}
+          </div>
+        ) : null}
       </article>
     </div>,
     document.body,

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { SALES_DAILY_CSV_HEADERS, collectionPeriod, findPaymentHeaderRow, normalizeShopId, requirePaymentColumns, salesWorkbookName } from '@teakflow/shared';
+import {
+  SALES_DAILY_CSV_HEADERS,
+  collectionPeriod,
+  findPaymentHeaderRow,
+  normalizeShopId,
+  requirePaymentColumns,
+  salesWorkbookName,
+} from '@teakflow/shared';
 import { expandReportRows, reportsToCsv } from './csv';
 
 describe('collectionPeriod', () => {
@@ -50,7 +57,17 @@ describe('payment columns', () => {
     expect(
       findPaymentHeaderRow([
         ['monthly payment 2026'],
-        ['ID', 'SHOP NAME', 'PLACE', 'AMOUNT', 'GST', 'STATUS', 'PAYMENT MODE', 'DATE', 'REFERNCE NO'],
+        [
+          'ID',
+          'SHOP NAME',
+          'PLACE',
+          'AMOUNT',
+          'GST',
+          'STATUS',
+          'PAYMENT MODE',
+          'DATE',
+          'REFERNCE NO',
+        ],
       ]),
     ).toBe(1);
   });
@@ -59,13 +76,19 @@ describe('payment columns', () => {
 describe('shop csv', () => {
   it('upserts rows from the payment-sheet header', async () => {
     const { parseShopCsv } = await import('./shops');
-    const parsed = parseShopCsv(`ID,SHOP NAME,PLACE\n100022.0,Families Hypermart,K R Puram\n`);
-    expect(parsed.shops).toEqual([{ shopId: '100022', name: 'Families Hypermart', place: 'K R Puram' }]);
+    const parsed = parseShopCsv(
+      `ID,SHOP NAME,PLACE\n100022.0,Families Hypermart,K R Puram\n`,
+    );
+    expect(parsed.shops).toEqual([
+      { shopId: '100022', name: 'Families Hypermart', place: 'K R Puram' },
+    ]);
   });
 
   it('reads tab-separated PLACE in any case', async () => {
     const { parseShopCsv } = await import('./shops');
-    const parsed = parseShopCsv('id\tshop name\tPlace\n100026\tRolla Hyper Market Begur\tBegur\n');
+    const parsed = parseShopCsv(
+      'id\tshop name\tPlace\n100026\tRolla Hyper Market Begur\tBegur\n',
+    );
     expect(parsed.shops[0]).toMatchObject({ shopId: '100026', place: 'Begur' });
   });
 });
@@ -123,32 +146,34 @@ describe('frozen daily csv', () => {
     ]);
     expect(csv.split('\n')[0]).toContain('Issues,Updates');
     expect(csv).toContain('Shelf note');
-    expect(expandReportRows({
-      workDate: '2026-09-18',
-      userId: 'u1',
-      salesmanName: 'Meera Sales',
-      instCount: 0,
-      instShops: '',
-      demoCount: 0,
-      demoShops: '',
-      received: 90,
-      recShops: 'A, B',
-      gst: 'GST, GST',
-      paymentRef: '1, 2',
-      bankName: ',',
-      amounts: '40, 50',
-      modes: 'Cash, UPI',
-      cash: 40,
-      cheque: 0,
-      upi: 50,
-      issues: '',
-      updates: 'n',
-      visits: 0,
-      visitShops: '',
-      fuel: 0,
-      fuelLocked: false,
-      notebookBlocks: '',
-    })).toHaveLength(2);
+    expect(
+      expandReportRows({
+        workDate: '2026-09-18',
+        userId: 'u1',
+        salesmanName: 'Meera Sales',
+        instCount: 0,
+        instShops: '',
+        demoCount: 0,
+        demoShops: '',
+        received: 90,
+        recShops: 'A, B',
+        gst: 'GST, GST',
+        paymentRef: '1, 2',
+        bankName: ',',
+        amounts: '40, 50',
+        modes: 'Cash, UPI',
+        cash: 40,
+        cheque: 0,
+        upi: 50,
+        issues: '',
+        updates: 'n',
+        visits: 0,
+        visitShops: '',
+        fuel: 0,
+        fuelLocked: false,
+        notebookBlocks: '',
+      }),
+    ).toHaveLength(2);
   });
 });
 
@@ -156,13 +181,27 @@ describe('visit notebook', () => {
   it('keeps one shop block then the next without replacing the first', async () => {
     const { formatVisitBlock, mergeNotebook } = await import('./notebook');
     const first = formatVisitBlock(
-      { shopId: '1', shopName: 'Shop A', place: 'A', kind: 'VISIT', count: 1, notes: 'First shop' },
+      {
+        shopId: '1',
+        shopName: 'Shop A',
+        place: 'A',
+        kind: 'VISIT',
+        count: 1,
+        notes: 'First shop',
+      },
       new Date('2026-09-18T08:00:00.000Z'),
       'Asia/Kolkata',
       1,
     );
     const second = formatVisitBlock(
-      { shopId: '2', shopName: 'Shop B', place: 'B', kind: 'VISIT', count: 1, notes: 'Second shop' },
+      {
+        shopId: '2',
+        shopName: 'Shop B',
+        place: 'B',
+        kind: 'VISIT',
+        count: 1,
+        notes: 'Second shop',
+      },
       new Date('2026-09-18T10:00:00.000Z'),
       'Asia/Kolkata',
       2,

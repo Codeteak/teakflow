@@ -122,10 +122,13 @@ export function PeopleSearchPicker(props: PeopleSearchPickerProps) {
       <div className="h-44 overflow-y-auto rounded-md border border-line bg-surface scrollbar-none">
         {!needle ? (
           <p className="px-3 py-6 text-center text-xs text-muted">
-            {props.emptyHint ?? 'Type a name to find people. Everyone in the company is searchable.'}
+            {props.emptyHint ??
+              'Type a name to find people. Everyone in the company is searchable.'}
           </p>
         ) : matches.length === 0 ? (
-          <p className="px-3 py-6 text-center text-xs text-muted">No people match “{query.trim()}”.</p>
+          <p className="px-3 py-6 text-center text-xs text-muted">
+            No people match “{query.trim()}”.
+          </p>
         ) : (
           <ul className="divide-y divide-line">
             {matches.map((person) => {
@@ -142,8 +145,12 @@ export function PeopleSearchPicker(props: PeopleSearchPickerProps) {
                     >
                       <Avatar name={person.name} src={person.avatar} size={32} />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-ink">{person.name}</span>
-                        <span className="block truncate text-xs text-muted">{personMeta(person)}</span>
+                        <span className="block truncate text-sm font-medium text-ink">
+                          {person.name}
+                        </span>
+                        <span className="block truncate text-xs text-muted">
+                          {personMeta(person)}
+                        </span>
                       </span>
                     </button>
                   </li>
@@ -162,8 +169,12 @@ export function PeopleSearchPicker(props: PeopleSearchPickerProps) {
                     />
                     <Avatar name={person.name} src={person.avatar} size={32} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-ink">{person.name}</span>
-                      <span className="block truncate text-xs text-muted">{personMeta(person)}</span>
+                      <span className="block truncate text-sm font-medium text-ink">
+                        {person.name}
+                      </span>
+                      <span className="block truncate text-xs text-muted">
+                        {personMeta(person)}
+                      </span>
                     </span>
                   </label>
                 </li>

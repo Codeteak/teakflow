@@ -7,7 +7,13 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
 };
 
-export function IconTooltipButton({ label, active, className, children, ...props }: Props) {
+export function IconTooltipButton({
+  label,
+  active,
+  className,
+  children,
+  ...props
+}: Props) {
   return (
     <button
       type="button"

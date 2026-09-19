@@ -1,11 +1,22 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { CHANNEL_VISIBILITY, CONVERSATION_TYPE, DEPARTMENTS, type Conversation, type Department, type PublicUser } from '@teakflow/shared';
+import {
+  CHANNEL_VISIBILITY,
+  CONVERSATION_TYPE,
+  DEPARTMENTS,
+  type Conversation,
+  type Department,
+  type PublicUser,
+} from '@teakflow/shared';
 import { PeopleSearchPicker } from '@/components/chat/PeopleSearchPicker';
 import { Button } from '@/components/ui/button';
 import { EmptyState, ErrorBanner, PageLoading } from '@/components/ui/page-state';
 import { Input } from '@/components/ui/input';
 import { useAuthStore } from '@/store/auth';
-import { createConversationRequest, deleteChannelRequest, listManagedChannelsRequest } from '@/features/chat/api';
+import {
+  createConversationRequest,
+  deleteChannelRequest,
+  listManagedChannelsRequest,
+} from '@/features/chat/api';
 import { listUsersRequest } from '@/features/employees/api';
 
 export function ChannelsPage() {
@@ -20,14 +31,19 @@ export function ChannelsPage() {
   const [loading, setLoading] = useState(true);
 
   async function refresh() {
-    const [list, users] = await Promise.all([listManagedChannelsRequest(), listUsersRequest()]);
+    const [list, users] = await Promise.all([
+      listManagedChannelsRequest(),
+      listUsersRequest(),
+    ]);
     setChannels(list);
     setPeople(users);
   }
 
   useEffect(() => {
     refresh()
-      .catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to load channels.'))
+      .catch((cause) =>
+        setError(cause instanceof Error ? cause.message : 'Unable to load channels.'),
+      )
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,9 +54,13 @@ export function ChannelsPage() {
       await createConversationRequest({
         type: CONVERSATION_TYPE.CHANNEL,
         name: name.trim(),
-        visibility: visibility === 'PUBLIC' ? CHANNEL_VISIBILITY.PUBLIC : CHANNEL_VISIBILITY.PRIVATE,
+        visibility:
+          visibility === 'PUBLIC'
+            ? CHANNEL_VISIBILITY.PUBLIC
+            : CHANNEL_VISIBILITY.PRIVATE,
         memberIds: visibility === 'PRIVATE' ? memberIds : [],
-        department: visibility === 'PUBLIC' && department ? (department as Department) : null,
+        department:
+          visibility === 'PUBLIC' && department ? (department as Department) : null,
       });
       setName('');
       setMemberIds([]);
@@ -56,11 +76,20 @@ export function ChannelsPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Channels</h1>
         <p className="mt-1 text-sm text-muted">
-          Public company channels include everyone (or one department). Private channels include only the people you pick. New hires join matching public rooms automatically.
+          Public company channels include everyone (or one department). Private channels
+          include only the people you pick. New hires join matching public rooms
+          automatically.
         </p>
       </header>
-      <form className="space-y-3 rounded-lg border border-line bg-surface p-5" onSubmit={(event) => void onCreate(event)}>
-        <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Channel name" />
+      <form
+        className="space-y-3 rounded-lg border border-line bg-surface p-5"
+        onSubmit={(event) => void onCreate(event)}
+      >
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Channel name"
+        />
         <select
           className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm"
           value={visibility}
@@ -108,7 +137,10 @@ export function ChannelsPage() {
       {loading ? <PageLoading rows={3} /> : null}
       <div className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
         {!loading && channels.length === 0 ? (
-          <EmptyState title="No channels yet" description="Create a public company channel or a private room." />
+          <EmptyState
+            title="No channels yet"
+            description="Create a public company channel or a private room."
+          />
         ) : null}
         {channels.map((channel) => (
           <div key={channel.id} className="flex items-center justify-between px-4 py-3">
@@ -124,7 +156,11 @@ export function ChannelsPage() {
               onClick={() =>
                 void deleteChannelRequest(channel.id)
                   .then(() => refresh())
-                  .catch((cause) => setError(cause instanceof Error ? cause.message : 'Unable to delete.'))
+                  .catch((cause) =>
+                    setError(
+                      cause instanceof Error ? cause.message : 'Unable to delete.',
+                    ),
+                  )
               }
             >
               Delete

@@ -9,13 +9,22 @@ function quietProxyErrors(proxy: {
 }) {
   proxy.on('error', ((error: NodeJS.ErrnoException) => {
     const code = error.code ?? '';
-    if (code === 'EPIPE' || code === 'ECONNRESET' || code === 'ECONNREFUSED' || code === 'ECONNABORTED') {
+    if (
+      code === 'EPIPE' ||
+      code === 'ECONNRESET' ||
+      code === 'ECONNREFUSED' ||
+      code === 'ECONNABORTED'
+    ) {
       return;
     }
     console.warn('[vite] proxy error:', error.message);
   }) as (...args: never[]) => void);
 
-  proxy.on('proxyReqWs', ((_proxyReq, _req, socket: { on: (event: string, cb: () => void) => void }) => {
+  proxy.on('proxyReqWs', ((
+    _proxyReq,
+    _req,
+    socket: { on: (event: string, cb: () => void) => void },
+  ) => {
     socket.on('error', () => undefined);
   }) as (...args: never[]) => void);
 }
@@ -27,7 +36,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'brand/codeteak-logo.svg', 'icons/pwa-192.png', 'icons/pwa-512.png', 'icons/pwa-512-maskable.png'],
+      includeAssets: [
+        'favicon.svg',
+        'apple-touch-icon.png',
+        'brand/codeteak-logo.svg',
+        'icons/pwa-192.png',
+        'icons/pwa-512.png',
+        'icons/pwa-512-maskable.png',
+      ],
       manifest: {
         name: 'Teakflow',
         short_name: 'Teakflow',
@@ -134,7 +150,11 @@ export default defineConfig({
           ) {
             return 'three';
           }
-          if (id.includes('socket.io') || id.includes('zustand') || id.includes('@tanstack')) {
+          if (
+            id.includes('socket.io') ||
+            id.includes('zustand') ||
+            id.includes('@tanstack')
+          ) {
             return 'realtime';
           }
         },

@@ -1,5 +1,10 @@
 import { Op, type WhereOptions } from 'sequelize';
-import { alignsWithDepartment, reportingTreeIds, ROLES, USER_STATUS } from '@teakflow/shared';
+import {
+  alignsWithDepartment,
+  reportingTreeIds,
+  ROLES,
+  USER_STATUS,
+} from '@teakflow/shared';
 import type { Department, Role } from '@teakflow/shared';
 import { User } from '../../models/user';
 import { AppError } from '../../middlewares/errorHandler/index';
@@ -18,7 +23,10 @@ function asUserId(value: unknown): string | null {
   return null;
 }
 
-export async function teamScopeUserIds(actorId: string, actorRole: Role): Promise<string[] | null> {
+export async function teamScopeUserIds(
+  actorId: string,
+  actorRole: Role,
+): Promise<string[] | null> {
   if (actorRole === ROLES.ADMIN) {
     return null;
   }
@@ -40,7 +48,11 @@ export async function teamScopeUserIds(actorId: string, actorRole: Role): Promis
 }
 
 export async function listTeamDailyWorkUsers(actorId: string, actorRole: Role) {
-  if (actorRole !== ROLES.ADMIN && actorRole !== ROLES.MANAGER && actorRole !== ROLES.LEAD) {
+  if (
+    actorRole !== ROLES.ADMIN &&
+    actorRole !== ROLES.MANAGER &&
+    actorRole !== ROLES.LEAD
+  ) {
     throw new AppError(403, 'FORBIDDEN', 'You do not have permission to do that.');
   }
   const people = await User.findAll({
@@ -60,7 +72,10 @@ export async function listTeamDailyWorkUsers(actorId: string, actorRole: Role) {
   return people.filter((person) => allowed.has(person.id));
 }
 
-export async function teamDailyWorkWhere(actorId: string, actorRole: Role): Promise<WhereOptions> {
+export async function teamDailyWorkWhere(
+  actorId: string,
+  actorRole: Role,
+): Promise<WhereOptions> {
   if (actorRole === ROLES.ADMIN) {
     return { status: USER_STATUS.ACTIVE };
   }
@@ -87,7 +102,11 @@ export async function assertCanReadDailyWork(
   }
   const ids = await teamScopeUserIds(actorId, actorRole);
   if (!ids?.includes(targetUserId)) {
-    throw new AppError(403, 'FORBIDDEN', 'You can only view daily work for people in your team.');
+    throw new AppError(
+      403,
+      'FORBIDDEN',
+      'You can only view daily work for people in your team.',
+    );
   }
 }
 
@@ -103,7 +122,11 @@ export async function assertCanInviteToMeeting(
   const allowed = new Set(ids ?? [actorId]);
   const outside = participantIds.filter((id) => id !== actorId && !allowed.has(id));
   if (outside.length > 0) {
-    throw new AppError(403, 'PARTICIPANT_OUT_OF_SCOPE', 'You can only invite people in your team.');
+    throw new AppError(
+      403,
+      'PARTICIPANT_OUT_OF_SCOPE',
+      'You can only invite people in your team.',
+    );
   }
 }
 
@@ -129,8 +152,16 @@ export async function resolveManagerId(
   if (subjectRole === ROLES.LEAD && boss.role !== ROLES.MANAGER) {
     throw new AppError(400, 'INVALID_MANAGER', 'A lead reports to a manager.');
   }
-  if (subjectRole === ROLES.EMPLOYEE && boss.role !== ROLES.MANAGER && boss.role !== ROLES.LEAD) {
-    throw new AppError(400, 'INVALID_MANAGER', 'An employee reports to a lead or a manager.');
+  if (
+    subjectRole === ROLES.EMPLOYEE &&
+    boss.role !== ROLES.MANAGER &&
+    boss.role !== ROLES.LEAD
+  ) {
+    throw new AppError(
+      400,
+      'INVALID_MANAGER',
+      'An employee reports to a lead or a manager.',
+    );
   }
   if (
     subjectDepartment &&
@@ -143,14 +174,22 @@ export async function resolveManagerId(
       subjectDepartment,
     )
   ) {
-    throw new AppError(400, 'INVALID_MANAGER', 'Choose a manager or lead for that department.');
+    throw new AppError(
+      400,
+      'INVALID_MANAGER',
+      'Choose a manager or lead for that department.',
+    );
   }
   if (subjectId) {
     let cursor: string | null = boss.managerId;
     const seen = new Set<string>([boss.id]);
     while (cursor) {
       if (cursor === subjectId) {
-        throw new AppError(400, 'INVALID_MANAGER', 'That reports-to choice would create a cycle.');
+        throw new AppError(
+          400,
+          'INVALID_MANAGER',
+          'That reports-to choice would create a cycle.',
+        );
       }
       if (seen.has(cursor)) {
         break;
@@ -177,7 +216,9 @@ export async function uniqueHeadedDepartments(
   });
   for (const department of unique) {
     const taken = managers.find(
-      (manager) => manager.id !== userId && asStringList(manager.headedDepartments).includes(department),
+      (manager) =>
+        manager.id !== userId &&
+        asStringList(manager.headedDepartments).includes(department),
     );
     if (taken) {
       throw new AppError(

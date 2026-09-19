@@ -22,7 +22,9 @@ export async function runMeetingReminders(now = new Date()) {
   });
 
   for (const meeting of rows) {
-    const participants = await MeetingParticipant.findAll({ where: { meetingId: meeting.id } });
+    const participants = await MeetingParticipant.findAll({
+      where: { meetingId: meeting.id },
+    });
     await Promise.all(
       participants.map((person) =>
         createNotification({

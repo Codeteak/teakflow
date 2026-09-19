@@ -1,5 +1,9 @@
 import { NOTIFICATION_TYPE, type AppNotification } from '@teakflow/shared';
-import type { NotificationItem, NotificationKind, NotificationPiece } from '@/components/ui/notification-panel';
+import type {
+  NotificationItem,
+  NotificationKind,
+  NotificationPiece,
+} from '@/components/ui/notification-panel';
 
 const ARCHIVE_KEY = 'teakflow.notification.archived';
 
@@ -119,7 +123,10 @@ function toItem(row: AppNotification, archived: boolean): NotificationItem {
       return {
         ...base,
         actor: { name: 'Teakflow' },
-        body: ['reminded you about ', { entity: row.message.replace(/\s+starts in 15 minutes$/i, '') || 'a meeting' }],
+        body: [
+          'reminded you about ',
+          { entity: row.message.replace(/\s+starts in 15 minutes$/i, '') || 'a meeting' },
+        ],
       };
     case NOTIFICATION_TYPE.DAILY_WORK_OPEN:
     case NOTIFICATION_TYPE.DAILY_WORK_REMINDER:

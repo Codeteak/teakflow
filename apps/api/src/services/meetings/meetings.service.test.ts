@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Op } from 'sequelize';
-import { MEETING_PARTICIPANT_STATUS, NOTIFICATION_TYPE, ROLES, USER_STATUS } from '@teakflow/shared';
+import {
+  MEETING_PARTICIPANT_STATUS,
+  NOTIFICATION_TYPE,
+  ROLES,
+  USER_STATUS,
+} from '@teakflow/shared';
 import { ConversationMember } from '../../models/conversationMember';
 import { Meeting } from '../../models/meeting';
 import { MeetingParticipant } from '../../models/meetingParticipant';
@@ -126,7 +131,13 @@ describe('createMeeting', () => {
   });
 
   it('lets a manager invite a nested employee under a lead', async () => {
-    const manager = { ...creator, id: creator.id, role: ROLES.MANAGER, name: 'Nisha', managerId: null };
+    const manager = {
+      ...creator,
+      id: creator.id,
+      role: ROLES.MANAGER,
+      name: 'Nisha',
+      managerId: null,
+    };
     const lead = {
       id: '55555555-5555-4555-8555-555555555555',
       name: 'Lead',
@@ -138,7 +149,9 @@ describe('createMeeting', () => {
     const nested = { ...invitee, managerId: lead.id };
     const all = [manager, lead, nested];
     vi.mocked(User.findAll).mockImplementation((options) => {
-      const ids = (options as { where?: { id?: { [key: symbol]: string[] } } } | undefined)?.where?.id?.[Op.in];
+      const ids = (
+        options as { where?: { id?: { [key: symbol]: string[] } } } | undefined
+      )?.where?.id?.[Op.in];
       const rows = ids ? all.filter((person) => ids.includes(person.id)) : all;
       return Promise.resolve(rows) as never;
     });
@@ -152,7 +165,13 @@ describe('createMeeting', () => {
   });
 
   it('lets a lead invite their employee', async () => {
-    const lead = { ...creator, id: creator.id, role: ROLES.LEAD, name: 'Asha', managerId: null };
+    const lead = {
+      ...creator,
+      id: creator.id,
+      role: ROLES.LEAD,
+      name: 'Asha',
+      managerId: null,
+    };
     const report = { ...invitee, managerId: lead.id };
     vi.mocked(User.findAll).mockResolvedValue([lead, report] as never);
     await createMeeting(lead as never, {
@@ -232,8 +251,14 @@ describe('createMeeting', () => {
 describe('joinMeeting', () => {
   it('forbids people who were not invited', async () => {
     vi.mocked(MeetingParticipant.findOne).mockResolvedValue(null);
-    const stranger = { ...invitee, id: '66666666-6666-4666-8666-666666666666', role: ROLES.EMPLOYEE };
-    await expect(joinMeeting(stranger as never, meetingRow().id)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    const stranger = {
+      ...invitee,
+      id: '66666666-6666-4666-8666-666666666666',
+      role: ROLES.EMPLOYEE,
+    };
+    await expect(joinMeeting(stranger as never, meetingRow().id)).rejects.toMatchObject({
+      code: 'FORBIDDEN',
+    });
   });
 
   it('marks an invitee accepted and returns the Meet URL', async () => {

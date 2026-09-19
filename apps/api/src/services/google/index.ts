@@ -28,7 +28,8 @@ export type CreateMeetEventResult = {
   meetUrl: string;
 };
 
-let createMeetEventOverride: ((input: CreateMeetEventInput) => Promise<CreateMeetEventResult>) | null = null;
+let createMeetEventOverride:
+  ((input: CreateMeetEventInput) => Promise<CreateMeetEventResult>) | null = null;
 
 export function setCreateMeetEventOverride(
   fn: ((input: CreateMeetEventInput) => Promise<CreateMeetEventResult>) | null,
@@ -44,9 +45,13 @@ export function requireGoogleConfig() {
 
 export function googleAuthorizeUrl(adminUserId: string) {
   requireGoogleConfig();
-  const state = jwt.sign({ sub: adminUserId, typ: 'google_oauth' } satisfies GoogleState, env.JWT_ACCESS_SECRET, {
-    expiresIn: '15m',
-  });
+  const state = jwt.sign(
+    { sub: adminUserId, typ: 'google_oauth' } satisfies GoogleState,
+    env.JWT_ACCESS_SECRET,
+    {
+      expiresIn: '15m',
+    },
+  );
   const params = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
     redirect_uri: env.GOOGLE_REDIRECT_URI,
@@ -67,7 +72,11 @@ export function readGoogleOAuthState(state: string) {
     }
     return payload.sub;
   } catch {
-    throw new AppError(400, 'INVALID_OAUTH_STATE', 'Google sign-in expired. Try connecting again.');
+    throw new AppError(
+      400,
+      'INVALID_OAUTH_STATE',
+      'Google sign-in expired. Try connecting again.',
+    );
   }
 }
 
@@ -83,7 +92,11 @@ async function tokenRequest(body: Record<string, string>) {
     error?: string;
   };
   if (!response.ok || !data.access_token) {
-    throw new AppError(502, 'GOOGLE_TOKEN_FAILED', 'Google could not issue an access token.');
+    throw new AppError(
+      502,
+      'GOOGLE_TOKEN_FAILED',
+      'Google could not issue an access token.',
+    );
   }
   return data;
 }
@@ -147,18 +160,26 @@ function meetUrlFromEvent(event: {
   if (event.hangoutLink) {
     return event.hangoutLink;
   }
-  const meet = event.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === 'video' && entry.uri);
+  const meet = event.conferenceData?.entryPoints?.find(
+    (entry) => entry.entryPointType === 'video' && entry.uri,
+  );
   return meet?.uri ?? null;
 }
 
-export async function createMeetEvent(input: CreateMeetEventInput): Promise<CreateMeetEventResult> {
+export async function createMeetEvent(
+  input: CreateMeetEventInput,
+): Promise<CreateMeetEventResult> {
   if (createMeetEventOverride) {
     return createMeetEventOverride(input);
   }
 
   const settings = await CompanySettings.findByPk(COMPANY_SETTINGS_ID);
   if (!settings?.googleRefreshToken) {
-    throw new AppError(503, 'GOOGLE_NOT_CONNECTED', 'An admin must connect the company Google account first.');
+    throw new AppError(
+      503,
+      'GOOGLE_NOT_CONNECTED',
+      'An admin must connect the company Google account first.',
+    );
   }
 
   const accessToken = await accessTokenFromRefresh(settings.googleRefreshToken);
@@ -189,7 +210,11 @@ export async function createMeetEvent(input: CreateMeetEventInput): Promise<Crea
   };
   const meetUrl = meetUrlFromEvent(event);
   if (!response.ok || !event.id || !meetUrl) {
-    throw new AppError(502, 'GOOGLE_MEET_FAILED', event.error?.message ?? 'Google Meet could not be created.');
+    throw new AppError(
+      502,
+      'GOOGLE_MEET_FAILED',
+      event.error?.message ?? 'Google Meet could not be created.',
+    );
   }
   return { eventId: event.id, meetUrl };
 }

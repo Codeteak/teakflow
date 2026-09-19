@@ -6,30 +6,30 @@ This is a **pnpm + Turborepo** monorepo. All product docs are in [`docs/`](docs/
 
 ## Docs
 
-| File | What it is |
-| --- | --- |
-| [docs/README.md](docs/README.md) | Index and required read order |
+| File                             | What it is                           |
+| -------------------------------- | ------------------------------------ |
+| [docs/README.md](docs/README.md) | Index and required read order        |
 | [docs/AGENTS.md](docs/AGENTS.md) | Stack, invariants, what not to build |
-| [docs/spec.md](docs/spec.md) | Full product specification |
-| [docs/THEME.md](docs/THEME.md) | Quiet Desk UI |
-| [docs/TASKS.md](docs/TASKS.md) | Implementation tickets |
+| [docs/spec.md](docs/spec.md)     | Full product specification           |
+| [docs/THEME.md](docs/THEME.md)   | Quiet Desk UI                        |
+| [docs/TASKS.md](docs/TASKS.md)   | Implementation tickets               |
 
 Agents read that folder first. New docs go in `docs/`, not the repo root.
 
 ## Apps
 
-| App | Path | Dev URL |
-| --- | --- | --- |
+| App | Path       | Dev URL               |
+| --- | ---------- | --------------------- |
 | Web | `apps/web` | http://localhost:5173 |
 | API | `apps/api` | http://localhost:3005 |
 
 ## Packages
 
-| Package | Path |
-| --- | --- |
-| Shared types, constants, Zod schemas | `packages/shared` |
-| TypeScript configs | `packages/typescript-config` |
-| ESLint configs | `packages/eslint-config` |
+| Package                              | Path                         |
+| ------------------------------------ | ---------------------------- |
+| Shared types, constants, Zod schemas | `packages/shared`            |
+| TypeScript configs                   | `packages/typescript-config` |
+| ESLint configs                       | `packages/eslint-config`     |
 
 ## Storage
 

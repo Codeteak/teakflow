@@ -40,7 +40,10 @@ export function App() {
             </Route>
             <Route element={<RequireAdmin />}>
               <Route path="/employees" element={<EmployeesPage />} />
-              <Route path="/admin/daily-work-settings" element={<DailyWorkSettingsPage />} />
+              <Route
+                path="/admin/daily-work-settings"
+                element={<DailyWorkSettingsPage />}
+              />
               <Route path="/admin/channels" element={<ChannelsPage />} />
               <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
             </Route>

@@ -43,7 +43,9 @@ function inIds(where: { id?: unknown }) {
 
 describe('teamDailyWorkWhere', () => {
   it('lists all active people for admin', async () => {
-    await expect(teamDailyWorkWhere(managerId, ROLES.ADMIN)).resolves.toEqual({ status: USER_STATUS.ACTIVE });
+    await expect(teamDailyWorkWhere(managerId, ROLES.ADMIN)).resolves.toEqual({
+      status: USER_STATUS.ACTIVE,
+    });
   });
 
   it('limits managers to their reporting tree', async () => {
@@ -74,7 +76,9 @@ describe('listTeamDailyWorkUsers', () => {
   it('drops people outside a manager tree even if findAll returned the whole company', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
     const rows = await listTeamDailyWorkUsers(managerId, ROLES.MANAGER);
-    expect(rows.map((row) => row.id).sort()).toEqual([employeeId, leadId, managerId].sort());
+    expect(rows.map((row) => row.id).sort()).toEqual(
+      [employeeId, leadId, managerId].sort(),
+    );
   });
 
   it('does not let a lead see their manager or a sibling team', async () => {
@@ -84,7 +88,9 @@ describe('listTeamDailyWorkUsers', () => {
   });
 
   it('forbids employees from the team list', async () => {
-    await expect(listTeamDailyWorkUsers(employeeId, ROLES.EMPLOYEE)).rejects.toMatchObject({
+    await expect(
+      listTeamDailyWorkUsers(employeeId, ROLES.EMPLOYEE),
+    ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -92,22 +98,30 @@ describe('listTeamDailyWorkUsers', () => {
 
 describe('assertCanReadDailyWork', () => {
   it('allows admin for anyone', async () => {
-    await expect(assertCanReadDailyWork(managerId, ROLES.ADMIN, employeeId)).resolves.toBeUndefined();
+    await expect(
+      assertCanReadDailyWork(managerId, ROLES.ADMIN, employeeId),
+    ).resolves.toBeUndefined();
   });
 
   it('allows a manager for a nested employee', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
-    await expect(assertCanReadDailyWork(managerId, ROLES.MANAGER, employeeId)).resolves.toBeUndefined();
+    await expect(
+      assertCanReadDailyWork(managerId, ROLES.MANAGER, employeeId),
+    ).resolves.toBeUndefined();
   });
 
   it('allows a lead for their employee', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
-    await expect(assertCanReadDailyWork(leadId, ROLES.LEAD, employeeId)).resolves.toBeUndefined();
+    await expect(
+      assertCanReadDailyWork(leadId, ROLES.LEAD, employeeId),
+    ).resolves.toBeUndefined();
   });
 
   it('rejects a manager for someone outside the tree', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
-    await expect(assertCanReadDailyWork(managerId, ROLES.MANAGER, outsiderId)).rejects.toMatchObject({
+    await expect(
+      assertCanReadDailyWork(managerId, ROLES.MANAGER, outsiderId),
+    ).rejects.toMatchObject({
       code: 'FORBIDDEN',
     });
   });
@@ -116,12 +130,16 @@ describe('assertCanReadDailyWork', () => {
 describe('assertCanInviteToMeeting', () => {
   it('lets a manager invite a nested report', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
-    await expect(assertCanInviteToMeeting(managerId, ROLES.MANAGER, [employeeId])).resolves.toBeUndefined();
+    await expect(
+      assertCanInviteToMeeting(managerId, ROLES.MANAGER, [employeeId]),
+    ).resolves.toBeUndefined();
   });
 
   it('blocks a lead from inviting outside their people', async () => {
     vi.mocked(User.findAll).mockResolvedValue(treePeople as never);
-    await expect(assertCanInviteToMeeting(leadId, ROLES.LEAD, [outsiderId])).rejects.toMatchObject({
+    await expect(
+      assertCanInviteToMeeting(leadId, ROLES.LEAD, [outsiderId]),
+    ).rejects.toMatchObject({
       code: 'PARTICIPANT_OUT_OF_SCOPE',
     });
   });
@@ -149,7 +167,9 @@ describe('resolveManagerId', () => {
       department: 'Engineering',
       headedDepartments: ['Engineering', 'Sales'],
     } as never);
-    await expect(resolveManagerId(managerId, ROLES.EMPLOYEE, undefined, 'Sales')).resolves.toBe(managerId);
+    await expect(
+      resolveManagerId(managerId, ROLES.EMPLOYEE, undefined, 'Sales'),
+    ).resolves.toBe(managerId);
   });
 
   it('rejects a manager who does not head that department', async () => {
@@ -160,7 +180,9 @@ describe('resolveManagerId', () => {
       department: 'Engineering',
       headedDepartments: ['Engineering'],
     } as never);
-    await expect(resolveManagerId(managerId, ROLES.EMPLOYEE, undefined, 'Sales')).rejects.toMatchObject({
+    await expect(
+      resolveManagerId(managerId, ROLES.EMPLOYEE, undefined, 'Sales'),
+    ).rejects.toMatchObject({
       code: 'INVALID_MANAGER',
     });
   });
@@ -174,14 +196,26 @@ describe('resolveManagerId', () => {
   it('rejects a reporting cycle', async () => {
     vi.mocked(User.findByPk).mockImplementation(async (id: string) => {
       if (id === leadId) {
-        return { id: leadId, role: ROLES.LEAD, status: USER_STATUS.ACTIVE, managerId: managerId } as never;
+        return {
+          id: leadId,
+          role: ROLES.LEAD,
+          status: USER_STATUS.ACTIVE,
+          managerId: managerId,
+        } as never;
       }
       if (id === managerId) {
-        return { id: managerId, role: ROLES.MANAGER, status: USER_STATUS.ACTIVE, managerId: null } as never;
+        return {
+          id: managerId,
+          role: ROLES.MANAGER,
+          status: USER_STATUS.ACTIVE,
+          managerId: null,
+        } as never;
       }
       return null;
     });
-    await expect(resolveManagerId(leadId, ROLES.EMPLOYEE, managerId)).rejects.toMatchObject({
+    await expect(
+      resolveManagerId(leadId, ROLES.EMPLOYEE, managerId),
+    ).rejects.toMatchObject({
       code: 'INVALID_MANAGER',
     });
   });
@@ -192,7 +226,9 @@ describe('uniqueHeadedDepartments', () => {
     vi.mocked(User.findAll).mockResolvedValue([
       { id: managerId, name: 'Nisha', headedDepartments: ['Engineering', 'Sales'] },
     ] as never);
-    await expect(uniqueHeadedDepartments(outsiderId, ['Engineering'])).rejects.toMatchObject({
+    await expect(
+      uniqueHeadedDepartments(outsiderId, ['Engineering']),
+    ).rejects.toMatchObject({
       code: 'DEPARTMENT_HEADED',
     });
   });
@@ -201,9 +237,8 @@ describe('uniqueHeadedDepartments', () => {
     vi.mocked(User.findAll).mockResolvedValue([
       { id: managerId, name: 'Nisha', headedDepartments: ['Engineering', 'Sales'] },
     ] as never);
-    await expect(uniqueHeadedDepartments(managerId, ['Engineering', 'Sales'])).resolves.toEqual([
-      'Engineering',
-      'Sales',
-    ]);
+    await expect(
+      uniqueHeadedDepartments(managerId, ['Engineering', 'Sales']),
+    ).resolves.toEqual(['Engineering', 'Sales']);
   });
 });

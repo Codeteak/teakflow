@@ -22,12 +22,17 @@ function cookieValue(header: string | undefined, name: string) {
   return undefined;
 }
 
-async function joinMemberRooms(socket: { join: (room: string) => Promise<void> | void }, userId: string) {
+async function joinMemberRooms(
+  socket: { join: (room: string) => Promise<void> | void },
+  userId: string,
+) {
   const memberships = await ConversationMember.findAll({
     where: { userId },
     attributes: ['conversationId'],
   });
-  await Promise.all(memberships.map((row) => socket.join(`conversation:${row.conversationId}`)));
+  await Promise.all(
+    memberships.map((row) => socket.join(`conversation:${row.conversationId}`)),
+  );
 }
 
 export function attachSockets(httpServer: ReturnType<typeof createServer>) {
@@ -67,22 +72,25 @@ export function attachSockets(httpServer: ReturnType<typeof createServer>) {
     markUserOnline(userId);
     void joinMemberRooms(socket, userId).catch(() => undefined);
 
-    socket.on('conversation:join', async (conversationId: string, ack?: (ok: boolean) => void) => {
-      if (typeof conversationId !== 'string') {
-        ack?.(false);
-        return;
-      }
-      const member = await ConversationMember.findOne({
-        where: { conversationId, userId },
-        attributes: ['id'],
-      });
-      if (!member) {
-        ack?.(false);
-        return;
-      }
-      await socket.join(`conversation:${conversationId}`);
-      ack?.(true);
-    });
+    socket.on(
+      'conversation:join',
+      async (conversationId: string, ack?: (ok: boolean) => void) => {
+        if (typeof conversationId !== 'string') {
+          ack?.(false);
+          return;
+        }
+        const member = await ConversationMember.findOne({
+          where: { conversationId, userId },
+          attributes: ['id'],
+        });
+        if (!member) {
+          ack?.(false);
+          return;
+        }
+        await socket.join(`conversation:${conversationId}`);
+        ack?.(true);
+      },
+    );
 
     socket.on(
       SOCKET_EVENTS.MESSAGE_SEND,
@@ -99,7 +107,9 @@ export function attachSockets(httpServer: ReturnType<typeof createServer>) {
         try {
           const conversationId = payload?.conversationId;
           const content = payload?.content ?? '';
-          const attachments = Array.isArray(payload?.attachments) ? payload.attachments : [];
+          const attachments = Array.isArray(payload?.attachments)
+            ? payload.attachments
+            : [];
           if (!conversationId || (!content.trim() && attachments.length === 0)) {
             ack?.({ ok: false, error: 'Write a message or attach a file.' });
             return;
@@ -112,7 +122,9 @@ export function attachSockets(httpServer: ReturnType<typeof createServer>) {
             {
               senderName: socket.data.userName as string | undefined,
               attachments: attachments as StoredFile[],
-              linkPreviews: Array.isArray(payload.linkPreviews) ? (payload.linkPreviews as LinkPreview[]) : [],
+              linkPreviews: Array.isArray(payload.linkPreviews)
+                ? (payload.linkPreviews as LinkPreview[])
+                : [],
             },
           );
           ack?.({ ok: true, data: message });

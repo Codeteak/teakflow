@@ -1,7 +1,15 @@
 import { io, type Socket } from 'socket.io-client';
-import { SOCKET_EVENTS, NOTIFICATION_TYPE, PRESENCE_STATUS, type PresenceStatus } from '@teakflow/shared';
+import {
+  SOCKET_EVENTS,
+  NOTIFICATION_TYPE,
+  PRESENCE_STATUS,
+  type PresenceStatus,
+} from '@teakflow/shared';
 import type { AppNotification, LinkPreview, Message, StoredFile } from '@teakflow/shared';
-import { isViewingConversation, shouldSuppressChatAlert } from '@/features/chat/activeConversation';
+import {
+  isViewingConversation,
+  shouldSuppressChatAlert,
+} from '@/features/chat/activeConversation';
 import { playNotifySound } from '@/lib/notifySound';
 import { useAuthStore } from '@/store/auth';
 import { usePresenceStore } from '@/store/presence';
@@ -10,9 +18,17 @@ export type ChatHandlers = {
   onMessage?: (message: Message) => void;
   onMessageUpdate?: (message: Message) => void;
   onNotification?: (notification: AppNotification) => void;
-  onTyping?: (payload: { conversationId: string; userId: string; typing: boolean }) => void;
+  onTyping?: (payload: {
+    conversationId: string;
+    userId: string;
+    typing: boolean;
+  }) => void;
   onPresence?: (payload: { userId: string; status: PresenceStatus }) => void;
-  onRead?: (payload: { conversationId: string; userId: string; messageId: string }) => void;
+  onRead?: (payload: {
+    conversationId: string;
+    userId: string;
+    messageId: string;
+  }) => void;
   onSessionEnded?: () => void;
 };
 
@@ -33,7 +49,11 @@ function applyPresence(userId: string, status: PresenceStatus) {
 
 function reemitSelfPresence(instance: Socket) {
   const status = usePresenceStore.getState().selfStatus;
-  if (status === PRESENCE_STATUS.AWAY || status === PRESENCE_STATUS.DND || status === PRESENCE_STATUS.ONLINE) {
+  if (
+    status === PRESENCE_STATUS.AWAY ||
+    status === PRESENCE_STATUS.DND ||
+    status === PRESENCE_STATUS.ONLINE
+  ) {
     instance.emit(SOCKET_EVENTS.PRESENCE_SET, { status });
   }
 }
@@ -75,17 +95,24 @@ function bindSocket(instance: Socket) {
     }
     notify((handlers) => handlers.onNotification?.(notification));
   });
-  instance.on(SOCKET_EVENTS.TYPING_START, (payload: { conversationId: string; userId: string }) =>
-    notify((handlers) => handlers.onTyping?.({ ...payload, typing: true })),
+  instance.on(
+    SOCKET_EVENTS.TYPING_START,
+    (payload: { conversationId: string; userId: string }) =>
+      notify((handlers) => handlers.onTyping?.({ ...payload, typing: true })),
   );
-  instance.on(SOCKET_EVENTS.TYPING_STOP, (payload: { conversationId: string; userId: string }) =>
-    notify((handlers) => handlers.onTyping?.({ ...payload, typing: false })),
+  instance.on(
+    SOCKET_EVENTS.TYPING_STOP,
+    (payload: { conversationId: string; userId: string }) =>
+      notify((handlers) => handlers.onTyping?.({ ...payload, typing: false })),
   );
-  instance.on(SOCKET_EVENTS.USER_PRESENCE, (payload: { userId: string; status: PresenceStatus }) => {
-    if (payload?.userId && payload.status) {
-      applyPresence(payload.userId, payload.status);
-    }
-  });
+  instance.on(
+    SOCKET_EVENTS.USER_PRESENCE,
+    (payload: { userId: string; status: PresenceStatus }) => {
+      if (payload?.userId && payload.status) {
+        applyPresence(payload.userId, payload.status);
+      }
+    },
+  );
   instance.on(SOCKET_EVENTS.USER_ONLINE, (payload: { userId: string }) => {
     if (!payload?.userId) {
       return;
@@ -101,10 +128,14 @@ function bindSocket(instance: Socket) {
       applyPresence(payload.userId, PRESENCE_STATUS.OFFLINE);
     }
   });
-  instance.on(SOCKET_EVENTS.MESSAGE_READ, (payload: { conversationId: string; userId: string; messageId: string }) =>
-    notify((handlers) => handlers.onRead?.(payload)),
+  instance.on(
+    SOCKET_EVENTS.MESSAGE_READ,
+    (payload: { conversationId: string; userId: string; messageId: string }) =>
+      notify((handlers) => handlers.onRead?.(payload)),
   );
-  instance.on(SOCKET_EVENTS.SESSION_ENDED, () => notify((handlers) => handlers.onSessionEnded?.()));
+  instance.on(SOCKET_EVENTS.SESSION_ENDED, () =>
+    notify((handlers) => handlers.onSessionEnded?.()),
+  );
 }
 
 export function connectChatSocket() {
@@ -145,7 +176,9 @@ export function joinConversationRoom(conversationId: string) {
 }
 
 export function emitTyping(conversationId: string, typing: boolean) {
-  socket?.emit(typing ? SOCKET_EVENTS.TYPING_START : SOCKET_EVENTS.TYPING_STOP, { conversationId });
+  socket?.emit(typing ? SOCKET_EVENTS.TYPING_START : SOCKET_EVENTS.TYPING_STOP, {
+    conversationId,
+  });
 }
 
 export function emitPresence(status: PresenceStatus) {

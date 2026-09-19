@@ -1,4 +1,7 @@
-import type { CompanySettings as CompanySettingsDto, DailyWorkSettings } from '@teakflow/shared';
+import type {
+  CompanySettings as CompanySettingsDto,
+  DailyWorkSettings,
+} from '@teakflow/shared';
 import { DEFAULT_COMPANY_SETTINGS } from '@teakflow/shared';
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../config/database';

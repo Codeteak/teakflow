@@ -68,7 +68,10 @@ export function NotificationBell() {
           void markNotificationReadRequest(notification.id).catch(() => undefined);
           return;
         }
-        setRows((current) => [notification, ...current.filter((row) => row.id !== notification.id)]);
+        setRows((current) => [
+          notification,
+          ...current.filter((row) => row.id !== notification.id),
+        ]);
       },
     });
   }, []);
@@ -77,7 +80,8 @@ export function NotificationBell() {
     if (!open) return;
     const away = (event: PointerEvent) => {
       const target = event.target as Node;
-      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target) || triggerRef.current?.contains(target))
+        return;
       setOpen(false);
     };
     const key = (event: KeyboardEvent) => {
@@ -131,11 +135,17 @@ export function NotificationBell() {
   function onOpenItem(item: NotificationItem) {
     setOpen(false);
     const type = item.sourceType;
-    if (type === NOTIFICATION_TYPE.MEETING_CREATED || type === NOTIFICATION_TYPE.MEETING_REMINDER) {
+    if (
+      type === NOTIFICATION_TYPE.MEETING_CREATED ||
+      type === NOTIFICATION_TYPE.MEETING_REMINDER
+    ) {
       navigate('/meetings');
       return;
     }
-    if (type === NOTIFICATION_TYPE.DAILY_WORK_OPEN || type === NOTIFICATION_TYPE.DAILY_WORK_REMINDER) {
+    if (
+      type === NOTIFICATION_TYPE.DAILY_WORK_OPEN ||
+      type === NOTIFICATION_TYPE.DAILY_WORK_REMINDER
+    ) {
       navigate('/daily-work');
       return;
     }
@@ -193,7 +203,9 @@ export function NotificationBell() {
                         items={items}
                         maxHeight={Math.min(420, window.innerHeight - 120)}
                         onOpenItem={onOpenItem}
-                        onReadChange={(item, nextUnread) => void onReadChange(item, nextUnread)}
+                        onReadChange={(item, nextUnread) =>
+                          void onReadChange(item, nextUnread)
+                        }
                         onArchiveChange={onArchiveChange}
                         onMarkAllRead={() => void onMarkAllRead()}
                         onSettings={() => {

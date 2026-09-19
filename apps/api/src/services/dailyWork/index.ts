@@ -14,7 +14,12 @@ import { writeAudit } from '../audit/index';
 import { getCompanySettings } from '../settings/index';
 import { mergeNotebook } from '../sales/notebook';
 import { assertCanReadDailyWork, listTeamDailyWorkUsers } from '../users/scope';
-import { clockParts, canEditSubmittedContent, resolveTodayState, windowPhase } from './window';
+import {
+  clockParts,
+  canEditSubmittedContent,
+  resolveTodayState,
+  windowPhase,
+} from './window';
 
 function assertCanSubmit(state: ReturnType<typeof resolveTodayState>) {
   if (state === 'LOCKED') {
@@ -24,7 +29,11 @@ function assertCanSubmit(state: ReturnType<typeof resolveTodayState>) {
     throw new AppError(403, 'WINDOW_CLOSED', "Today's submission window has closed.");
   }
   if (state === 'SUBMITTED' || state === 'SUBMITTED_EDITABLE') {
-    throw new AppError(409, 'ALREADY_SUBMITTED', "Today's daily work has already been submitted.");
+    throw new AppError(
+      409,
+      'ALREADY_SUBMITTED',
+      "Today's daily work has already been submitted.",
+    );
   }
 }
 
@@ -41,7 +50,10 @@ function assertContentLength(content: string, minCharacters: number) {
   }
 }
 
-export async function getToday(userId: string, now = new Date()): Promise<DailyWorkToday> {
+export async function getToday(
+  userId: string,
+  now = new Date(),
+): Promise<DailyWorkToday> {
   const settings = await getCompanySettings();
   const { workDate } = clockParts(now, settings.timezone);
   const entry = await DailyWorkEntry.findOne({ where: { userId, workDate } });
@@ -75,13 +87,22 @@ export async function submitToday(userId: string, input: unknown, now = new Date
   const today = await getToday(userId, now);
   assertCanSubmit(today.state);
 
-  const sales = await SalesDayReport.findOne({ where: { userId, workDate: today.workDate } });
+  const sales = await SalesDayReport.findOne({
+    where: { userId, workDate: today.workDate },
+  });
   const merged = mergeNotebook(content, sales?.notebookBlocks ?? '');
   assertContentLength(merged, today.settings.minCharacters);
 
-  const phase = windowPhase(now, today.timezone, today.settings.startTime, today.settings.endTime);
+  const phase = windowPhase(
+    now,
+    today.timezone,
+    today.settings.startTime,
+    today.settings.endTime,
+  );
   const isLate = phase === 'AFTER';
-  const status: DailyWorkStatus = isLate ? DAILY_WORK_STATUS.LATE : DAILY_WORK_STATUS.SUBMITTED;
+  const status: DailyWorkStatus = isLate
+    ? DAILY_WORK_STATUS.LATE
+    : DAILY_WORK_STATUS.SUBMITTED;
 
   try {
     const entry = await DailyWorkEntry.create({
@@ -102,7 +123,11 @@ export async function submitToday(userId: string, input: unknown, now = new Date
     return entry.toPublic();
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      throw new AppError(409, 'ALREADY_SUBMITTED', "Today's daily work has already been submitted.");
+      throw new AppError(
+        409,
+        'ALREADY_SUBMITTED',
+        "Today's daily work has already been submitted.",
+      );
     }
     throw error;
   }
@@ -119,7 +144,7 @@ export async function updateToday(userId: string, input: unknown, now = new Date
     throw new AppError(
       403,
       'ENTRY_LOCKED',
-      'Only today\'s submitted notebook can be edited, and only by you.',
+      "Only today's submitted notebook can be edited, and only by you.",
     );
   }
 
@@ -135,7 +160,10 @@ export async function updateToday(userId: string, input: unknown, now = new Date
     typeof entry.workDate === 'string'
       ? entry.workDate.slice(0, 10)
       : clockParts(new Date(entry.workDate), today.timezone).workDate;
-  if (entryDate !== today.workDate || !canEditSubmittedContent(Boolean(entry.submittedAt))) {
+  if (
+    entryDate !== today.workDate ||
+    !canEditSubmittedContent(Boolean(entry.submittedAt))
+  ) {
     throw new AppError(403, 'ENTRY_LOCKED', 'Past daily work entries are locked.');
   }
 
@@ -162,7 +190,11 @@ export async function listHistoryForUser(
   return entries.map((entry) => entry.toPublic());
 }
 
-export async function getEntry(userId: string, entryId: string, role: Role): Promise<DailyWorkEntryDto> {
+export async function getEntry(
+  userId: string,
+  entryId: string,
+  role: Role,
+): Promise<DailyWorkEntryDto> {
   const entry = await DailyWorkEntry.findByPk(entryId);
   if (!entry) {
     throw new AppError(404, 'NOT_FOUND', 'That daily work entry was not found.');
@@ -200,12 +232,21 @@ export async function getAdminView(
   const today = clockParts(now, settings.timezone).workDate;
   const date = workDate ?? today;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) {
-    throw new AppError(400, 'INVALID_DATE', 'Choose a work date that is today or earlier.');
+    throw new AppError(
+      400,
+      'INVALID_DATE',
+      'Choose a work date that is today or earlier.',
+    );
   }
   const phase =
     date < today
       ? 'AFTER'
-      : windowPhase(now, settings.timezone, settings.dailyWork.startTime, settings.dailyWork.endTime);
+      : windowPhase(
+          now,
+          settings.timezone,
+          settings.dailyWork.startTime,
+          settings.dailyWork.endTime,
+        );
   const employees = await listTeamDailyWorkUsers(actorId, actorRole);
   const scopeIds = employees.map((employee) => employee.id);
   const entries =

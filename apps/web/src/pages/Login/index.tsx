@@ -3,7 +3,11 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { loginRequest, meRequest } from '@/features/auth/api';
-import { consumeLoggedOutFlag, consumeRestrictedMessage, useAuthStore } from '@/store/auth';
+import {
+  consumeLoggedOutFlag,
+  consumeRestrictedMessage,
+  useAuthStore,
+} from '@/store/auth';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -70,7 +74,9 @@ export function LoginPage() {
             alt="Codeteak"
             className="h-10 w-10 object-contain"
           />
-          <h1 className="mt-5 text-2xl font-semibold tracking-tight">Sign in to Teakflow</h1>
+          <h1 className="mt-5 text-2xl font-semibold tracking-tight">
+            Sign in to Teakflow
+          </h1>
           <p className="mt-1 text-sm text-muted">Company email and password.</p>
         </div>
         <form className="space-y-3" onSubmit={onSubmit}>

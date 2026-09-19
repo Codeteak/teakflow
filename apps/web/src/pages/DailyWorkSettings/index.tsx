@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ErrorBanner, PageLoading } from '@/components/ui/page-state';
 import { Input } from '@/components/ui/input';
-import { getSettingsRequest, updateDailyWorkWindowRequest } from '@/features/settings/api';
+import {
+  getSettingsRequest,
+  updateDailyWorkWindowRequest,
+} from '@/features/settings/api';
 import { formatClockLabel } from '@/lib/formatClock';
 
 const empty: CompanySettings = {
@@ -73,7 +76,9 @@ export function DailyWorkSettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Daily Work Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Daily Work Settings
+        </h1>
         <p className="mt-1 text-sm text-muted">
           Window, length, late submissions, and reminders. Times use the company timezone.
         </p>
@@ -89,7 +94,9 @@ export function DailyWorkSettingsPage() {
                 <span className="text-sm font-medium">Timezone</span>
                 <Input
                   value={form.timezone}
-                  onChange={(event) => setForm((current) => ({ ...current, timezone: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, timezone: event.target.value }))
+                  }
                   required
                 />
               </label>
@@ -101,7 +108,10 @@ export function DailyWorkSettingsPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      dailyWork: { ...current.dailyWork, reminderTime: event.target.value },
+                      dailyWork: {
+                        ...current.dailyWork,
+                        reminderTime: event.target.value,
+                      },
                     }))
                   }
                   required
@@ -144,7 +154,10 @@ export function DailyWorkSettingsPage() {
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
-                      dailyWork: { ...current.dailyWork, minCharacters: Number(event.target.value) },
+                      dailyWork: {
+                        ...current.dailyWork,
+                        minCharacters: Number(event.target.value),
+                      },
                     }))
                   }
                   required
@@ -158,7 +171,10 @@ export function DailyWorkSettingsPage() {
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
-                    dailyWork: { ...current.dailyWork, allowLateSubmission: event.target.checked },
+                    dailyWork: {
+                      ...current.dailyWork,
+                      allowLateSubmission: event.target.checked,
+                    },
                   }))
                 }
               />
@@ -171,14 +187,18 @@ export function DailyWorkSettingsPage() {
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
-                    dailyWork: { ...current.dailyWork, reminderEnabled: event.target.checked },
+                    dailyWork: {
+                      ...current.dailyWork,
+                      reminderEnabled: event.target.checked,
+                    },
                   }))
                 }
               />
               Daily reminder if not submitted
             </label>
             <p className="text-sm text-muted">
-              Window: {formatClockLabel(form.dailyWork.startTime)} – {formatClockLabel(form.dailyWork.endTime)}
+              Window: {formatClockLabel(form.dailyWork.startTime)} –{' '}
+              {formatClockLabel(form.dailyWork.endTime)}
             </p>
             {error ? <ErrorBanner message={error} /> : null}
             {saved ? <p className="text-sm text-sage">Saved.</p> : null}

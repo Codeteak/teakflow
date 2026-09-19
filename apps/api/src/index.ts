@@ -19,7 +19,9 @@ attachSockets(httpServer);
 
 httpServer.on('error', (error: NodeJS.ErrnoException) => {
   if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${env.PORT} is already in use. Stop the other process, then run pnpm dev again.`);
+    console.error(
+      `Port ${env.PORT} is already in use. Stop the other process, then run pnpm dev again.`,
+    );
     process.exit(1);
   }
 
@@ -73,10 +75,18 @@ try {
     });
   }
 
-  console.log(`Supabase Postgres: ${dbOk ? 'connected' : 'not connected (set DATABASE_URL)'}`);
-  console.log(`Cloudinary: ${storageOk ? 'connected' : 'not connected (set CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)'}`);
-  console.log(`Redis: ${redisOk ? 'connected' : 'not connected (start with pnpm redis:up)'}`);
-  console.log(`Meilisearch: ${meiliOk ? 'connected' : 'not connected (start with pnpm redis:up)'}`);
+  console.log(
+    `Supabase Postgres: ${dbOk ? 'connected' : 'not connected (set DATABASE_URL)'}`,
+  );
+  console.log(
+    `Cloudinary: ${storageOk ? 'connected' : 'not connected (set CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)'}`,
+  );
+  console.log(
+    `Redis: ${redisOk ? 'connected' : 'not connected (start with pnpm redis:up)'}`,
+  );
+  console.log(
+    `Meilisearch: ${meiliOk ? 'connected' : 'not connected (start with pnpm redis:up)'}`,
+  );
 } catch (error) {
   console.error('API started, but a startup service failed:', error);
 }

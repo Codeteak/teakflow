@@ -10,4 +10,9 @@ export const usersRouter = Router();
 usersRouter.use(requireAuth);
 usersRouter.get('/', list);
 usersRouter.post('/', requireRole(ROLES.ADMIN), validateBody(createUserSchema), create);
-usersRouter.patch('/:id', requireRole(ROLES.ADMIN), validateBody(updateUserSchema), update);
+usersRouter.patch(
+  '/:id',
+  requireRole(ROLES.ADMIN),
+  validateBody(updateUserSchema),
+  update,
+);

@@ -143,9 +143,11 @@ const ICONS: Record<string, string> = {
 };
 
 function isFlutterCode(code: string) {
-  return /\b(StatelessWidget|StatefulWidget|BuildContext|MaterialApp|CupertinoApp|Flutter|Widget\b)/.test(
-    code,
-  ) || /\b(?:import|export)\s+['"]package:flutter\//.test(code);
+  return (
+    /\b(StatelessWidget|StatefulWidget|BuildContext|MaterialApp|CupertinoApp|Flutter|Widget\b)/.test(
+      code,
+    ) || /\b(?:import|export)\s+['"]package:flutter\//.test(code)
+  );
 }
 
 export function isEnvCode(code: string) {
@@ -182,7 +184,10 @@ export function normalizeCodeLanguage(raw: string) {
 /** Language id used for labels/icons (keeps Flutter distinct from Dart). */
 export function displayCodeLanguage(language: string, code = '') {
   const raw = language.trim().toLowerCase().replace(/^\./, '');
-  if (raw === 'flutter' || (normalizeCodeLanguage(language) === 'dart' && isFlutterCode(code))) {
+  if (
+    raw === 'flutter' ||
+    (normalizeCodeLanguage(language) === 'dart' && isFlutterCode(code))
+  ) {
     return 'flutter';
   }
   if (raw === 'env' || raw === 'dotenv' || raw === 'environment') {
@@ -233,10 +238,7 @@ export function detectCodeLanguage(code: string, hinted = ''): string {
     return 'env';
   }
 
-  if (
-    (trimmed.startsWith('{') || trimmed.startsWith('[')) &&
-    tryParseJson(trimmed)
-  ) {
+  if ((trimmed.startsWith('{') || trimmed.startsWith('[')) && tryParseJson(trimmed)) {
     return 'json';
   }
 
@@ -259,13 +261,17 @@ export function detectCodeLanguage(code: string, hinted = ''): string {
   }
 
   if (
-    /\b(interface |type |enum )\w+|:\s*(string|number|boolean|void|React\.)|as const\b/.test(trimmed)
+    /\b(interface |type |enum )\w+|:\s*(string|number|boolean|void|React\.)|as const\b/.test(
+      trimmed,
+    )
   ) {
     return 'typescript';
   }
 
   if (
-    /\b(function|const|let|var|=>|import |export |require\(|module\.exports)\b/.test(trimmed) ||
+    /\b(function|const|let|var|=>|import |export |require\(|module\.exports)\b/.test(
+      trimmed,
+    ) ||
     /\b(console\.(log|error|warn)|document\.|window\.)\b/.test(trimmed)
   ) {
     return 'javascript';
@@ -277,7 +283,10 @@ export function detectCodeLanguage(code: string, hinted = ''): string {
 
   if (
     !/\b(function|const|let|var|=>|class |def )\b/.test(trimmed) &&
-    trimmed.split(/\r?\n/).filter((line) => /^(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|\[.+\]\(.+\))/.test(line.trim())).length >= 2
+    trimmed
+      .split(/\r?\n/)
+      .filter((line) => /^(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|\[.+\]\(.+\))/.test(line.trim()))
+      .length >= 2
   ) {
     return 'markdown';
   }
@@ -300,7 +309,10 @@ export function highlightCode(code: string, language = '') {
 
   if (detected && hljs.getLanguage(detected)) {
     try {
-      const result = hljs.highlight(normalized, { language: detected, ignoreIllegals: true });
+      const result = hljs.highlight(normalized, {
+        language: detected,
+        ignoreIllegals: true,
+      });
       return { language: detected, html: result.value };
     } catch {
       // fall through

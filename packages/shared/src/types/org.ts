@@ -2,7 +2,10 @@ import { DEPARTMENTS, ROLES, USER_STATUS } from '../constants/index';
 import type { Department, PublicUser, Role } from './user';
 
 /** Direct and nested reports of `rootId` (includes root). */
-export function reportingTreeIds(people: Pick<PublicUser, 'id' | 'managerId'>[], rootId: string) {
+export function reportingTreeIds(
+  people: Pick<PublicUser, 'id' | 'managerId'>[],
+  rootId: string,
+) {
   const ids = new Set<string>([rootId]);
   let grew = true;
   while (grew) {
@@ -21,7 +24,11 @@ export function departmentOrder(priority: string[] = []) {
   const preferred = priority.filter((department) =>
     DEPARTMENTS.includes(department as (typeof DEPARTMENTS)[number]),
   );
-  return [...preferred, ...DEPARTMENTS.filter((department) => !preferred.includes(department)), 'Other'];
+  return [
+    ...preferred,
+    ...DEPARTMENTS.filter((department) => !preferred.includes(department)),
+    'Other',
+  ];
 }
 
 /** Whether this manager/lead is the right reports-to for someone in `department`. */
@@ -46,7 +53,10 @@ export function alignsWithDepartment(
 }
 
 export function reportsToCandidates(
-  people: Pick<PublicUser, 'id' | 'name' | 'role' | 'status' | 'department' | 'headedDepartments'>[],
+  people: Pick<
+    PublicUser,
+    'id' | 'name' | 'role' | 'status' | 'department' | 'headedDepartments'
+  >[],
   subjectRole: Role,
   department: string | null | undefined,
   excludeId?: string,
@@ -69,7 +79,9 @@ export function reportsToCandidates(
   return [];
 }
 
-export function reportsToLabel(person: Pick<PublicUser, 'name' | 'role' | 'department' | 'headedDepartments'>) {
+export function reportsToLabel(
+  person: Pick<PublicUser, 'name' | 'role' | 'department' | 'headedDepartments'>,
+) {
   if (person.role === ROLES.MANAGER && person.headedDepartments?.length) {
     return `${person.name} · heads ${person.headedDepartments.join(', ')}`;
   }

@@ -232,8 +232,10 @@ function Band({
       ctx.restore();
     };
 
-    if (frontImage && frontTex.image) drawFitted(frontTex.image as CanvasImageSource, FRONT_UV_RECT);
-    if (backImage && backTex.image) drawFitted(backTex.image as CanvasImageSource, BACK_UV_RECT);
+    if (frontImage && frontTex.image)
+      drawFitted(frontTex.image as CanvasImageSource, FRONT_UV_RECT);
+    if (backImage && backTex.image)
+      drawFitted(backTex.image as CanvasImageSource, BACK_UV_RECT);
 
     const composite = new THREE.CanvasTexture(canvas);
     composite.colorSpace = THREE.SRGBColorSpace;
@@ -278,10 +280,14 @@ function Band({
     [0, 0, 0],
     1,
   ]);
-  useSphericalJoint(j3 as RefObject<RapierRigidBody>, card as RefObject<RapierRigidBody>, [
-    [0, 0, 0],
-    [0, 1.45, 0],
-  ]);
+  useSphericalJoint(
+    j3 as RefObject<RapierRigidBody>,
+    card as RefObject<RapierRigidBody>,
+    [
+      [0, 0, 0],
+      [0, 1.45, 0],
+    ],
+  );
 
   useEffect(() => {
     if (hovered) {
@@ -317,14 +323,24 @@ function Band({
       });
     }
 
-    if (!fixed.current || !j1.current || !j2.current || !j3.current || !card.current || !band.current) {
+    if (
+      !fixed.current ||
+      !j1.current ||
+      !j2.current ||
+      !j3.current ||
+      !card.current ||
+      !band.current
+    ) {
       return;
     }
 
     for (const ref of [j1, j2]) {
       const body = ref.current as RapierRigidBody & { lerped?: THREE.Vector3 };
       if (!body.lerped) body.lerped = new THREE.Vector3().copy(body.translation());
-      const clampedDistance = Math.max(0.1, Math.min(1, body.lerped.distanceTo(body.translation())));
+      const clampedDistance = Math.max(
+        0.1,
+        Math.min(1, body.lerped.distanceTo(body.translation())),
+      );
       body.lerped.lerp(
         body.translation(),
         delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
@@ -339,7 +355,9 @@ function Band({
     curve.points[2]!.copy(j1Body.lerped);
     curve.points[3]!.copy(fixed.current.translation());
 
-    const geometry = band.current.geometry as unknown as { setPoints: (points: THREE.Vector3[]) => void };
+    const geometry = band.current.geometry as unknown as {
+      setPoints: (points: THREE.Vector3[]) => void;
+    };
     geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
 
     ang.copy(card.current.angvel());
@@ -385,7 +403,11 @@ function Band({
               event.stopPropagation();
               (event.target as Element).setPointerCapture?.(event.pointerId);
               if (!card.current) return;
-              drag(new THREE.Vector3().copy(event.point).sub(vec.copy(card.current.translation())));
+              drag(
+                new THREE.Vector3()
+                  .copy(event.point)
+                  .sub(vec.copy(card.current.translation())),
+              );
             }}
           >
             <mesh geometry={nodes.card.geometry}>
@@ -398,7 +420,11 @@ function Band({
                 metalness={0.8}
               />
             </mesh>
-            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+            <mesh
+              geometry={nodes.clip.geometry}
+              material={materials.metal}
+              material-roughness={0.3}
+            />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
           </group>
         </RigidBody>

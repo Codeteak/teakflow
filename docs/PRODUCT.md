@@ -30,12 +30,12 @@ Focus today:
 
 Four login **roles**. Job titles are **designations**, not extra logins. One Manager may **head several departments**.
 
-| Role | Meaning |
-| --- | --- |
-| Admin | Company-wide: people, settings, channels, all daily work, meetings Google connect |
-| Manager | One login; may head Engineering and Sales (etc.); Team daily work for their reporting tree |
-| Lead | Team daily work for people assigned to them; reports to a Manager |
-| Employee | Own daily work, chat, meetings they are invited to |
+| Role     | Meaning                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------ |
+| Admin    | Company-wide: people, settings, channels, all daily work, meetings Google connect          |
+| Manager  | One login; may head Engineering and Sales (etc.); Team daily work for their reporting tree |
+| Lead     | Team daily work for people assigned to them; reports to a Manager                          |
+| Employee | Own daily work, chat, meetings they are invited to                                         |
 
 Inactive / restricted users cannot log in or submit. Admin can restore them. Open sessions are signed out.
 
@@ -45,20 +45,20 @@ Inactive / restricted users cannot log in or submit. Admin can restore them. Ope
 
 Aligned with spec §2. “Live” means the screen is wired to the API, not a placeholder.
 
-| Module | Status |
-| --- | --- |
-| Home | Live — greeting, daily-work status, unread chat, meetings link |
-| Daily Work | Live — month calendar, notebook write/read, editable same day after submit |
-| Chat | Live — DMs, groups, channels, realtime |
-| Sales | Live — Sales dept + managers/leads; visit notes on daily work; shop directory upsert; Drive payments (connect SA) |
-| Meetings | Live — list, create Meet, join, notifications |
-| Notifications | Live — center + socket `notification:new` |
-| Settings | Live — profile photo, sign out, admin Google connect |
-| Team daily work | Live — admin/manager/lead counts, date navigation, read-only today and previous notebooks in the reporting tree |
-| Daily work settings | Live — window, length, late, reminder, timezone |
-| Channels | Live — admin create/delete company channels |
-| Audit logs | Live — admin list of company actions |
-| PWA / mobile | Live extra — installable app, GET cache, bottom nav |
+| Module              | Status                                                                                                            |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Home                | Live — greeting, daily-work status, unread chat, meetings link                                                    |
+| Daily Work          | Live — month calendar, notebook write/read, editable same day after submit                                        |
+| Chat                | Live — DMs, groups, channels, realtime                                                                            |
+| Sales               | Live — Sales dept + managers/leads; visit notes on daily work; shop directory upsert; Drive payments (connect SA) |
+| Meetings            | Live — list, create Meet, join, notifications                                                                     |
+| Notifications       | Live — center + socket `notification:new`                                                                         |
+| Settings            | Live — profile photo, sign out, admin Google connect                                                              |
+| Team daily work     | Live — admin/manager/lead counts, date navigation, read-only today and previous notebooks in the reporting tree   |
+| Daily work settings | Live — window, length, late, reminder, timezone                                                                   |
+| Channels            | Live — admin create/delete company channels                                                                       |
+| Audit logs          | Live — admin list of company actions                                                                              |
+| PWA / mobile        | Live extra — installable app, GET cache, bottom nav                                                               |
 
 ---
 
@@ -134,14 +134,14 @@ WH-601 done: empty/loading/error states, expanded staff seed, Away/DND presence.
 
 These ideas fit a product-and-services company. They are **not** current Teakflow tickets.
 
-| Idea | One sentence |
-| --- | --- |
+| Idea                   | One sentence                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
 | Sales pipeline / leads | Track inbound and outbound leads without turning Teakflow into a full CRM in this repo yet. |
-| Clients / accounts | Company records for who we sell to and who we deliver for. |
-| Proposals | Status of quotes and SOWs next to the people who own them. |
-| Service delivery | Lightweight delivery status for retainers and projects — still not Jira. |
-| Richer HR | Leave, payroll, or documents — beyond today’s directory. |
-| Project boards | Only if spec explicitly allows them; AGENTS currently forbids kanban/sprints. |
+| Clients / accounts     | Company records for who we sell to and who we deliver for.                                  |
+| Proposals              | Status of quotes and SOWs next to the people who own them.                                  |
+| Service delivery       | Lightweight delivery status for retainers and projects — still not Jira.                    |
+| Richer HR              | Leave, payroll, or documents — beyond today’s directory.                                    |
+| Project boards         | Only if spec explicitly allows them; AGENTS currently forbids kanban/sprints.               |
 
 ---
 

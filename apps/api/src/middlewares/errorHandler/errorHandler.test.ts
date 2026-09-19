@@ -22,7 +22,12 @@ function mockRes() {
 describe('errorHandler mapping', () => {
   it('maps AppError', () => {
     const res = mockRes();
-    errorHandler(new AppError(409, 'ALREADY_SUBMITTED', 'Already submitted.'), {} as Request, res, () => undefined);
+    errorHandler(
+      new AppError(409, 'ALREADY_SUBMITTED', 'Already submitted.'),
+      {} as Request,
+      res,
+      () => undefined,
+    );
     expect(res.statusCode).toBe(409);
     expect(res.body).toMatchObject({ error: { code: 'ALREADY_SUBMITTED' } });
   });

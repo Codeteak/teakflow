@@ -12,7 +12,12 @@ type ApiSuccess<T> = {
   data: T;
 };
 
-const AUTH_NO_CACHE = new Set(['/auth/me', '/auth/login', '/auth/logout', '/auth/refresh']);
+const AUTH_NO_CACHE = new Set([
+  '/auth/me',
+  '/auth/login',
+  '/auth/logout',
+  '/auth/refresh',
+]);
 const AUTH_NO_REFRESH = new Set(['/auth/refresh', '/auth/login', '/auth/logout']);
 
 let refreshInFlight: Promise<boolean> | null = null;
@@ -78,7 +83,8 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
       }
     }
 
-    const body = (await response.json().catch(() => ({}))) as ApiErrorBody & ApiSuccess<T>;
+    const body = (await response.json().catch(() => ({}))) as ApiErrorBody &
+      ApiSuccess<T>;
     if (!response.ok) {
       if (cacheable && !isBrowserOnline()) {
         const cached = readOfflineCache<T>(path);

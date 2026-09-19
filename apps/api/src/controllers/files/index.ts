@@ -15,7 +15,8 @@ const BLOCKED_TYPES = new Set([
 ]);
 
 function folderFrom(req: Request) {
-  const raw = typeof req.body?.folder === 'string' ? req.body.folder : STORAGE_BUCKETS.FILES;
+  const raw =
+    typeof req.body?.folder === 'string' ? req.body.folder : STORAGE_BUCKETS.FILES;
   if (!FOLDERS.has(raw)) {
     throw new AppError(400, 'VALIDATION_ERROR', 'Unknown upload folder.');
   }
@@ -29,7 +30,10 @@ export async function upload(req: Request, res: Response, next: NextFunction) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Choose a file to upload.');
     }
 
-    if (BLOCKED_TYPES.has(file.mimetype) || /\.(exe|bat|cmd|msi|sh)$/i.test(file.originalname)) {
+    if (
+      BLOCKED_TYPES.has(file.mimetype) ||
+      /\.(exe|bat|cmd|msi|sh)$/i.test(file.originalname)
+    ) {
       throw new AppError(400, 'VALIDATION_ERROR', 'That file type cannot be uploaded.');
     }
 

@@ -14,7 +14,10 @@ type Props = {
   placement?: 'overlay' | 'section';
 };
 
-class LanyardErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class LanyardErrorBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
   state = { failed: false };
 
   static getDerivedStateFromError() {
@@ -38,7 +41,9 @@ class LanyardErrorBoundary extends Component<{ children: ReactNode }, { failed: 
 }
 
 export function HomeIdCard({ user, placement = 'overlay' }: Props) {
-  const [faces, setFaces] = useState<{ frontImage: string; backImage: string } | null>(null);
+  const [faces, setFaces] = useState<{ frontImage: string; backImage: string } | null>(
+    null,
+  );
   const [failed, setFailed] = useState(false);
   const [showBack, setShowBack] = useState(false);
   const isSection = placement === 'section';
@@ -57,14 +62,16 @@ export function HomeIdCard({ user, placement = 'overlay' }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [user.id, user.name, user.email, user.avatar, user.designation, user.department, user.companyId, user.role]);
+  }, [user]);
 
   if (failed) {
     return (
       <div
         className={cn(
           'flex items-center justify-center px-4 text-center text-sm text-muted',
-          isSection ? 'min-h-[280px] rounded-xl border border-line bg-surface' : 'h-full min-h-[480px]',
+          isSection
+            ? 'min-h-[280px] rounded-xl border border-line bg-surface'
+            : 'h-full min-h-[480px]',
         )}
       >
         ID card could not load on this device.
@@ -80,7 +87,9 @@ export function HomeIdCard({ user, placement = 'overlay' }: Props) {
           : 'pointer-events-none absolute inset-0 z-10 min-h-[calc(100dvh-3rem)]',
       )}
     >
-      <div className={cn('pointer-events-auto absolute inset-0', isSection && 'rounded-xl')}>
+      <div
+        className={cn('pointer-events-auto absolute inset-0', isSection && 'rounded-xl')}
+      >
         <LanyardErrorBoundary>
           <Lanyard
             position={[0, 0, 24]}

@@ -1,10 +1,15 @@
-import type { CONVERSATION_TYPE, CHANNEL_VISIBILITY, PRESENCE_STATUS } from '../constants/index';
+import type {
+  CONVERSATION_TYPE,
+  CHANNEL_VISIBILITY,
+  PRESENCE_STATUS,
+} from '../constants/index';
 import type { MeetingAttachment } from './app';
 import type { LinkPreview, StoredFile } from './files';
 import type { Department, PublicUser } from './user';
 
 export type ConversationType = (typeof CONVERSATION_TYPE)[keyof typeof CONVERSATION_TYPE];
-export type ChannelVisibility = (typeof CHANNEL_VISIBILITY)[keyof typeof CHANNEL_VISIBILITY];
+export type ChannelVisibility =
+  (typeof CHANNEL_VISIBILITY)[keyof typeof CHANNEL_VISIBILITY];
 export type PresenceStatus = (typeof PRESENCE_STATUS)[keyof typeof PRESENCE_STATUS];
 
 export type ConversationMemberView = {

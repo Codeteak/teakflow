@@ -1,7 +1,18 @@
 import bcrypt from 'bcryptjs';
 import { Op, UniqueConstraintError } from 'sequelize';
-import { AUDIT_ACTION, createUserSchema, updateUserSchema, USER_STATUS, ROLES } from '@teakflow/shared';
-import type { CreateUserInput, PublicUser, SessionUser, UpdateUserInput } from '@teakflow/shared';
+import {
+  AUDIT_ACTION,
+  createUserSchema,
+  updateUserSchema,
+  USER_STATUS,
+  ROLES,
+} from '@teakflow/shared';
+import type {
+  CreateUserInput,
+  PublicUser,
+  SessionUser,
+  UpdateUserInput,
+} from '@teakflow/shared';
 import { User } from '../../models/user';
 import { AppError } from '../../middlewares/errorHandler/index';
 import {
@@ -28,7 +39,10 @@ export async function listUsers(): Promise<PublicUser[]> {
   return users.map((user) => user.toPublic());
 }
 
-export async function updateOwnAvatar(userId: string, avatar: string): Promise<SessionUser> {
+export async function updateOwnAvatar(
+  userId: string,
+  avatar: string,
+): Promise<SessionUser> {
   const user = await User.findByPk(userId);
   if (!user) {
     throw new AppError(404, 'USER_NOT_FOUND', 'User not found.');
@@ -47,10 +61,21 @@ export async function createUser(actorId: string, input: unknown): Promise<Publi
 
   const data: CreateUserInput = parsed.data;
   const passwordHash = await bcrypt.hash(data.password, 10);
-  const managerId = await resolveManagerId(data.managerId, data.role, undefined, data.department);
+  const managerId = await resolveManagerId(
+    data.managerId,
+    data.role,
+    undefined,
+    data.department,
+  );
   const headedDepartments =
-    data.role === ROLES.MANAGER ? await uniqueHeadedDepartments(null, data.headedDepartments ?? []) : [];
-  const extraDesignations = [...new Set((data.extraDesignations ?? []).filter((item) => item !== data.designation))];
+    data.role === ROLES.MANAGER
+      ? await uniqueHeadedDepartments(null, data.headedDepartments ?? [])
+      : [];
+  const extraDesignations = [
+    ...new Set(
+      (data.extraDesignations ?? []).filter((item) => item !== data.designation),
+    ),
+  ];
   const companyId = roleNeedsCompanyId(data.role) ? await nextCompanyId() : null;
 
   try {
@@ -80,13 +105,21 @@ export async function createUser(actorId: string, input: unknown): Promise<Publi
     return user.toPublic();
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      throw new AppError(409, 'EMAIL_IN_USE', 'An employee with this email already exists.');
+      throw new AppError(
+        409,
+        'EMAIL_IN_USE',
+        'An employee with this email already exists.',
+      );
     }
     throw error;
   }
 }
 
-export async function updateUser(actorId: string, userId: string, input: unknown): Promise<PublicUser> {
+export async function updateUser(
+  actorId: string,
+  userId: string,
+  input: unknown,
+): Promise<PublicUser> {
   const parsed = updateUserSchema.safeParse(input);
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message ?? 'Invalid employee details.';
@@ -125,12 +158,17 @@ export async function updateUser(actorId: string, userId: string, input: unknown
   if (data.headedDepartments !== undefined || data.role !== undefined) {
     user.headedDepartments =
       user.role === ROLES.MANAGER
-        ? await uniqueHeadedDepartments(user.id, data.headedDepartments ?? user.headedDepartments ?? [])
+        ? await uniqueHeadedDepartments(
+            user.id,
+            data.headedDepartments ?? user.headedDepartments ?? [],
+          )
         : [];
   }
   if (data.extraDesignations !== undefined) {
     const primary = data.designation ?? user.designation;
-    user.extraDesignations = [...new Set(data.extraDesignations.filter((item) => item !== primary))];
+    user.extraDesignations = [
+      ...new Set(data.extraDesignations.filter((item) => item !== primary)),
+    ];
   }
   if (data.avatar !== undefined) {
     user.avatar = data.avatar;
@@ -138,11 +176,19 @@ export async function updateUser(actorId: string, userId: string, input: unknown
   if (data.status !== undefined) {
     if (data.status === USER_STATUS.INACTIVE) {
       if (userId === actorId) {
-        throw new AppError(400, 'CANNOT_RESTRICT_SELF', 'You cannot restrict your own account.');
+        throw new AppError(
+          400,
+          'CANNOT_RESTRICT_SELF',
+          'You cannot restrict your own account.',
+        );
       }
       if (user.role === ROLES.ADMIN) {
         const otherAdmins = await User.count({
-          where: { role: ROLES.ADMIN, status: USER_STATUS.ACTIVE, id: { [Op.ne]: user.id } },
+          where: {
+            role: ROLES.ADMIN,
+            status: USER_STATUS.ACTIVE,
+            id: { [Op.ne]: user.id },
+          },
         });
         if (otherAdmins === 0) {
           throw new AppError(400, 'LAST_ADMIN', 'Keep at least one active admin.');
@@ -174,7 +220,10 @@ export async function updateUser(actorId: string, userId: string, input: unknown
   }
   await writeAudit({
     userId: actorId,
-    action: data.status === USER_STATUS.INACTIVE ? AUDIT_ACTION.EMPLOYEE_DISABLED : AUDIT_ACTION.EMPLOYEE_UPDATED,
+    action:
+      data.status === USER_STATUS.INACTIVE
+        ? AUDIT_ACTION.EMPLOYEE_DISABLED
+        : AUDIT_ACTION.EMPLOYEE_UPDATED,
     entityType: 'user',
     entityId: user.id,
     metadata: {

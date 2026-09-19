@@ -78,7 +78,11 @@ export async function googleCallback(req: Request, res: Response, next: NextFunc
     const code = typeof req.query.code === 'string' ? req.query.code : '';
     const state = typeof req.query.state === 'string' ? req.query.state : '';
     if (!code || !state) {
-      throw new AppError(400, 'GOOGLE_OAUTH_FAILED', 'Google did not return a valid code.');
+      throw new AppError(
+        400,
+        'GOOGLE_OAUTH_FAILED',
+        'Google did not return a valid code.',
+      );
     }
     readGoogleOAuthState(state);
     await exchangeGoogleCode(code);
@@ -88,7 +92,11 @@ export async function googleCallback(req: Request, res: Response, next: NextFunc
   }
 }
 
-export async function disconnectGoogleAccount(_req: Request, res: Response, next: NextFunction) {
+export async function disconnectGoogleAccount(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     await disconnectGoogle();
     res.json({ data: { ok: true } });

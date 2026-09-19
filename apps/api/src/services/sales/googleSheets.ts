@@ -25,12 +25,15 @@ function readServiceAccount(): ServiceAccount | null {
 }
 
 function signJwt(email: string, key: string) {
-  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString(
+    'base64url',
+  );
   const now = Math.floor(Date.now() / 1000);
   const payload = Buffer.from(
     JSON.stringify({
       iss: email,
-      scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive',
+      scope:
+        'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive',
       aud: 'https://oauth2.googleapis.com/token',
       iat: now,
       exp: now + 3600,
@@ -48,7 +51,11 @@ async function accessToken() {
   }
   const sa = readServiceAccount();
   if (!sa?.client_email || !sa.private_key) {
-    throw new AppError(503, 'SALES_SHEET_NOT_CONFIGURED', 'Connect the yearly payment workbook in Drive first.');
+    throw new AppError(
+      503,
+      'SALES_SHEET_NOT_CONFIGURED',
+      'Connect the yearly payment workbook in Drive first.',
+    );
   }
   const assertion = signJwt(sa.client_email, sa.private_key);
   const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -59,9 +66,17 @@ async function accessToken() {
       assertion,
     }),
   });
-  const data = (await response.json()) as { access_token?: string; expires_in?: number; error?: string };
+  const data = (await response.json()) as {
+    access_token?: string;
+    expires_in?: number;
+    error?: string;
+  };
   if (!data.access_token) {
-    throw new AppError(503, 'SALES_SHEET_NOT_CONFIGURED', 'Google Drive login for sales failed. Check the service account.');
+    throw new AppError(
+      503,
+      'SALES_SHEET_NOT_CONFIGURED',
+      'Google Drive login for sales failed. Check the service account.',
+    );
   }
   const lifeMs = Math.max(60, (data.expires_in ?? 3600) - 120) * 1000;
   tokenCache = { token: data.access_token, exp: Date.now() + lifeMs };
@@ -75,7 +90,11 @@ async function googleGet<T>(url: string, token: string) {
   const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   const data = (await response.json()) as T & { error?: { message?: string } };
   if (!response.ok) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', data.error?.message ?? 'Could not read the payment workbook.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      data.error?.message ?? 'Could not read the payment workbook.',
+    );
   }
   return data;
 }
@@ -95,7 +114,11 @@ async function convertExcelToSheet(file: { id: string; name: string }, token: st
       }),
     },
   );
-  const data = (await response.json()) as { id?: string; name?: string; error?: { message?: string } };
+  const data = (await response.json()) as {
+    id?: string;
+    name?: string;
+    error?: { message?: string };
+  };
   if (!response.ok || !data.id) {
     throw new AppError(
       502,
@@ -118,7 +141,11 @@ async function googleWrite(url: string, token: string, body: unknown) {
     error?: { message?: string; status?: string };
   };
   if (!response.ok) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', data.error?.message ?? 'Could not update the payment workbook.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      data.error?.message ?? 'Could not update the payment workbook.',
+    );
   }
   return data;
 }
@@ -153,7 +180,9 @@ export async function findYearWorkbook(year: number) {
   const q = folder
     ? `'${folder}' in parents and name contains '${name}' and trashed = false`
     : `name contains '${name}' and trashed = false`;
-  const result = await googleGet<{ files?: { id: string; name: string; mimeType?: string }[] }>(
+  const result = await googleGet<{
+    files?: { id: string; name: string; mimeType?: string }[];
+  }>(
     `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType)&pageSize=25&includeItemsFromAllDrives=true&supportsAllDrives=true`,
     token,
   );
@@ -187,7 +216,9 @@ export async function listSheetTabs(spreadsheetId: string) {
     `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties.title`,
     token,
   );
-  const titles = (data.sheets ?? []).map((sheet) => sheet.properties?.title).filter(Boolean) as string[];
+  const titles = (data.sheets ?? [])
+    .map((sheet) => sheet.properties?.title)
+    .filter(Boolean) as string[];
   tabCache.set(spreadsheetId, { titles, exp: Date.now() + TAB_TTL_MS });
   return titles;
 }
@@ -196,7 +227,11 @@ export async function resolveSheetTab(spreadsheetId: string, wanted: string) {
   const titles = await listSheetTabs(spreadsheetId);
   const exact = titles.find((title) => title.toLowerCase() === wanted.toLowerCase());
   if (!exact) {
-    throw new AppError(404, 'SALES_SHEET_MISSING', `No month tab named "${wanted}" (any capitalization).`);
+    throw new AppError(
+      404,
+      'SALES_SHEET_MISSING',
+      `No month tab named "${wanted}" (any capitalization).`,
+    );
   }
   return exact;
 }
@@ -215,7 +250,11 @@ export async function readSheetValues(spreadsheetId: string, tab: string) {
   return { title, values: data.values ?? [] };
 }
 
-export async function writeSheetCells(spreadsheetId: string, tab: string, updates: { range: string; values: string[][] }[]) {
+export async function writeSheetCells(
+  spreadsheetId: string,
+  tab: string,
+  updates: { range: string; values: string[][] }[],
+) {
   const title = await resolveSheetTab(spreadsheetId, tab);
   const token = await accessToken();
   const data = await googleWrite(
@@ -232,18 +271,27 @@ export async function writeSheetCells(spreadsheetId: string, tab: string, update
     },
   );
   if (data.totalUpdatedCells === 0) {
-    throw new AppError(502, 'SALES_SHEET_ERROR', 'Google Sheets accepted the request but did not change any cells.');
+    throw new AppError(
+      502,
+      'SALES_SHEET_ERROR',
+      'Google Sheets accepted the request but did not change any cells.',
+    );
   }
   return title;
 }
 
 export function isSalesSheetConfigured() {
   try {
-    const sa = JSON.parse(env.GOOGLE_SALES_SA_JSON) as { client_email?: string; private_key?: string };
+    const sa = JSON.parse(env.GOOGLE_SALES_SA_JSON) as {
+      client_email?: string;
+      private_key?: string;
+    };
     return Boolean(
       sa.client_email &&
-        sa.private_key &&
-        (env.GOOGLE_SALES_FOLDER_ID.trim() || env.GOOGLE_SALES_SPREADSHEET_ID.trim() || env.GOOGLE_SALES_SPREADSHEET_IDS.trim()),
+      sa.private_key &&
+      (env.GOOGLE_SALES_FOLDER_ID.trim() ||
+        env.GOOGLE_SALES_SPREADSHEET_ID.trim() ||
+        env.GOOGLE_SALES_SPREADSHEET_IDS.trim()),
     );
   } catch {
     return false;

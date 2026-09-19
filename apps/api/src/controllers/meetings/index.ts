@@ -1,6 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../middlewares/errorHandler/index';
-import { createMeeting, getMeeting, joinMeeting, listMeetings } from '../../services/meetings/index';
+import {
+  createMeeting,
+  getMeeting,
+  joinMeeting,
+  listMeetings,
+} from '../../services/meetings/index';
 
 function requireUser(req: Request) {
   if (!req.userId || !req.user) {

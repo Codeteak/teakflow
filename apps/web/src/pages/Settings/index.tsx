@@ -79,7 +79,11 @@ export function SettingsPage() {
       const next = await uploadAvatarRequest(file);
       setUser(next);
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Could not upload the photo.');
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : 'Could not upload the photo.',
+      );
     } finally {
       setBusy(false);
       if (fileRef.current) {
@@ -92,7 +96,9 @@ export function SettingsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
-        <p className="mt-1 text-sm text-muted">Keep this screen short. Profile, password, theme.</p>
+        <p className="mt-1 text-sm text-muted">
+          Keep this screen short. Profile, password, theme.
+        </p>
       </header>
       <Card className="space-y-4">
         <div className="flex items-center gap-4">
@@ -111,7 +117,12 @@ export function SettingsPage() {
               className="hidden"
               onChange={(event) => void onAvatar(event.target.files)}
             />
-            <Button type="button" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={busy}
+              onClick={() => fileRef.current?.click()}
+            >
               {busy ? 'Uploading…' : 'Upload photo'}
             </Button>
           </div>
@@ -119,7 +130,10 @@ export function SettingsPage() {
         <div className="space-y-1.5">
           <p className="text-sm font-medium">Chat presence</p>
           <PresencePicker />
-          <p className="text-xs text-muted">Do not disturb skips realtime notification sounds until you check Notifications.</p>
+          <p className="text-xs text-muted">
+            Do not disturb skips realtime notification sounds until you check
+            Notifications.
+          </p>
         </div>
         {error ? <ErrorBanner message={error} /> : null}
         <label className="block space-y-1.5">
@@ -132,13 +146,22 @@ export function SettingsPage() {
         </label>
         <label className="block space-y-1.5">
           <span className="text-sm font-medium">Codeteak ID</span>
-          <Input defaultValue={user?.companyId ?? 'Not assigned'} readOnly className="font-mono" />
+          <Input
+            defaultValue={user?.companyId ?? 'Not assigned'}
+            readOnly
+            className="font-mono"
+          />
         </label>
         <label className="block space-y-1.5">
           <span className="text-sm font-medium">Theme</span>
           <Input defaultValue="Quiet Desk · Light" readOnly />
         </label>
-        <Button variant="outline" type="button" disabled={signingOut} onClick={() => void signOut()}>
+        <Button
+          variant="outline"
+          type="button"
+          disabled={signingOut}
+          onClick={() => void signOut()}
+        >
           {signingOut ? 'Signing out…' : 'Sign out'}
         </Button>
       </Card>
@@ -156,9 +179,12 @@ export function SettingsPage() {
               </Button>
             </>
           ) : (
-            <Button type="button" onClick={() => {
-              window.location.href = '/api/v1/auth/google';
-            }}>
+            <Button
+              type="button"
+              onClick={() => {
+                window.location.href = '/api/v1/auth/google';
+              }}
+            >
               Connect Google
             </Button>
           )}

@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import type { FileKind, LinkPreview, StoredFile } from '@teakflow/shared';
-import { Download, FileSpreadsheet, FileText, Image as ImageIcon, Mic, Paperclip, Pause, Play, X } from 'lucide-react';
+import {
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Image as ImageIcon,
+  Mic,
+  Paperclip,
+  Pause,
+  Play,
+  X,
+} from 'lucide-react';
 import { ChatCodeBlock, parseMessageContent } from '@/components/chat/ChatCodeBlock';
 import { isMarkdownFile } from '@/components/chat/MarkdownPreview';
 import { Typing } from '@/components/ui/typing';
@@ -12,14 +22,20 @@ function pdfPageImageUrl(url: string, page = 1) {
     if (parsed.protocol === 'blob:') {
       return url;
     }
-    if (!parsed.hostname.includes('cloudinary.com') || !parsed.pathname.includes('/upload/')) {
+    if (
+      !parsed.hostname.includes('cloudinary.com') ||
+      !parsed.pathname.includes('/upload/')
+    ) {
       return url;
     }
     parsed.pathname = parsed.pathname.replace('/raw/upload/', '/image/upload/');
     if (/\/pg_\d+/.test(parsed.pathname)) {
       return parsed.toString();
     }
-    parsed.pathname = parsed.pathname.replace('/upload/', `/upload/f_jpg,pg_${page},q_auto,w_1600/`);
+    parsed.pathname = parsed.pathname.replace(
+      '/upload/',
+      `/upload/f_jpg,pg_${page},q_auto,w_1600/`,
+    );
     return parsed.toString();
   } catch {
     return url;
@@ -33,7 +49,10 @@ function isBlobUrl(url: string) {
 function downloadUrl(file: StoredFile) {
   try {
     const parsed = new URL(file.url);
-    if (!parsed.hostname.includes('cloudinary.com') || !parsed.pathname.includes('/upload/')) {
+    if (
+      !parsed.hostname.includes('cloudinary.com') ||
+      !parsed.pathname.includes('/upload/')
+    ) {
       return file.url;
     }
     const safeName = encodeURIComponent(file.originalName).replace(/['()*]/g, '');
@@ -71,7 +90,10 @@ function DownloadButton({ file, className }: { file: StoredFile; className?: str
   return (
     <button
       type="button"
-      className={cn('inline-flex items-center gap-1 text-sm text-sage hover:text-sage-hover', className)}
+      className={cn(
+        'inline-flex items-center gap-1 text-sm text-sage hover:text-sage-hover',
+        className,
+      )}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -100,13 +122,22 @@ function PdfPagePreview({
 
   if (isBlobUrl(url)) {
     return (
-      <iframe title={alt} src={url} className={cn('h-full w-full border-0 bg-surface', className)} />
+      <iframe
+        title={alt}
+        src={url}
+        className={cn('h-full w-full border-0 bg-surface', className)}
+      />
     );
   }
 
   if (failed) {
     return (
-      <span className={cn('flex h-full items-center justify-center text-sm text-muted', className)}>
+      <span
+        className={cn(
+          'flex h-full items-center justify-center text-sm text-muted',
+          className,
+        )}
+      >
         PDF preview is not available. Open the file to view it.
       </span>
     );
@@ -166,7 +197,10 @@ export function VoiceNotePlayer({
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const bars = useMemo(() => waveformFrom(file.publicId || file.url), [file.publicId, file.url]);
+  const bars = useMemo(
+    () => waveformFrom(file.publicId || file.url),
+    [file.publicId, file.url],
+  );
   const sent = tone === 'sent';
 
   function toggle() {
@@ -200,14 +234,23 @@ export function VoiceNotePlayer({
   const shown = playing || progress > 0 ? remaining : duration;
 
   return (
-    <div className={cn('flex min-w-[200px] items-center gap-2', sent ? 'text-surface' : 'text-sage')}>
+    <div
+      className={cn(
+        'flex min-w-[200px] items-center gap-2',
+        sent ? 'text-surface' : 'text-sage',
+      )}
+    >
       <button
         type="button"
         aria-label={playing ? 'Pause voice message' : 'Play voice message'}
         className="inline-flex size-8 shrink-0 items-center justify-center"
         onClick={toggle}
       >
-        {playing ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+        {playing ? (
+          <Pause size={18} fill="currentColor" />
+        ) : (
+          <Play size={18} fill="currentColor" className="ml-0.5" />
+        )}
       </button>
       <button
         type="button"
@@ -230,7 +273,9 @@ export function VoiceNotePlayer({
           );
         })}
       </button>
-      <span className="w-8 shrink-0 text-right font-mono text-[11px] tabular-nums">{formatClock(shown)}</span>
+      <span className="w-8 shrink-0 text-right font-mono text-[11px] tabular-nums">
+        {formatClock(shown)}
+      </span>
       <audio
         ref={audioRef}
         src={file.url}
@@ -329,9 +374,17 @@ function MarkdownFileCard({
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface">
       <div className="flex items-center justify-between gap-2 border-b border-line bg-paper px-3 py-2">
-        <button type="button" className="min-w-0 flex-1 text-left" onClick={() => onOpen(file)}>
-          <span className="block truncate text-sm font-medium text-ink">{file.originalName}</span>
-          <span className="block text-xs text-muted">Markdown · {formatBytes(file.bytes)}</span>
+        <button
+          type="button"
+          className="min-w-0 flex-1 text-left"
+          onClick={() => onOpen(file)}
+        >
+          <span className="block truncate text-sm font-medium text-ink">
+            {file.originalName}
+          </span>
+          <span className="block text-xs text-muted">
+            Markdown · {formatBytes(file.bytes)}
+          </span>
         </button>
         <DownloadButton file={file} />
       </div>
@@ -342,7 +395,9 @@ function MarkdownFileCard({
         </p>
       ) : null}
       {error ? (
-        <p className="px-3 py-4 text-xs text-muted">Could not load this Markdown file. Open it to view.</p>
+        <p className="px-3 py-4 text-xs text-muted">
+          Could not load this Markdown file. Open it to view.
+        </p>
       ) : null}
       {text != null ? (
         <div className="px-1.5 pb-1.5 pt-1">
@@ -385,7 +440,8 @@ export function ComposerFilePreview({
       {uploading ? (
         <p className="flex items-center gap-2 text-xs text-muted">
           <Typing className="h-2 w-5 text-sage" aria-hidden />
-          Uploading {files.filter((file) => !file.stored).length === 1 ? 'file' : 'files'}…
+          Uploading {files.filter((file) => !file.stored).length === 1 ? 'file' : 'files'}
+          …
         </p>
       ) : null}
       {files.length > 0 ? (
@@ -397,9 +453,18 @@ export function ComposerFilePreview({
                 key={file.id}
                 className="relative h-24 w-24 shrink-0 overflow-hidden rounded-md border border-line bg-paper"
               >
-                <button type="button" className="block h-full w-full" onClick={() => onOpen(file)} disabled={!file.stored}>
+                <button
+                  type="button"
+                  className="block h-full w-full"
+                  onClick={() => onOpen(file)}
+                  disabled={!file.stored}
+                >
                   {file.kind === 'image' ? (
-                    <img src={file.previewUrl} alt={file.name} className="h-full w-full object-cover" />
+                    <img
+                      src={file.previewUrl}
+                      alt={file.name}
+                      className="h-full w-full object-cover"
+                    />
                   ) : file.kind === 'pdf' && file.stored ? (
                     <PdfPagePreview
                       url={file.stored.url}
@@ -410,7 +475,9 @@ export function ComposerFilePreview({
                   ) : (
                     <span className="flex h-full flex-col items-center justify-center gap-1 px-1.5 text-center">
                       <Icon size={18} className="text-sage" />
-                      <span className="line-clamp-2 text-[10px] leading-tight text-muted">{file.name}</span>
+                      <span className="line-clamp-2 text-[10px] leading-tight text-muted">
+                        {file.name}
+                      </span>
                     </span>
                   )}
                 </button>
@@ -460,10 +527,15 @@ export function FilePreviewModal({
   onClose: () => void;
 }) {
   const markdownUrl =
-    file && (file.kind === 'markdown' || isMarkdownFile(file.originalName, file.contentType))
+    file &&
+    (file.kind === 'markdown' || isMarkdownFile(file.originalName, file.contentType))
       ? file.url
       : null;
-  const { text: markdownText, error: markdownError, loading: markdownLoading } = useFetchedText(markdownUrl);
+  const {
+    text: markdownText,
+    error: markdownError,
+    loading: markdownLoading,
+  } = useFetchedText(markdownUrl);
 
   useEffect(() => {
     if (!file) {
@@ -482,10 +554,14 @@ export function FilePreviewModal({
     return null;
   }
 
-  const isMarkdown = file.kind === 'markdown' || isMarkdownFile(file.originalName, file.contentType);
+  const isMarkdown =
+    file.kind === 'markdown' || isMarkdownFile(file.originalName, file.contentType);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4"
+      onClick={onClose}
+    >
       <div
         className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-line bg-surface"
         onClick={(event) => event.stopPropagation()}
@@ -498,20 +574,34 @@ export function FilePreviewModal({
           <div className="flex items-center gap-3">
             {file.kind !== 'audio' ? (
               <>
-                <a href={file.url} target="_blank" rel="noreferrer" className="text-sm text-sage">
+                <a
+                  href={file.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-sage"
+                >
                   Open
                 </a>
                 <DownloadButton file={file} />
               </>
             ) : null}
-            <button type="button" onClick={onClose} className="rounded-md p-1 text-muted hover:bg-paper" aria-label="Close preview">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md p-1 text-muted hover:bg-paper"
+              aria-label="Close preview"
+            >
               <X size={16} />
             </button>
           </div>
         </header>
         <div className="min-h-0 flex-1 overflow-auto bg-paper p-4">
           {file.kind === 'image' ? (
-            <img src={file.url} alt={file.originalName} className="mx-auto max-h-[70vh] max-w-full object-contain" />
+            <img
+              src={file.url}
+              alt={file.originalName}
+              className="mx-auto max-h-[70vh] max-w-full object-contain"
+            />
           ) : null}
           {file.kind === 'pdf' ? (
             <PdfPagePreview
@@ -526,7 +616,14 @@ export function FilePreviewModal({
               <table className="min-w-full text-left text-xs">
                 <tbody>
                   {file.previewRows.map((row, rowIndex) => (
-                    <tr key={rowIndex} className={rowIndex === 0 ? 'bg-sage-soft/60 font-medium' : 'border-t border-line'}>
+                    <tr
+                      key={rowIndex}
+                      className={
+                        rowIndex === 0
+                          ? 'bg-sage-soft/60 font-medium'
+                          : 'border-t border-line'
+                      }
+                    >
                       {row.map((cell, cellIndex) => (
                         <td key={cellIndex} className="whitespace-nowrap px-2 py-1.5">
                           {cell || ' '}
@@ -539,7 +636,9 @@ export function FilePreviewModal({
             </div>
           ) : null}
           {file.kind === 'spreadsheet' && !file.previewRows?.length ? (
-            <p className="text-sm text-muted">Preview is not available. Open the file to view it.</p>
+            <p className="text-sm text-muted">
+              Preview is not available. Open the file to view it.
+            </p>
           ) : null}
           {file.kind === 'audio' ? <VoiceNotePlayer file={file} tone="received" /> : null}
           {isMarkdown ? (
@@ -549,13 +648,21 @@ export function FilePreviewModal({
                 Loading Markdown…
               </p>
             ) : markdownError ? (
-              <p className="text-sm text-muted">Could not load this Markdown file. Open it to view.</p>
+              <p className="text-sm text-muted">
+                Could not load this Markdown file. Open it to view.
+              </p>
             ) : markdownText != null ? (
-              <ChatCodeBlock code={markdownText} language="md" className="my-0 max-w-none" />
+              <ChatCodeBlock
+                code={markdownText}
+                language="md"
+                className="my-0 max-w-none"
+              />
             ) : null
           ) : null}
           {file.kind === 'file' && !isMarkdown ? (
-            <p className="text-sm text-muted">No inline preview for this file. Open it to download.</p>
+            <p className="text-sm text-muted">
+              No inline preview for this file. Open it to download.
+            </p>
           ) : null}
         </div>
       </div>
@@ -580,7 +687,9 @@ export function LinkPreviewCard({ preview }: { preview: LinkPreview }) {
         </span>
         <span className="block text-sm font-medium">{preview.title}</span>
         {preview.description ? (
-          <span className="block line-clamp-2 text-xs text-muted">{preview.description}</span>
+          <span className="block line-clamp-2 text-xs text-muted">
+            {preview.description}
+          </span>
         ) : null}
       </span>
     </a>
@@ -622,9 +731,16 @@ export function MessageAttachments({
         }
         if (file.kind === 'image') {
           return (
-            <div key={file.publicId} className="overflow-hidden rounded-md border border-line bg-surface">
+            <div
+              key={file.publicId}
+              className="overflow-hidden rounded-md border border-line bg-surface"
+            >
               <button type="button" className="block w-full" onClick={() => onOpen(file)}>
-                <img src={file.url} alt={file.originalName} className="max-h-56 w-full object-cover" />
+                <img
+                  src={file.url}
+                  alt={file.originalName}
+                  className="max-h-56 w-full object-cover"
+                />
               </button>
               <div className="flex items-center justify-between gap-2 px-3 py-2">
                 <span className="truncate text-xs text-muted">{file.originalName}</span>
@@ -635,8 +751,15 @@ export function MessageAttachments({
         }
         if (file.kind === 'pdf') {
           return (
-            <div key={file.publicId} className="overflow-hidden rounded-md border border-line bg-surface">
-              <button type="button" className="block w-full bg-paper" onClick={() => onOpen(file)}>
+            <div
+              key={file.publicId}
+              className="overflow-hidden rounded-md border border-line bg-surface"
+            >
+              <button
+                type="button"
+                className="block w-full bg-paper"
+                onClick={() => onOpen(file)}
+              >
                 <PdfPagePreview
                   url={file.url}
                   alt={file.originalName}
@@ -651,20 +774,33 @@ export function MessageAttachments({
             </div>
           );
         }
-        if (file.kind === 'markdown' || isMarkdownFile(file.originalName, file.contentType)) {
+        if (
+          file.kind === 'markdown' ||
+          isMarkdownFile(file.originalName, file.contentType)
+        ) {
           return <MarkdownFileCard key={file.publicId} file={file} onOpen={onOpen} />;
         }
         const Icon = kindIcon(file.kind);
         return (
-          <div key={file.publicId} className="flex w-full items-center gap-3 rounded-md border border-line bg-surface px-3 py-2 text-ink">
-            <button type="button" className="flex min-w-0 flex-1 items-center gap-3 text-left" onClick={() => onOpen(file)}>
+          <div
+            key={file.publicId}
+            className="flex w-full items-center gap-3 rounded-md border border-line bg-surface px-3 py-2 text-ink"
+          >
+            <button
+              type="button"
+              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+              onClick={() => onOpen(file)}
+            >
               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-sage-soft text-sage">
                 <Icon size={16} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{file.originalName}</span>
+                <span className="block truncate text-sm font-medium">
+                  {file.originalName}
+                </span>
                 <span className="block text-xs text-muted">
-                  {file.kind === 'spreadsheet' ? 'Spreadsheet' : 'File'} · {formatBytes(file.bytes)}
+                  {file.kind === 'spreadsheet' ? 'Spreadsheet' : 'File'} ·{' '}
+                  {formatBytes(file.bytes)}
                 </span>
               </span>
             </button>
@@ -683,7 +819,9 @@ export function MessageText({ text, inverted }: { text: string; inverted?: boole
     <span className="block max-w-full whitespace-pre-wrap break-words">
       {segments.map((segment, index) => {
         if (segment.type === 'code') {
-          return <ChatCodeBlock key={index} code={segment.value} language={segment.language} />;
+          return (
+            <ChatCodeBlock key={index} code={segment.value} language={segment.language} />
+          );
         }
         if (segment.type === 'inline') {
           return (
@@ -705,7 +843,10 @@ export function MessageText({ text, inverted }: { text: string; inverted?: boole
               href={segment.value}
               target="_blank"
               rel="noreferrer"
-              className={cn('break-all underline', inverted ? 'text-surface' : 'text-sage')}
+              className={cn(
+                'break-all underline',
+                inverted ? 'text-surface' : 'text-sage',
+              )}
             >
               {segment.value}
             </a>

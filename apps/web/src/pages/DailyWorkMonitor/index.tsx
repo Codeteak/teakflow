@@ -14,7 +14,10 @@ import { Card } from '@/components/ui/card';
 import { RightPanel } from '@/components/ui/right-panel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { getAdminDailyWorkRequest, getUserHistoryRequest } from '@/features/dailyWork/api';
+import {
+  getAdminDailyWorkRequest,
+  getUserHistoryRequest,
+} from '@/features/dailyWork/api';
 import { cn } from '@/lib/cn';
 import { useAuthStore } from '@/store/auth';
 
@@ -57,7 +60,10 @@ export function DailyWorkMonitorPage() {
     if (!view) {
       return null;
     }
-    const rows = deptFilter === 'all' ? view.rows : view.rows.filter((row) => row.department === deptFilter);
+    const rows =
+      deptFilter === 'all'
+        ? view.rows
+        : view.rows.filter((row) => row.department === deptFilter);
     return {
       ...view,
       rows,
@@ -83,7 +89,9 @@ export function DailyWorkMonitorPage() {
       })
       .catch((cause) => {
         if (!cancelled) {
-          setError(cause instanceof Error ? cause.message : 'Unable to load team daily work.');
+          setError(
+            cause instanceof Error ? cause.message : 'Unable to load team daily work.',
+          );
         }
       })
       .finally(() => {
@@ -105,7 +113,9 @@ export function DailyWorkMonitorPage() {
     try {
       const past = await getUserHistoryRequest(row.userId);
       setHistory(past);
-      const forDay = past.find((entry) => entry.workDate === (view?.workDate ?? queryDate));
+      const forDay = past.find(
+        (entry) => entry.workDate === (view?.workDate ?? queryDate),
+      );
       setSelected(forDay ?? null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Unable to open that notebook.');
@@ -137,7 +147,9 @@ export function DailyWorkMonitorPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Team daily work</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Team daily work
+        </h1>
         <p className="mt-1 text-sm text-muted">
           {view ? formatDay(view.workDate) : 'Who submitted, including previous days.'}
           {role === ROLES.MANAGER
@@ -160,7 +172,9 @@ export function DailyWorkMonitorPage() {
             <Count label="Late" value={visible.late} />
             <Count label="Missed" value={visible.missed} />
           </div>
-          <p className="text-sm text-muted">People in this view · {visible.totalEmployees}</p>
+          <p className="text-sm text-muted">
+            People in this view · {visible.totalEmployees}
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -204,7 +218,9 @@ export function DailyWorkMonitorPage() {
               type="button"
               className={cn(
                 'h-8 rounded-md border px-3 text-xs font-medium',
-                deptFilter === 'all' ? 'border-sage bg-sage-soft text-sage' : 'border-line bg-surface text-muted',
+                deptFilter === 'all'
+                  ? 'border-sage bg-sage-soft text-sage'
+                  : 'border-line bg-surface text-muted',
               )}
               onClick={() => setDeptFilter('all')}
             >
@@ -216,7 +232,9 @@ export function DailyWorkMonitorPage() {
                 type="button"
                 className={cn(
                   'h-8 rounded-md border px-3 text-xs font-medium',
-                  deptFilter === department ? 'border-sage bg-sage-soft text-sage' : 'border-line bg-surface text-muted',
+                  deptFilter === department
+                    ? 'border-sage bg-sage-soft text-sage'
+                    : 'border-line bg-surface text-muted',
                 )}
                 onClick={() => setDeptFilter(department)}
               >
@@ -294,7 +312,9 @@ function GroupedRows({
 }) {
   const groups = useMemo(() => {
     const order = [
-      ...headed.filter((department) => DEPARTMENTS.includes(department as (typeof DEPARTMENTS)[number])),
+      ...headed.filter((department) =>
+        DEPARTMENTS.includes(department as (typeof DEPARTMENTS)[number]),
+      ),
       ...DEPARTMENTS.filter((department) => !headed.includes(department)),
       'Other',
     ];
@@ -314,7 +334,10 @@ function GroupedRows({
   return (
     <div className="space-y-4">
       {groups.map((group) => (
-        <section key={group.label} className="overflow-hidden rounded-lg border border-line bg-surface">
+        <section
+          key={group.label}
+          className="overflow-hidden rounded-lg border border-line bg-surface"
+        >
           <h2 className="border-b border-line px-4 py-2 text-xs font-medium tracking-wide text-muted uppercase">
             {group.label}
           </h2>
@@ -416,7 +439,9 @@ function SubmissionDetail({
             {entry.submittedAt ? ` · ${formatTime(entry.submittedAt)}` : ''}
           </p>
           <NotebookNote text={entry.content} compact />
-          <p className="text-xs text-muted">This entry cannot be edited after submission.</p>
+          <p className="text-xs text-muted">
+            This entry cannot be edited after submission.
+          </p>
         </div>
       ) : null}
 
@@ -426,7 +451,9 @@ function SubmissionDetail({
 
       {!loading && history.length > 0 ? (
         <div className="space-y-2">
-          <p className="text-xs font-medium tracking-wide text-muted uppercase">Previous days</p>
+          <p className="text-xs font-medium tracking-wide text-muted uppercase">
+            Previous days
+          </p>
           <ul className="divide-y divide-line overflow-hidden rounded-md border border-line">
             {history.map((item) => (
               <li key={item.id}>
@@ -439,7 +466,11 @@ function SubmissionDetail({
                   onClick={() => onSelectEntry(item)}
                 >
                   <span>{formatDay(item.workDate)}</span>
-                  <StatusBadge status={item.isLate ? DAILY_WORK_STATUS.LATE : DAILY_WORK_STATUS.SUBMITTED} />
+                  <StatusBadge
+                    status={
+                      item.isLate ? DAILY_WORK_STATUS.LATE : DAILY_WORK_STATUS.SUBMITTED
+                    }
+                  />
                 </button>
               </li>
             ))}

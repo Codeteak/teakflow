@@ -34,7 +34,13 @@ import { User } from '../../models/user';
 import { AppError } from '../../middlewares/errorHandler/index';
 import { writeAudit } from '../audit/index';
 import { createNotification } from '../notifications/index';
-import { broadcastMessage, emitToConversation, emitToUser, isUserOnline, onlineUserIds } from '../../sockets/bus';
+import {
+  broadcastMessage,
+  emitToConversation,
+  emitToUser,
+  isUserOnline,
+  onlineUserIds,
+} from '../../sockets/bus';
 import { mentionedUserIds } from './mentions';
 import { previewsForText } from '../linkPreview';
 import { indexMessageRow, removeMessageDocument, searchChatIndex } from '../search/index';
@@ -124,7 +130,10 @@ function asLinkPreviews(value: unknown): LinkPreview[] {
   });
 }
 
-function mergeLinkPreviews(primary: LinkPreview[], secondary: LinkPreview[]): LinkPreview[] {
+function mergeLinkPreviews(
+  primary: LinkPreview[],
+  secondary: LinkPreview[],
+): LinkPreview[] {
   const map = new Map<string, LinkPreview>();
   for (const row of [...secondary, ...primary]) {
     map.set(row.url, row);
@@ -164,7 +173,9 @@ function previewFromMessage(row: MessageModel, senderName: string): MessagePrevi
     id: row.id,
     senderId: row.senderId,
     senderName,
-    content: row.deletedAt ? DELETED_COPY : messageSnippet(row.content, attachments, asMeeting(row.attachments)),
+    content: row.deletedAt
+      ? DELETED_COPY
+      : messageSnippet(row.content, attachments, asMeeting(row.attachments)),
     createdAt: row.createdAt.toISOString(),
     attachments,
   };
@@ -209,7 +220,9 @@ async function serializeMessages(rows: MessageModel[]): Promise<Message[]> {
         { replacements: { ids }, type: QueryTypes.SELECT },
       )
     : [];
-  const countMap = new Map(counts.map((row) => [row.reply_to_message_id, Number(row.count)]));
+  const countMap = new Map(
+    counts.map((row) => [row.reply_to_message_id, Number(row.count)]),
+  );
 
   return rows.map((row) => {
     const sender = row.get('sender') as User | undefined;
@@ -277,7 +290,9 @@ async function hydrateConversations(
   }
   const ids = rows.map((row) => row.id);
   const memberScope =
-    mode === 'list' ? rows.filter((row) => row.type === CONVERSATION_TYPE.DIRECT).map((row) => row.id) : ids;
+    mode === 'list'
+      ? rows.filter((row) => row.type === CONVERSATION_TYPE.DIRECT).map((row) => row.id)
+      : ids;
 
   const [lastRows, unreadRows, memberships] = await Promise.all([
     sequelize.query<LastMessageRow>(
@@ -306,12 +321,16 @@ async function hydrateConversations(
       ? Promise.resolve([] as ConversationMember[])
       : ConversationMember.findAll({
           where: { conversationId: { [Op.in]: memberScope } },
-          include: [{ model: User, required: true, attributes: { exclude: ['passwordHash'] } }],
+          include: [
+            { model: User, required: true, attributes: { exclude: ['passwordHash'] } },
+          ],
         }),
   ]);
 
   const lastByConversation = new Map(lastRows.map((row) => [row.conversation_id, row]));
-  const unreadByConversation = new Map(unreadRows.map((row) => [row.conversation_id, Number(row.count)]));
+  const unreadByConversation = new Map(
+    unreadRows.map((row) => [row.conversation_id, Number(row.count)]),
+  );
   const membersByConversation = new Map<string, Conversation['members']>();
   for (const item of memberships) {
     const user = item.get('User') as User;
@@ -350,17 +369,26 @@ async function hydrateConversations(
             senderName: last.sender_name ?? 'Employee',
             content: last.deleted_at
               ? DELETED_COPY
-              : messageSnippet(last.content, asStoredFiles(last.attachments), asMeeting(last.attachments)),
+              : messageSnippet(
+                  last.content,
+                  asStoredFiles(last.attachments),
+                  asMeeting(last.attachments),
+                ),
             createdAt: new Date(last.created_at).toISOString(),
           }
         : null,
       members,
-      onlineUserIds: online.filter((id) => members.some((member) => member.userId === id)),
+      onlineUserIds: online.filter((id) =>
+        members.some((member) => member.userId === id),
+      ),
     };
   });
 }
 
-async function serializeConversation(row: ConversationModel, viewerId: string): Promise<Conversation> {
+async function serializeConversation(
+  row: ConversationModel,
+  viewerId: string,
+): Promise<Conversation> {
   const [item] = await hydrateConversations([row], viewerId, 'detail');
   if (!item) {
     throw new AppError(404, 'CONVERSATION_NOT_FOUND', 'Conversation not found.');
@@ -389,7 +417,8 @@ type ConversationListRow = {
 };
 
 function mapConversationRow(row: ConversationListRow, _viewerId: string): Conversation {
-  const members = (typeof row.members === 'string' ? JSON.parse(row.members) : row.members) ?? [];
+  const members =
+    (typeof row.members === 'string' ? JSON.parse(row.members) : row.members) ?? [];
   return {
     id: row.id,
     type: row.type,
@@ -408,12 +437,18 @@ function mapConversationRow(row: ConversationListRow, _viewerId: string): Conver
             senderName: row.last_sender_name ?? 'Employee',
             content: row.last_deleted_at
               ? DELETED_COPY
-              : messageSnippet(row.last_content ?? '', asStoredFiles(row.last_attachments), asMeeting(row.last_attachments)),
+              : messageSnippet(
+                  row.last_content ?? '',
+                  asStoredFiles(row.last_attachments),
+                  asMeeting(row.last_attachments),
+                ),
             createdAt: new Date(row.last_created_at).toISOString(),
           }
         : null,
     members,
-    onlineUserIds: onlineUserIds().filter((id) => members.some((member: Conversation['members'][number]) => member.userId === id)),
+    onlineUserIds: onlineUserIds().filter((id) =>
+      members.some((member: Conversation['members'][number]) => member.userId === id),
+    ),
   };
 }
 
@@ -517,7 +552,11 @@ async function activeUserIds(extra: Record<string, unknown> = {}) {
   return users.map((user) => user.id);
 }
 
-async function audienceIdsForPublicRoom(creatorId: string, creatorRole: string, department?: string | null) {
+async function audienceIdsForPublicRoom(
+  creatorId: string,
+  creatorRole: string,
+  department?: string | null,
+) {
   if (creatorRole === ROLES.ADMIN) {
     if (department) {
       return activeUserIds({ department });
@@ -556,7 +595,10 @@ export async function addUserToMatchingPublicRooms(user: User) {
       await addMembers(room.id, [user.id]);
     } else if (creatorRole === ROLES.MANAGER || creatorRole === ROLES.LEAD) {
       if (!treeByCreator.has(room.createdBy)) {
-        treeByCreator.set(room.createdBy, await teamScopeUserIds(room.createdBy, creatorRole));
+        treeByCreator.set(
+          room.createdBy,
+          await teamScopeUserIds(room.createdBy, creatorRole),
+        );
       }
       const tree = treeByCreator.get(room.createdBy);
       if (tree?.includes(user.id)) {
@@ -566,7 +608,10 @@ export async function addUserToMatchingPublicRooms(user: User) {
   }
 }
 
-export async function removeUserFromManagerPublicRooms(userId: string, managerId: string) {
+export async function removeUserFromManagerPublicRooms(
+  userId: string,
+  managerId: string,
+) {
   const rooms = await ConversationModel.findAll({
     where: {
       createdBy: managerId,
@@ -583,7 +628,10 @@ export async function removeUserFromManagerPublicRooms(userId: string, managerId
   });
 }
 
-export async function removeUserFromDepartmentPublicRooms(userId: string, department: string) {
+export async function removeUserFromDepartmentPublicRooms(
+  userId: string,
+  department: string,
+) {
   const rooms = await ConversationModel.findAll({
     where: {
       visibility: CHANNEL_VISIBILITY.PUBLIC,
@@ -616,7 +664,11 @@ export async function syncPublicRoomAudiences() {
   });
   const roleById = new Map(creators.map((creator) => [creator.id, creator.role]));
   for (const room of rooms) {
-    const ids = await audienceIdsForPublicRoom(room.createdBy, roleById.get(room.createdBy) ?? ROLES.EMPLOYEE, room.department);
+    const ids = await audienceIdsForPublicRoom(
+      room.createdBy,
+      roleById.get(room.createdBy) ?? ROLES.EMPLOYEE,
+      room.department,
+    );
     await addMembers(room.id, ids);
   }
 }
@@ -637,7 +689,10 @@ export async function ensureDefaultChannels(createdBy: string) {
       department: null,
       createdBy,
     });
-    await addMembers(channel.id, await audienceIdsForPublicRoom(createdBy, ROLES.ADMIN, null));
+    await addMembers(
+      channel.id,
+      await audienceIdsForPublicRoom(createdBy, ROLES.ADMIN, null),
+    );
   }
   await syncPublicRoomAudiences();
 }
@@ -650,13 +705,21 @@ export async function addUserToPublicChannels(userId: string) {
   await addUserToMatchingPublicRooms(user);
 }
 
-export async function listConversations(userId: string, _role: string): Promise<ConversationList> {
+export async function listConversations(
+  userId: string,
+  _role: string,
+): Promise<ConversationList> {
   requireDb();
   if (!sequelize) {
     return { items: [], unreadTotal: 0 };
   }
   const rows = await sequelize.query<ConversationListRow>(conversationSelectSql, {
-    replacements: { userId, includeAllMembers: false, conversationId: null, adminView: false },
+    replacements: {
+      userId,
+      includeAllMembers: false,
+      conversationId: null,
+      adminView: false,
+    },
     type: QueryTypes.SELECT,
   });
   const items = rows
@@ -673,7 +736,10 @@ export async function listConversations(userId: string, _role: string): Promise<
   };
 }
 
-export async function listManagedChannels(userId: string, role: string): Promise<Conversation[]> {
+export async function listManagedChannels(
+  userId: string,
+  role: string,
+): Promise<Conversation[]> {
   requireDb();
   if (role !== ROLES.ADMIN) {
     throw new AppError(403, 'FORBIDDEN', 'Only an admin can manage company channels.');
@@ -685,7 +751,11 @@ export async function listManagedChannels(userId: string, role: string): Promise
   return Promise.all(rows.map((row) => serializeConversation(row, userId)));
 }
 
-export async function getConversation(userId: string, conversationId: string, _role: string) {
+export async function getConversation(
+  userId: string,
+  conversationId: string,
+  _role: string,
+) {
   requireDb();
   if (!sequelize) {
     throw new AppError(503, 'DATABASE_UNAVAILABLE', 'Database is not connected.');
@@ -707,16 +777,26 @@ export async function getConversation(userId: string, conversationId: string, _r
   return item;
 }
 
-export async function createConversation(actorId: string, actorRole: string, input: CreateConversationInput) {
+export async function createConversation(
+  actorId: string,
+  actorRole: string,
+  input: CreateConversationInput,
+) {
   requireDb();
   if (input.type === CONVERSATION_TYPE.DIRECT) {
     if (input.userId === actorId) {
-      throw new AppError(400, 'INVALID_DM', 'Choose another employee for a direct message.');
+      throw new AppError(
+        400,
+        'INVALID_DM',
+        'Choose another employee for a direct message.',
+      );
     }
     await loadUser(input.userId);
     const mine = await ConversationMember.findAll({ where: { userId: actorId } });
     const theirs = await ConversationMember.findAll({ where: { userId: input.userId } });
-    const shared = mine.filter((row) => theirs.some((other) => other.conversationId === row.conversationId));
+    const shared = mine.filter((row) =>
+      theirs.some((other) => other.conversationId === row.conversationId),
+    );
     for (const item of shared) {
       const conversation = await ConversationModel.findByPk(item.conversationId);
       if (conversation?.type === CONVERSATION_TYPE.DIRECT) {
@@ -736,9 +816,16 @@ export async function createConversation(actorId: string, actorRole: string, inp
   if (input.type === CONVERSATION_TYPE.GROUP) {
     const visibility = input.visibility ?? CHANNEL_VISIBILITY.PRIVATE;
     if (visibility === CHANNEL_VISIBILITY.PUBLIC && actorRole === ROLES.EMPLOYEE) {
-      throw new AppError(403, 'FORBIDDEN', 'Only an admin, manager, or lead can create a public group.');
+      throw new AppError(
+        403,
+        'FORBIDDEN',
+        'Only an admin, manager, or lead can create a public group.',
+      );
     }
-    const department = actorRole === ROLES.ADMIN && visibility === CHANNEL_VISIBILITY.PUBLIC ? input.department ?? null : null;
+    const department =
+      actorRole === ROLES.ADMIN && visibility === CHANNEL_VISIBILITY.PUBLIC
+        ? (input.department ?? null)
+        : null;
     let memberIds: string[];
     if (visibility === CHANNEL_VISIBILITY.PUBLIC) {
       memberIds = await audienceIdsForPublicRoom(actorId, actorRole, department);
@@ -771,7 +858,8 @@ export async function createConversation(actorId: string, actorRole: string, inp
     type: CONVERSATION_TYPE.CHANNEL,
     name,
     visibility: input.visibility,
-    department: input.visibility === CHANNEL_VISIBILITY.PUBLIC ? input.department ?? null : null,
+    department:
+      input.visibility === CHANNEL_VISIBILITY.PUBLIC ? (input.department ?? null) : null,
     createdBy: actorId,
   });
   const memberIds =
@@ -789,7 +877,11 @@ export async function createConversation(actorId: string, actorRole: string, inp
   return serializeConversation(conversation, actorId);
 }
 
-export async function deleteChannel(_actorId: string, actorRole: string, conversationId: string) {
+export async function deleteChannel(
+  _actorId: string,
+  actorRole: string,
+  conversationId: string,
+) {
   requireDb();
   if (actorRole !== ROLES.ADMIN) {
     throw new AppError(403, 'FORBIDDEN', 'Only an admin can delete company channels.');
@@ -813,7 +905,12 @@ export async function deleteChannel(_actorId: string, actorRole: string, convers
   return { ok: true };
 }
 
-export async function addConversationMember(actorId: string, actorRole: string, conversationId: string, userId: string) {
+export async function addConversationMember(
+  actorId: string,
+  actorRole: string,
+  conversationId: string,
+  userId: string,
+) {
   requireDb();
   const conversation = await ConversationModel.findByPk(conversationId);
   if (!conversation) {
@@ -845,9 +942,7 @@ export async function removeConversationMember(
     throw new AppError(409, 'DIRECT_LOCKED', 'Direct conversations keep both members.');
   }
   const canManage =
-    actorRole === ROLES.ADMIN ||
-    conversation.createdBy === actorId ||
-    actorId === userId;
+    actorRole === ROLES.ADMIN || conversation.createdBy === actorId || actorId === userId;
   if (!canManage) {
     throw new AppError(403, 'FORBIDDEN', 'You cannot remove that member.');
   }
@@ -855,7 +950,12 @@ export async function removeConversationMember(
   return getConversation(actorId, conversationId, actorRole);
 }
 
-export async function listMessages(userId: string, conversationId: string, threadId?: string, _role: string = ROLES.EMPLOYEE) {
+export async function listMessages(
+  userId: string,
+  conversationId: string,
+  threadId?: string,
+  _role: string = ROLES.EMPLOYEE,
+) {
   requireDb();
   if (!sequelize) {
     return [];
@@ -921,7 +1021,8 @@ export async function listMessages(userId: string, conversationId: string, threa
     .reverse()
     .filter((row) => row.id)
     .map((row) => {
-      const reactionRows = typeof row.reactions === 'string' ? JSON.parse(row.reactions) : row.reactions;
+      const reactionRows =
+        typeof row.reactions === 'string' ? JSON.parse(row.reactions) : row.reactions;
       return {
         id: row.id!,
         conversationId: row.conversation_id,
@@ -941,9 +1042,15 @@ export async function listMessages(userId: string, conversationId: string, threa
                 senderName: row.parent_sender_name ?? 'Employee',
                 content: row.parent_deleted_at
                   ? DELETED_COPY
-                  : messageSnippet(row.parent_content ?? '', asStoredFiles(row.parent_attachments), asMeeting(row.parent_attachments)),
+                  : messageSnippet(
+                      row.parent_content ?? '',
+                      asStoredFiles(row.parent_attachments),
+                      asMeeting(row.parent_attachments),
+                    ),
                 createdAt: new Date(row.parent_created_at).toISOString(),
-                attachments: row.parent_deleted_at ? [] : asStoredFiles(row.parent_attachments),
+                attachments: row.parent_deleted_at
+                  ? []
+                  : asStoredFiles(row.parent_attachments),
               }
             : null,
         replyCount: Number(row.reply_count),
@@ -982,20 +1089,31 @@ export async function createMessage(
     throw new AppError(400, 'VALIDATION_ERROR', 'Write a message or attach a file.');
   }
   if (replyToMessageId) {
-    const parent = await MessageModel.findOne({ where: { id: replyToMessageId, conversationId } });
+    const parent = await MessageModel.findOne({
+      where: { id: replyToMessageId, conversationId },
+    });
     if (!parent) {
-      throw new AppError(404, 'PARENT_NOT_FOUND', 'The message you are replying to was not found.');
+      throw new AppError(
+        404,
+        'PARENT_NOT_FOUND',
+        'The message you are replying to was not found.',
+      );
     }
   }
   const senderName = options?.senderName;
   const senderAvatar = options?.senderAvatar ?? null;
   const sender =
-    senderName === undefined ? await User.findByPk(userId, { attributes: { exclude: ['passwordHash'] } }) : null;
+    senderName === undefined
+      ? await User.findByPk(userId, { attributes: { exclude: ['passwordHash'] } })
+      : null;
   const fetched = await previewsForText(
     text,
     attachments.map((file) => file.url),
   );
-  const linkPreviews = mergeLinkPreviews(asLinkPreviews(options?.linkPreviews ?? []), fetched);
+  const linkPreviews = mergeLinkPreviews(
+    asLinkPreviews(options?.linkPreviews ?? []),
+    fetched,
+  );
   const row = await MessageModel.create({
     conversationId,
     senderId: userId,
@@ -1046,7 +1164,10 @@ export async function createMessage(
     memberIds,
   ).catch(() => undefined);
 
-  void ConversationModel.update({ updatedAt: new Date() }, { where: { id: conversationId } });
+  void ConversationModel.update(
+    { updatedAt: new Date() },
+    { where: { id: conversationId } },
+  );
   void indexMessageRow(row).catch(() => undefined);
   return payload;
 }
@@ -1061,7 +1182,18 @@ async function notifyNewMessage(
   const conversation = await ConversationModel.findByPk(conversationId);
   const members = await User.findAll({
     where: { id: { [Op.in]: memberIds } },
-    attributes: ['id', 'name', 'email', 'avatar', 'designation', 'department', 'role', 'status', 'lastSeenAt', 'createdAt'],
+    attributes: [
+      'id',
+      'name',
+      'email',
+      'avatar',
+      'designation',
+      'department',
+      'role',
+      'status',
+      'lastSeenAt',
+      'createdAt',
+    ],
   });
   const publicMembers = members.map((user) => user.toPublic());
   const mentions = mentionedUserIds(content, publicMembers).filter((id) => id !== userId);
@@ -1172,7 +1304,11 @@ export async function addReaction(userId: string, messageId: string, reaction: s
   return payload;
 }
 
-export async function removeReaction(userId: string, messageId: string, reaction: string) {
+export async function removeReaction(
+  userId: string,
+  messageId: string,
+  reaction: string,
+) {
   requireDb();
   const row = await MessageModel.findByPk(messageId);
   if (!row) {
@@ -1233,7 +1369,10 @@ export async function markRead(userId: string, messageId: string) {
   return { ok: true };
 }
 
-async function hitsFromRows(userId: string, rows: MessageModel[]): Promise<MessageSearchHit[]> {
+async function hitsFromRows(
+  userId: string,
+  rows: MessageModel[],
+): Promise<MessageSearchHit[]> {
   const conversationIdsFound = [...new Set(rows.map((row) => row.conversationId))];
   const conversations = conversationIdsFound.length
     ? await ConversationModel.findAll({
@@ -1241,11 +1380,30 @@ async function hitsFromRows(userId: string, rows: MessageModel[]): Promise<Messa
       })
     : [];
   const conversationMap = new Map(conversations.map((row) => [row.id, row]));
-  const directIds = conversations.filter((row) => row.type === CONVERSATION_TYPE.DIRECT).map((row) => row.id);
+  const directIds = conversations
+    .filter((row) => row.type === CONVERSATION_TYPE.DIRECT)
+    .map((row) => row.id);
   const directMembers = directIds.length
     ? await ConversationMember.findAll({
         where: { conversationId: { [Op.in]: directIds } },
-        include: [{ model: User, required: true, attributes: ['id', 'name', 'email', 'avatar', 'designation', 'department', 'role', 'status', 'lastSeenAt', 'createdAt'] }],
+        include: [
+          {
+            model: User,
+            required: true,
+            attributes: [
+              'id',
+              'name',
+              'email',
+              'avatar',
+              'designation',
+              'department',
+              'role',
+              'status',
+              'lastSeenAt',
+              'createdAt',
+            ],
+          },
+        ],
       })
     : [];
   const membersByConversation = new Map<string, PublicUser[]>();
@@ -1279,7 +1437,11 @@ async function searchPeopleSql(userId: string, q: string): Promise<PublicUser[]>
     where: {
       id: { [Op.ne]: userId },
       status: USER_STATUS.ACTIVE,
-      [Op.or]: [{ name: { [Op.iLike]: needle } }, { email: { [Op.iLike]: needle } }, { designation: { [Op.iLike]: needle } }],
+      [Op.or]: [
+        { name: { [Op.iLike]: needle } },
+        { email: { [Op.iLike]: needle } },
+        { designation: { [Op.iLike]: needle } },
+      ],
     },
     attributes: { exclude: ['passwordHash'] },
     limit: 8,
@@ -1346,7 +1508,9 @@ export async function searchMessages(
               attributes: { exclude: ['passwordHash'] },
             })
           ).map((row) => row.toPublic());
-    people.sort((a, b) => indexed.personIds.indexOf(a.id) - indexed.personIds.indexOf(b.id));
+    people.sort(
+      (a, b) => indexed.personIds.indexOf(a.id) - indexed.personIds.indexOf(b.id),
+    );
     return {
       items: await hitsFromRows(userId, rows),
       people,

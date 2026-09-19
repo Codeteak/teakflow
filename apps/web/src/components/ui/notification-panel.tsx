@@ -35,11 +35,7 @@ const MENU_W = 176;
 const MENU_GAP = 6;
 
 export type NotificationKind =
-  | 'mention'
-  | 'message'
-  | 'reaction'
-  | 'meeting'
-  | 'daily_work';
+  'mention' | 'message' | 'reaction' | 'meeting' | 'daily_work';
 
 export type NotificationPiece = string | { entity: string };
 
@@ -143,7 +139,8 @@ function RowMenu({
     let el = triggerRef.current?.parentElement ?? null;
     while (el) {
       const o = getComputedStyle(el).overflowY;
-      if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight) return el;
+      if ((o === 'auto' || o === 'scroll') && el.scrollHeight > el.clientHeight)
+        return el;
       el = el.parentElement;
     }
     return null;
@@ -186,7 +183,8 @@ function RowMenu({
     if (!open) return;
     const away = (e: PointerEvent) => {
       const t = e.target as Node;
-      if (!menuRef.current?.contains(t) && !triggerRef.current?.contains(t)) setOpen(false);
+      if (!menuRef.current?.contains(t) && !triggerRef.current?.contains(t))
+        setOpen(false);
     };
     const key = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     const move = () => place();
@@ -219,7 +217,9 @@ function RowMenu({
         }}
         className={cn(
           'grid h-6 w-6 place-items-center rounded-md transition-colors hover:bg-line/60 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage/30',
-          open ? 'bg-line/60 text-ink' : 'text-muted opacity-70 group-hover/row:opacity-100 focus-visible:opacity-100',
+          open
+            ? 'bg-line/60 text-ink'
+            : 'text-muted opacity-70 group-hover/row:opacity-100 focus-visible:opacity-100',
         )}
       >
         <MoreHorizontal className="h-4 w-4" />
@@ -346,9 +346,17 @@ function Row({
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
-            <RowMenu unread={!!item.unread} archived={!!item.archived} onRead={onRead} onArchive={onArchive} />
+            <RowMenu
+              unread={!!item.unread}
+              archived={!!item.archived}
+              onRead={onRead}
+              onArchive={onArchive}
+            />
             {item.unread ? (
-              <span aria-label="Unread" className="mt-[7px] h-[7px] w-[7px] shrink-0 rounded-full bg-sage" />
+              <span
+                aria-label="Unread"
+                className="mt-[7px] h-[7px] w-[7px] shrink-0 rounded-full bg-sage"
+              />
             ) : (
               <span className="h-[7px] w-[7px] shrink-0" />
             )}
@@ -494,7 +502,11 @@ export const NotificationPanel = forwardRef<HTMLDivElement, NotificationPanelPro
                 key={item.id}
                 layout={!reduced}
                 initial={false}
-                exit={reduced ? { opacity: 0 } : { opacity: 0, height: 0, transition: { duration: 0.16 } }}
+                exit={
+                  reduced
+                    ? { opacity: 0 }
+                    : { opacity: 0, height: 0, transition: { duration: 0.16 } }
+                }
                 transition={FADE}
               >
                 <Row
@@ -528,7 +540,9 @@ export const NotificationPanel = forwardRef<HTMLDivElement, NotificationPanelPro
                 {tab === 'archived' ? 'Nothing archived' : 'You are all caught up'}
               </p>
               <p className="m-0 text-[12.5px] text-muted">
-                {tab === 'archived' ? 'Rows you archive land here.' : 'New activity will show up here.'}
+                {tab === 'archived'
+                  ? 'Rows you archive land here.'
+                  : 'New activity will show up here.'}
               </p>
             </div>
           ) : null}

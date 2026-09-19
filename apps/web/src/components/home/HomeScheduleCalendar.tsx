@@ -112,7 +112,9 @@ export function HomeScheduleCalendar({
     <Card className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium tracking-wide text-muted uppercase">Schedule</p>
+          <p className="text-xs font-medium tracking-wide text-muted uppercase">
+            Schedule
+          </p>
           <h2 className="mt-1 text-lg font-semibold tracking-tight">
             {isTodaySelected ? 'Today' : selectedLabel}
           </h2>
@@ -188,7 +190,10 @@ export function HomeScheduleCalendar({
                   Array.from({ length: Math.min(count, 3) }, (_, dot) => (
                     <span
                       key={dot}
-                      className={cn('h-1.5 w-1.5 rounded-full', isSelected ? 'bg-sage' : 'bg-amber')}
+                      className={cn(
+                        'h-1.5 w-1.5 rounded-full',
+                        isSelected ? 'bg-sage' : 'bg-amber',
+                      )}
                     />
                   ))
                 ) : (
@@ -204,7 +209,10 @@ export function HomeScheduleCalendar({
         {dayMeetings.length === 0 ? (
           <div className="bg-paper/40 px-4 py-10 text-center">
             <p className="text-sm text-muted">Nothing scheduled for this day.</p>
-            <Link to="/meetings" className={buttonClassName('outline', 'mt-4 inline-flex')}>
+            <Link
+              to="/meetings"
+              className={buttonClassName('outline', 'mt-4 inline-flex')}
+            >
               Open meetings
             </Link>
           </div>
@@ -232,7 +240,9 @@ export function HomeScheduleCalendar({
                     <div className="min-w-0 border-l border-line pl-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <GoogleMeetIcon size={16} />
-                        <p className="truncate text-sm font-medium text-ink">{meeting.title}</p>
+                        <p className="truncate text-sm font-medium text-ink">
+                          {meeting.title}
+                        </p>
                         {live ? (
                           <span className="rounded-md bg-sage-soft px-1.5 py-0.5 text-[10px] font-medium text-sage">
                             Now

@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bold, Heading, Italic, List, ListOrdered, Palette, TextQuote, Type, Underline } from 'lucide-react';
+import {
+  Bold,
+  Heading,
+  Italic,
+  List,
+  ListOrdered,
+  Palette,
+  TextQuote,
+  Type,
+  Underline,
+} from 'lucide-react';
 import type { NotebookEditorApi } from '@/components/daily-work/NotebookEditor';
 import { NOTE_COLOR_HEX, NOTE_COLORS, type NoteColor } from '@/lib/notebookFormat';
 import { cn } from '@/lib/cn';
@@ -97,13 +107,25 @@ export function NotebookToolbar({ disabled, getEditor }: Props) {
 
   return (
     <div className="flex flex-wrap items-center gap-0.5">
-      <ToolButton label="Heading" disabled={disabled} onClick={() => run((editor) => editor.applyPrefix('# '))}>
+      <ToolButton
+        label="Heading"
+        disabled={disabled}
+        onClick={() => run((editor) => editor.applyPrefix('# '))}
+      >
         <Heading size={16} strokeWidth={1.75} />
       </ToolButton>
-      <ToolButton label="Subheading" disabled={disabled} onClick={() => run((editor) => editor.applyPrefix('## '))}>
+      <ToolButton
+        label="Subheading"
+        disabled={disabled}
+        onClick={() => run((editor) => editor.applyPrefix('## '))}
+      >
         <Type size={16} strokeWidth={1.75} />
       </ToolButton>
-      <ToolButton label="Description" disabled={disabled} onClick={() => run((editor) => editor.applyPrefix('> '))}>
+      <ToolButton
+        label="Description"
+        disabled={disabled}
+        onClick={() => run((editor) => editor.applyPrefix('> '))}
+      >
         <TextQuote size={16} strokeWidth={1.75} />
       </ToolButton>
       <span className="mx-1 h-4 w-px bg-line" />
@@ -179,7 +201,11 @@ export function NotebookToolbar({ disabled, getEditor }: Props) {
         ) : null}
       </div>
       <span className="mx-1 h-4 w-px bg-line" />
-      <ToolButton label="Bullet list" disabled={disabled} onClick={() => run((editor) => editor.applyList('bullet'))}>
+      <ToolButton
+        label="Bullet list"
+        disabled={disabled}
+        onClick={() => run((editor) => editor.applyList('bullet'))}
+      >
         <List size={16} strokeWidth={1.75} />
       </ToolButton>
       <ToolButton

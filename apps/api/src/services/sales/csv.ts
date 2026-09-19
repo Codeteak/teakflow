@@ -20,7 +20,10 @@ export function expandReportRows(r: SalesDayReport): CsvRow[] {
   const refArr = splitField(r.paymentRef);
   const bankArr = splitField(r.bankName);
   const modesArr = splitField(r.modes);
-  const canSplit = shopsArr.length > 1 && amountsArr.length === shopsArr.length && modesArr.length === shopsArr.length;
+  const canSplit =
+    shopsArr.length > 1 &&
+    amountsArr.length === shopsArr.length &&
+    modesArr.length === shopsArr.length;
 
   if (!canSplit) {
     return [
@@ -80,13 +83,19 @@ export function reportsToCsv(rows: SalesDayReport[]) {
   const dataRows = rows.flatMap(expandReportRows);
   const lines = [
     SALES_DAILY_CSV_HEADERS.join(','),
-    ...dataRows.map((row) => SALES_DAILY_CSV_HEADERS.map((header) => csvCell(row[header] ?? '')).join(',')),
+    ...dataRows.map((row) =>
+      SALES_DAILY_CSV_HEADERS.map((header) => csvCell(row[header] ?? '')).join(','),
+    ),
   ];
   return lines.join('\n');
 }
 
 export function shopSummaryCsv(rows: SalesDayReport[], monthLabel: string) {
-  const buckets = { Cash: new Map<string, number>(), Cheque: new Map<string, number>(), UPI: new Map<string, number>() };
+  const buckets = {
+    Cash: new Map<string, number>(),
+    Cheque: new Map<string, number>(),
+    UPI: new Map<string, number>(),
+  };
   rows.forEach((report) => {
     expandReportRows(report).forEach((row) => {
       const shop = String(row['Rec. Shop'] || '');
@@ -94,7 +103,14 @@ export function shopSummaryCsv(rows: SalesDayReport[], monthLabel: string) {
       if (!shop || amt <= 0) {
         return;
       }
-      const mode = Number(row.Cash) > 0 ? 'Cash' : Number(row.Cheque) > 0 ? 'Cheque' : Number(row.UPI) > 0 ? 'UPI' : null;
+      const mode =
+        Number(row.Cash) > 0
+          ? 'Cash'
+          : Number(row.Cheque) > 0
+            ? 'Cheque'
+            : Number(row.UPI) > 0
+              ? 'UPI'
+              : null;
       if (!mode) {
         return;
       }

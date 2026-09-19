@@ -14,12 +14,7 @@ export type DailyWorkEntry = {
 };
 
 export type DailyWorkTodayState =
-  | 'LOCKED'
-  | 'OPEN'
-  | 'SUBMITTED_EDITABLE'
-  | 'SUBMITTED'
-  | 'LATE_AVAILABLE'
-  | 'MISSED';
+  'LOCKED' | 'OPEN' | 'SUBMITTED_EDITABLE' | 'SUBMITTED' | 'LATE_AVAILABLE' | 'MISSED';
 
 export type DailyWorkSettings = {
   startTime: string;

@@ -55,7 +55,9 @@ export function PresencePicker({ compact = false }: { compact?: boolean }) {
         type="button"
         className={cn(
           'flex items-center gap-1.5 rounded-md text-left transition-colors duration-160',
-          compact ? 'text-[11px] text-muted hover:text-ink' : 'w-full px-0 py-0 text-xs text-muted hover:text-ink',
+          compact
+            ? 'text-[11px] text-muted hover:text-ink'
+            : 'w-full px-0 py-0 text-xs text-muted hover:text-ink',
         )}
         aria-expanded={open}
         aria-haspopup="listbox"

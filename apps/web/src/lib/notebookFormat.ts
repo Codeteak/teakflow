@@ -67,7 +67,9 @@ export function hexToNoteColor(hex: string): NoteColor | 'ink' | null {
     : raw.startsWith('#')
       ? raw
       : `#${raw}`;
-  for (const [name, value] of Object.entries(NOTE_COLOR_HEX) as Array<[NoteColor | 'ink', string]>) {
+  for (const [name, value] of Object.entries(NOTE_COLOR_HEX) as Array<
+    [NoteColor | 'ink', string]
+  >) {
     if (value.toLowerCase() === compact) {
       return name;
     }
@@ -161,7 +163,10 @@ export function tokenizeInline(text: string): InlineToken[] {
           continue;
         }
         flush();
-        tokens.push({ type: marker.type, value: text.slice(index + marker.open.length, end) });
+        tokens.push({
+          type: marker.type,
+          value: text.slice(index + marker.open.length, end),
+        });
         index = end + marker.close.length;
         matched = true;
         break;
@@ -202,7 +207,13 @@ function stripPairedMarkers(selected: string, before: string, after: string) {
  * Toggle a wrap around the markdown selection. Expands over adjacent markers so
  * selecting already-bold visible text unwraps instead of nesting.
  */
-export function toggleWrap(text: string, start: number, end: number, before: string, after: string) {
+export function toggleWrap(
+  text: string,
+  start: number,
+  end: number,
+  before: string,
+  after: string,
+) {
   let from = Math.max(0, Math.min(start, end));
   let to = Math.min(text.length, Math.max(start, end));
 
@@ -242,12 +253,23 @@ export function toggleWrap(text: string, start: number, end: number, before: str
 }
 
 /** @deprecated use toggleWrap — kept for any leftover callers */
-export function applyWrap(text: string, start: number, end: number, before: string, after: string) {
+export function applyWrap(
+  text: string,
+  start: number,
+  end: number,
+  before: string,
+  after: string,
+) {
   return toggleWrap(text, start, end, before, after);
 }
 
 /** Apply or clear a named text color around the markdown selection. */
-export function toggleColor(text: string, start: number, end: number, color: NoteColor | 'ink') {
+export function toggleColor(
+  text: string,
+  start: number,
+  end: number,
+  color: NoteColor | 'ink',
+) {
   let from = Math.max(0, Math.min(start, end));
   let to = Math.min(text.length, Math.max(start, end));
 
@@ -292,7 +314,8 @@ export function toggleLinePrefix(text: string, start: number, prefix: string) {
   const line = text.slice(lineStart, lineEnd);
 
   if (line.startsWith(prefix)) {
-    const next = text.slice(0, lineStart) + line.slice(prefix.length) + text.slice(lineEnd);
+    const next =
+      text.slice(0, lineStart) + line.slice(prefix.length) + text.slice(lineEnd);
     return { text: next, caret: Math.max(lineStart, start - prefix.length) };
   }
 
